@@ -20,4 +20,8 @@
 # Go workspace file
 go.work
 
+# Configuração do Firebase Autht
 config/serviceAccountKey.json
+
+# Arquivos do MongoDB
+database-data
