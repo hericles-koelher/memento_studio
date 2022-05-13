@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"context"
-	"firebase.google.com/go/auth"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"firebase.google.com/go/auth"
+	"github.com/gin-gonic/gin"
 )
 
 func AuthMiddleware(ginContext *gin.Context) {

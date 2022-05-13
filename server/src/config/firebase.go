@@ -2,14 +2,15 @@ package config
 
 import (
 	"context"
+	"path/filepath"
+
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
 	"google.golang.org/api/option"
-	"path/filepath"
 )
 
 func SetupFirebase() *auth.Client {
-	serviceAccountKeyFilePath, err := filepath.Abs("./config/serviceAccountKey.json")
+	serviceAccountKeyFilePath, err := filepath.Abs("./src/config/serviceAccountKey.json")
 
 	if err != nil {
 		panic("Unable to load serviceAccountKeys.json file")
