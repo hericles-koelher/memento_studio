@@ -18,10 +18,10 @@ type MongoConfig struct {
 }
 
 var mongoConfig MongoConfig = MongoConfig{
-	hostname: utils.GetEnv("MONGO_HOSTNAME", "localhost"),
-	port:     utils.GetEnv("MONGO_PORT", "27017"),
-	username: utils.GetEnv("MONGO_USERNAME", "root"),
-	password: utils.GetEnv("MONGO_PASSWORD", "PI-UFES-2022"),
+	hostname: utils.GetEnv("MONGO_HOSTNAME"),
+	port:     utils.GetEnv("MONGO_PORT"),
+	username: utils.GetEnv("MONGO_USERNAME"),
+	password: utils.GetEnv("MONGO_PASSWORD"),
 }
 
 func ConnectToMongoDB() *mongo.Client {
