@@ -51,7 +51,7 @@ func (repository MongoUserRepository) Read(uuid string) (*models.User, error) {
 	return user, nil
 }
 
-func (repository MongoUserRepository) UpdateDecks(uuid string, decks []models.Deck) error {
+func (repository MongoUserRepository) UpdateDecks(uuid string, decks []string) error {
 	queryUpdate:= bson.M{"$set": bson.M{"decks": decks}}
 
 	_, err := repository.collection.UpdateOne(
