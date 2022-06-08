@@ -49,7 +49,7 @@ func (repository MongoDeckRepository) InsertOrUpdate(deck *models.Deck) (*models
 	_, err := repository.coll.UpdateOne(
 		context.TODO(),
 		bson.M{"_id": deck.UUID},
-		deck,
+		bson.M{"$set": deck},
 		&options.UpdateOptions{Upsert: &upsert},
 	)
 
