@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/strikesecurity/strikememongo"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"go.mongodb.org/mongo-driver/bson"
 
 	"server/src/repositories"
 )
@@ -25,22 +25,25 @@ import (
 // ----------------------------------------
 const (
 	// collection constants
-	usersCollectionName      = "users"
-	decksCollectionName      = "decks"
+	usersCollectionName          = "users"
+	decksCollectionName          = "decks"
+	decksReferenceCollectionName = "decksReference"
 )
 
 var (
 
 	// collections variables
-	usersCollection      *mongo.Collection
-	decksCollection      *mongo.Collection
+	usersCollection          *mongo.Collection
+	decksCollection          *mongo.Collection
+	decksReferenceCollection *mongo.Collection
 
 	databaseName = ""
 	mongoURI     = ""
 	database     *mongo.Database
 
-	userRepository		*repositories.MongoUserRepository
-	deckRepository 		*repositories.MongoDeckRepository
+	userRepository          *repositories.MongoUserRepository
+	deckRepository          *repositories.MongoDeckRepository
+	deckReferenceRepository *repositories.MongoDeckReferenceRepository
 )
 
 // ----------------------------
@@ -48,7 +51,7 @@ var (
 // ----------------------------
 
 func TestMain(m *testing.M) {
-	mongoServer, err := strikememongo.StartWithOptions(&strikememongo.Options{MongoVersion: "4.2.0", ShouldUseReplica: true})
+	mongoServer, err := strikememongo.StartWithOptions(&strikememongo.Options{MongoVersion: "4.2.0", ShouldUseReplica: false})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,14 +87,21 @@ func createCollections() {
 		fmt.Printf("error creating collection: %s", err.Error())
 	}
 
+	err = database.CreateCollection(context.Background(), decksReferenceCollectionName)
+	if err != nil {
+		fmt.Printf("error creating collection: %s", err.Error())
+	}
+
 	usersCollection = database.Collection(usersCollectionName)
 	decksCollection = database.Collection(decksCollectionName)
+	decksReferenceCollection = database.Collection(decksReferenceCollectionName)
 }
 
 // createRepositories creates the necessary repositories to be used during tests
 func createRepositories() {
 	userRepository = repositories.NewMongoUserRepository(usersCollection)
 	deckRepository = repositories.NewMongoDeckRepository(decksCollection)
+	deckReferenceRepository = repositories.NewMongoDeckReferenceRepository(decksReferenceCollection)
 }
 
 // startApplication initializes the engine and the necessary components for the (test) service to work
@@ -132,4 +142,5 @@ func initDB() (client *mongo.Client, ctx context.Context, err error) {
 func cleanup() {
 	usersCollection.DeleteMany(context.Background(), bson.M{})
 	decksCollection.DeleteMany(context.Background(), bson.M{})
+	decksReferenceCollection.DeleteMany(context.Background(), bson.M{})
 }
