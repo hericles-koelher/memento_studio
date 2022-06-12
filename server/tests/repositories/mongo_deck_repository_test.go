@@ -16,9 +16,10 @@ var newDeck = models.Deck{
 }
 
 func TestCreateDeck(t *testing.T) {
-	_, err := deckRepository.InsertOrUpdate(&newDeck)
+	_, wasCreated, err := deckRepository.InsertOrUpdate(&newDeck)
 
 	assert.Nil(t, err)
+	assert.True(t, wasCreated)
 }
 
 func TestReadDeck(t *testing.T) {
@@ -33,9 +34,10 @@ func TestUpdateDeck(t *testing.T) {
 	updatedDeck := newDeck
 	updatedDeck.Name = newName
 
-	deck, err := deckRepository.InsertOrUpdate(&updatedDeck)
+	deck, wasCreated, err := deckRepository.InsertOrUpdate(&updatedDeck)
 
 	assert.Nil(t, err)
+	assert.False(t, wasCreated)
 	assert.Equal(t, newName, deck.Name)
 }
 

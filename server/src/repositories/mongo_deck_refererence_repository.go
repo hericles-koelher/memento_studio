@@ -42,11 +42,11 @@ func (repository MongoDeckReferenceRepository) Delete(uuid string) error {
 	}
 }
 
-func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *models.DeckReference) (*models.DeckReference, error) {
+func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *models.DeckReference) (*models.DeckReference, bool, error) {
 	// Flag que indica que caso o baralho não exista, então ele será inserido...
 	upsert := true
 
-	_, err := repository.coll.UpdateOne(
+	updateResult, err := repository.coll.UpdateOne(
 		context.TODO(),
 		bson.M{"_id": deckReference.UUID},
 		bson.M{"$set": deckReference},
@@ -56,9 +56,9 @@ func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *mod
 	if err != nil {
 		fmt.Println("Erro de inserção...")
 
-		return nil, err
+		return nil, false, err
 	} else {
-		return deckReference, nil
+		return deckReference, updateResult.MatchedCount == 0, nil
 	}
 }
 
@@ -79,19 +79,22 @@ func (repository MongoDeckReferenceRepository) Read(uuid string) (*models.DeckRe
 	}
 }
 
-func (repository MongoDeckReferenceRepository) Search(filter interface{}) (*models.DeckReference, error) {
-	result := new(models.DeckReference)
+func (repository MongoDeckReferenceRepository) ReadAll(limit int, min int, max int, filter interface{}) ([]models.DeckReference, error) {
+	var result []models.DeckReference
 
-	err := repository.coll.FindOne(
+	cursor, err := repository.coll.Find(
 		context.TODO(),
 		filter,
-	).Decode(result)
+		options.Find().SetLimit(int64(limit)).SetMin(min).SetMax(max),
+	)
 
 	if err != nil {
 		fmt.Println("Erro de leitura...")
 
 		return nil, err
 	} else {
+		cursor.Decode(&result)
+
 		return result, nil
 	}
 }

@@ -42,11 +42,11 @@ func (repository MongoDeckRepository) Delete(uuid string) error {
 	}
 }
 
-func (repository MongoDeckRepository) InsertOrUpdate(deck *models.Deck) (*models.Deck, error) {
+func (repository MongoDeckRepository) InsertOrUpdate(deck *models.Deck) (*models.Deck, bool, error) {
 	// Flag que indica que caso o baralho não exista, então ele será inserido...
 	upsert := true
 
-	_, err := repository.coll.UpdateOne(
+	updateResult, err := repository.coll.UpdateOne(
 		context.TODO(),
 		bson.M{"_id": deck.UUID},
 		bson.M{"$set": deck},
@@ -56,9 +56,9 @@ func (repository MongoDeckRepository) InsertOrUpdate(deck *models.Deck) (*models
 	if err != nil {
 		fmt.Println("Erro de inserção...")
 
-		return nil, err
+		return nil, false, err
 	} else {
-		return deck, nil
+		return deck, updateResult.MatchedCount == 0, nil
 	}
 }
 

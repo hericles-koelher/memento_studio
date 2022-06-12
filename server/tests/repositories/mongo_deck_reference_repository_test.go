@@ -16,9 +16,10 @@ var newDeckReference = models.DeckReference{
 }
 
 func TestCreateDeckReference(t *testing.T) {
-	_, err := deckReferenceRepository.InsertOrUpdate(&newDeckReference)
+	_, wasCreated, err := deckReferenceRepository.InsertOrUpdate(&newDeckReference)
 
 	assert.Nil(t, err)
+	assert.True(t, wasCreated)
 }
 
 func TestReadDeckReference(t *testing.T) {
@@ -28,11 +29,11 @@ func TestReadDeckReference(t *testing.T) {
 	assert.Equal(t, newDeckReference.UUID, deck.UUID)
 }
 
-func TestSearchDeckReference(t *testing.T) {
-	deck, err := deckReferenceRepository.Search(bson.M{"_id": newDeckReference.UUID})
+func TestReadAllDeckReference(t *testing.T) {
+	deckList, err := deckReferenceRepository.ReadAll(1, 0, 1, bson.M{"_id": newDeckReference.UUID})
 
 	assert.Nil(t, err)
-	assert.Equal(t, newDeckReference.UUID, deck.UUID)
+	assert.NotEmpty(t, deckList)
 }
 
 func TestUpdateDeckReference(t *testing.T) {
@@ -40,9 +41,10 @@ func TestUpdateDeckReference(t *testing.T) {
 	updatedDeck := newDeckReference
 	updatedDeck.Name = newName
 
-	deck, err := deckReferenceRepository.InsertOrUpdate(&updatedDeck)
+	deck, wasCreated, err := deckReferenceRepository.InsertOrUpdate(&updatedDeck)
 
 	assert.Nil(t, err)
+	assert.False(t, wasCreated)
 	assert.Equal(t, newName, deck.Name)
 }
 
