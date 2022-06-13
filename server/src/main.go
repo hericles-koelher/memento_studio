@@ -6,6 +6,7 @@ import (
 	"server/src/config"
 	"server/src/middleware"
 	"server/src/repositories"
+	"server/src/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,8 +31,12 @@ func main() {
 	server.Use(func(context *gin.Context) {
 		context.Set("userRepository", repositories.NewMongoUserRepository(database.Collection("user")))
 	})
+	
+	serverApi := server.Group("/api") // só por convenção
+	routes.DeckRoutes(serverApi)
+	// routes.UserRoutes(serverApi)
 
-	server.GET("/hello-world", func(context *gin.Context) {
+	serverApi.GET("/hello-world", func(context *gin.Context) {
 		context.JSON(http.StatusOK, gin.H{"message": "Hello my friend"})
 	})
 
