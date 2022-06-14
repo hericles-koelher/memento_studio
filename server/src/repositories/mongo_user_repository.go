@@ -29,6 +29,7 @@ func (repository MongoUserRepository) Create(user *models.User) error {
 	// TODO: Tratar erro melhor nesse e nos seguintes
 	if err != nil {
 		fmt.Println("Erro ao criar usuário...")
+		fmt.Println(err.Error())
 		return err
 	}
 
@@ -52,7 +53,7 @@ func (repository MongoUserRepository) Read(uuid string) (*models.User, error) {
 }
 
 func (repository MongoUserRepository) UpdateDecks(uuid string, decks []string) error {
-	queryUpdate:= bson.M{"$set": bson.M{"decks": decks}}
+	queryUpdate := bson.M{"$set": bson.M{"decks": decks}}
 
 	_, err := repository.collection.UpdateOne(
 		context.TODO(),
@@ -76,8 +77,8 @@ func (repository MongoUserRepository) Delete(uuid string) (int, error) {
 
 	if err != nil {
 		fmt.Println("Erro ao deletar usuário...")
-		return 0 , err
+		return 0, err
 	}
 
-	return int(result.DeletedCount) , nil
+	return int(result.DeletedCount), nil
 }
