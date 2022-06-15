@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"server/src/errors"
 	"server/src/models"
 	"server/src/repositories"
 	"time"
@@ -23,9 +24,35 @@ func CreateUser(ginContext *gin.Context) {
 	err := userRepo.Create(&user)
 
 	if err != nil {
-		ginContext.JSON(http.StatusInternalServerError, gin.H{"report": "Um erro aconteceu"})
+		switch err.Code {
+		case errors.DuplicateKey:
+			ginContext.JSON(http.StatusForbidden, err)
+		case errors.Timeout:
+			ginContext.JSON(http.StatusRequestTimeout, err)
+		default:
+			ginContext.JSON(http.StatusInternalServerError, err)
+		}
 	} else {
 		ginContext.JSON(http.StatusCreated, user)
+	}
+}
+
+// TODO: Deletar também os decks no banco e no sistema de arquivos...
+func DeleteUser(ginContext *gin.Context) {
+	userRepo := ginContext.MustGet("userRepository").(*repositories.MongoUserRepository)
+
+	uuid := ginContext.MustGet("UUID").(string)
+
+	err := userRepo.Delete(uuid)
+
+	if err != nil {
+		if err.Code == errors.Timeout {
+			ginContext.JSON(http.StatusRequestTimeout, err)
+		} else {
+			ginContext.JSON(http.StatusInternalServerError, err)
+		}
+	} else {
+		ginContext.Status(http.StatusOK)
 	}
 }
 
@@ -36,9 +63,12 @@ func GetUser(ginContext *gin.Context) {
 
 	user, err := userRepo.Read(uuid)
 
-	// Tem que especificar o erro pra que seja possivel ter um tratamento mais adequado.
 	if err != nil {
-		ginContext.JSON(http.StatusInternalServerError, gin.H{"report": "Um erro aconteceu"})
+		if err.Code == errors.Timeout {
+			ginContext.JSON(http.StatusRequestTimeout, err)
+		} else {
+			ginContext.JSON(http.StatusInternalServerError, err)
+		}
 	} else {
 		ginContext.JSON(http.StatusOK, user)
 	}
@@ -47,6 +77,7 @@ func GetUser(ginContext *gin.Context) {
 func UserRoutes(routerGroup *gin.RouterGroup) {
 	userGroup := routerGroup.Group("/users")
 
-	userGroup.POST("", CreateUser)
+	userGroup.DELETE("", DeleteUser)
 	userGroup.GET("", GetUser)
+	userGroup.POST("", CreateUser)
 }
