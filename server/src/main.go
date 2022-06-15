@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"server/src/config"
+	"server/src/controllers"
 	"server/src/middleware"
 	"server/src/repositories"
 
@@ -21,19 +21,23 @@ func main() {
 
 	database := client.Database(databaseName)
 
+	// Estruturas que serão utilizadas por todas as rotas
 	server.Use(func(context *gin.Context) {
 		context.Set("auth", firebaseAuth)
 	})
 
+	// TODO: Decidir como modificar esse middleware aqui,
+	// pois a rota de referencias deve ser acessivel sem autenticação
 	server.Use(middleware.AuthMiddleware)
 
 	server.Use(func(context *gin.Context) {
 		context.Set("userRepository", repositories.NewMongoUserRepository(database.Collection("user")))
 	})
 
-	server.GET("/hello-world", func(context *gin.Context) {
-		context.JSON(http.StatusOK, gin.H{"message": "Hello my friend"})
-	})
+	// Determinando os endpoints
+	routerGroup := server.Group("/api")
+
+	controllers.UserRoutes(routerGroup)
 
 	ginErr := server.Run("localhost:8080")
 
