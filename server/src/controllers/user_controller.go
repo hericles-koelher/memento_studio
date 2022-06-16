@@ -4,14 +4,19 @@ import (
 	"net/http"
 	"server/src/errors"
 	"server/src/models"
-	"server/src/repositories"
+	"server/src/repositories/interfaces"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func CreateUser(ginContext *gin.Context) {
-	userRepo := ginContext.MustGet("userRepository").(*repositories.MongoUserRepository)
+	userRepo, ok := ginContext.MustGet("userRepository").(interfaces.UserRepository)
+
+	if !ok {
+		ginContext.Status(http.StatusInternalServerError)
+		return
+	}
 
 	uuid := ginContext.MustGet("UUID").(string)
 
@@ -39,7 +44,12 @@ func CreateUser(ginContext *gin.Context) {
 
 // TODO: Deletar também os decks no banco e no sistema de arquivos...
 func DeleteUser(ginContext *gin.Context) {
-	userRepo := ginContext.MustGet("userRepository").(*repositories.MongoUserRepository)
+	userRepo, ok := ginContext.MustGet("userRepository").(interfaces.UserRepository)
+
+	if !ok {
+		ginContext.Status(http.StatusInternalServerError)
+		return
+	}
 
 	uuid := ginContext.MustGet("UUID").(string)
 
@@ -57,7 +67,12 @@ func DeleteUser(ginContext *gin.Context) {
 }
 
 func GetUser(ginContext *gin.Context) {
-	userRepo := ginContext.MustGet("userRepository").(*repositories.MongoUserRepository)
+	userRepo, ok := ginContext.MustGet("userRepository").(interfaces.UserRepository)
+
+	if !ok {
+		ginContext.Status(http.StatusInternalServerError)
+		return
+	}
 
 	uuid := ginContext.MustGet("UUID").(string)
 

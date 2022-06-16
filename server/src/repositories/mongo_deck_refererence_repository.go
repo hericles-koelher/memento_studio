@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"server/src/models"
+	"server/src/repositories/interfaces"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +20,7 @@ type MongoDeckReferenceRepository struct {
 	coll *mongo.Collection
 }
 
-func NewMongoDeckReferenceRepository(collection *mongo.Collection) *MongoDeckReferenceRepository {
+func NewMongoDeckReferenceRepository(collection *mongo.Collection) interfaces.DeckReferenceRepository {
 	repository := new(MongoDeckReferenceRepository)
 
 	repository.coll = collection

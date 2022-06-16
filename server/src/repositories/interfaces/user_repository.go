@@ -1,4 +1,4 @@
-package repositories
+package interfaces
 
 import (
 	memento_studio_errors "server/src/errors"
