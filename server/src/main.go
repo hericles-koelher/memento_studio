@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"server/src/config"
 	"server/src/controllers"
-	"server/src/middleware"
 	"server/src/repositories"
 
 	"github.com/gin-gonic/gin"
@@ -26,19 +25,18 @@ func main() {
 		context.Set("auth", firebaseAuth)
 	})
 
-	// TODO: Decidir como modificar esse middleware aqui,
-	// pois a rota de referencias deve ser acessivel sem autenticação
-	server.Use(middleware.AuthMiddleware)
-
 	server.Use(func(context *gin.Context) {
 		context.Set("userRepository", repositories.NewMongoUserRepository(database.Collection("user")))
+		context.Set("deckReferenceRepository", repositories.NewMongoDeckReferenceRepository(database.Collection("deckReference")))
 	})
 
 	// Determinando os endpoints
 	routerGroup := server.Group("/api")
 
 	controllers.UserRoutes(routerGroup)
+	controllers.DeckReferenceRoutes(routerGroup)
 
+	// Iniciando o server
 	ginErr := server.Run("localhost:8080")
 
 	if ginErr != nil {

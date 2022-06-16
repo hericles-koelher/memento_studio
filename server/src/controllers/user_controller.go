@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"server/src/errors"
+	"server/src/middlewares"
 	"server/src/models"
 	"server/src/repositories/interfaces"
 	"time"
@@ -31,11 +32,11 @@ func CreateUser(ginContext *gin.Context) {
 	if err != nil {
 		switch err.Code {
 		case errors.DuplicateKey:
-			ginContext.JSON(http.StatusForbidden, err)
+			ginContext.AbortWithStatusJSON(http.StatusForbidden, err)
 		case errors.Timeout:
-			ginContext.JSON(http.StatusRequestTimeout, err)
+			ginContext.AbortWithStatusJSON(http.StatusRequestTimeout, err)
 		default:
-			ginContext.JSON(http.StatusInternalServerError, err)
+			ginContext.AbortWithStatusJSON(http.StatusInternalServerError, err)
 		}
 	} else {
 		ginContext.JSON(http.StatusCreated, user)
@@ -57,9 +58,9 @@ func DeleteUser(ginContext *gin.Context) {
 
 	if err != nil {
 		if err.Code == errors.Timeout {
-			ginContext.JSON(http.StatusRequestTimeout, err)
+			ginContext.AbortWithStatusJSON(http.StatusRequestTimeout, err)
 		} else {
-			ginContext.JSON(http.StatusInternalServerError, err)
+			ginContext.AbortWithStatusJSON(http.StatusInternalServerError, err)
 		}
 	} else {
 		ginContext.Status(http.StatusOK)
@@ -80,9 +81,9 @@ func GetUser(ginContext *gin.Context) {
 
 	if err != nil {
 		if err.Code == errors.Timeout {
-			ginContext.JSON(http.StatusRequestTimeout, err)
+			ginContext.AbortWithStatusJSON(http.StatusRequestTimeout, err)
 		} else {
-			ginContext.JSON(http.StatusInternalServerError, err)
+			ginContext.AbortWithStatusJSON(http.StatusInternalServerError, err)
 		}
 	} else {
 		ginContext.JSON(http.StatusOK, user)
@@ -91,6 +92,8 @@ func GetUser(ginContext *gin.Context) {
 
 func UserRoutes(routerGroup *gin.RouterGroup) {
 	userGroup := routerGroup.Group("/users")
+
+	userGroup.Use(middlewares.AuthMiddleware)
 
 	userGroup.DELETE("", DeleteUser)
 	userGroup.GET("", GetUser)

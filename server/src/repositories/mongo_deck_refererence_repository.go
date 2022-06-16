@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"fmt"
+	ms_errors "server/src/errors"
 	"server/src/models"
 	"server/src/repositories/interfaces"
 
@@ -35,9 +36,22 @@ func (repository MongoDeckReferenceRepository) Delete(uuid string) error {
 	)
 
 	if err != nil {
-		fmt.Println("Erro ao deletar referencia do baralho...")
-
-		return err
+		if mongo.IsNetworkError(err) {
+			return &ms_errors.RepositoryError{
+				Message: fmt.Sprintf("Erro de conexão com a base de dados.\n\n%s", err.Error()),
+				Code:    ms_errors.NetworkError,
+			}
+		} else if mongo.IsTimeout(err) {
+			return &ms_errors.RepositoryError{
+				Message: "Tempo esgotado.",
+				Code:    ms_errors.Timeout,
+			}
+		} else {
+			return &ms_errors.RepositoryError{
+				Message: fmt.Sprintf("Erro desconhecido: %s", err.Error()),
+				Code:    ms_errors.Unkown,
+			}
+		}
 	} else {
 		return nil
 	}
@@ -55,9 +69,22 @@ func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *mod
 	)
 
 	if err != nil {
-		fmt.Println("Erro de inserção...")
-
-		return nil, false, err
+		if mongo.IsNetworkError(err) {
+			return nil, false, &ms_errors.RepositoryError{
+				Message: fmt.Sprintf("Erro de conexão com a base de dados.\n\n%s", err.Error()),
+				Code:    ms_errors.NetworkError,
+			}
+		} else if mongo.IsTimeout(err) {
+			return nil, false, &ms_errors.RepositoryError{
+				Message: "Tempo esgotado.",
+				Code:    ms_errors.Timeout,
+			}
+		} else {
+			return nil, false, &ms_errors.RepositoryError{
+				Message: fmt.Sprintf("Erro desconhecido: %s", err.Error()),
+				Code:    ms_errors.Unkown,
+			}
+		}
 	} else {
 		return deckReference, updateResult.MatchedCount == 0, nil
 	}
@@ -72,27 +99,53 @@ func (repository MongoDeckReferenceRepository) Read(uuid string) (*models.DeckRe
 	).Decode(result)
 
 	if err != nil {
-		fmt.Println("Erro de leitura...")
-
-		return nil, err
+		if mongo.IsNetworkError(err) {
+			return nil, &ms_errors.RepositoryError{
+				Message: fmt.Sprintf("Erro de conexão com a base de dados.\n\n%s", err.Error()),
+				Code:    ms_errors.NetworkError,
+			}
+		} else if mongo.IsTimeout(err) {
+			return nil, &ms_errors.RepositoryError{
+				Message: "Tempo esgotado.",
+				Code:    ms_errors.Timeout,
+			}
+		} else {
+			return nil, &ms_errors.RepositoryError{
+				Message: fmt.Sprintf("Erro desconhecido: %s", err.Error()),
+				Code:    ms_errors.Unkown,
+			}
+		}
 	} else {
 		return result, nil
 	}
 }
 
-func (repository MongoDeckReferenceRepository) ReadAll(limit int, min int, max int, filter interface{}) ([]models.DeckReference, error) {
-	var result []models.DeckReference
+func (repository MongoDeckReferenceRepository) ReadAll(limit int, offset int, filter interface{}) ([]models.DeckReference, error) {
+	result := []models.DeckReference{}
 
 	cursor, err := repository.coll.Find(
 		context.TODO(),
 		filter,
-		options.Find().SetLimit(int64(limit)).SetMin(min).SetMax(max),
+		options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)),
 	)
 
 	if err != nil {
-		fmt.Println("Erro de leitura...")
-
-		return nil, err
+		if mongo.IsNetworkError(err) {
+			return nil, &ms_errors.RepositoryError{
+				Message: fmt.Sprintf("Erro de conexão com a base de dados.\n\n%s", err.Error()),
+				Code:    ms_errors.NetworkError,
+			}
+		} else if mongo.IsTimeout(err) {
+			return nil, &ms_errors.RepositoryError{
+				Message: "Tempo esgotado.",
+				Code:    ms_errors.Timeout,
+			}
+		} else {
+			return nil, &ms_errors.RepositoryError{
+				Message: fmt.Sprintf("Erro desconhecido: %s", err.Error()),
+				Code:    ms_errors.Unkown,
+			}
+		}
 	} else {
 		cursor.Decode(&result)
 
