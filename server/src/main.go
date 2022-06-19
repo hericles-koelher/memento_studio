@@ -30,6 +30,8 @@ func main() {
 
 	server.Use(func(context *gin.Context) {
 		context.Set("userRepository", repositories.NewMongoUserRepository(database.Collection("user")))
+		context.Set("deckRepository", repositories.NewMongoDeckRepository(database.Collection("deck")))
+		context.Set("deckReferenceRepository", repositories.NewMongoDeckReferenceRepository(database.Collection("deck_reference")))
 	})
 	
 	serverApi := server.Group("/api") // só por convenção
