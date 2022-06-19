@@ -38,8 +38,7 @@ func TestUpdateDecks(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	deletedCount, err := userRepository.Delete(userId)
+	err := userRepository.Delete(userId)
 
 	assert.Nil(t, err)
-	assert.Equal(t, deletedCount, 1)
 }
