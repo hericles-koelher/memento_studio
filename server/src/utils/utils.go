@@ -8,6 +8,10 @@ import (
 )
 type compareFunc func(interface{}, interface{}) bool
 
+type arrComparable interface {
+	string | int | float64
+}
+
 func GetEnv(key string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
@@ -16,10 +20,8 @@ func GetEnv(key string) string {
 	panic("Environment variable: " + key + " not found")
 }
 
-func Contains(arr interface{}, value interface{}, compare compareFunc) bool {
-	array := arr.([]interface{})
-	
-	for _, elem := range array {
+func Contains[T arrComparable](arr []T, value interface{}, compare compareFunc) bool {
+	for _, elem := range arr {
 		if compare(elem, value) {
 			return true
 		}
