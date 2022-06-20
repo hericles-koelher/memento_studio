@@ -73,11 +73,3 @@ func GetUser(ginContext *gin.Context) {
 		ginContext.JSON(http.StatusOK, user)
 	}
 }
-
-func UserRoutes(routerGroup *gin.RouterGroup) {
-	userGroup := routerGroup.Group("/users")
-
-	userGroup.DELETE("", DeleteUser)
-	userGroup.GET("", GetUser)
-	userGroup.POST("", CreateUser)
-}

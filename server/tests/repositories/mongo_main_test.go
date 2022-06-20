@@ -15,6 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"server/src/repositories"
+	"server/src/repositories/interfaces"
 )
 
 // Reference:
@@ -41,9 +42,9 @@ var (
 	mongoURI     = ""
 	database     *mongo.Database
 
-	userRepository          *repositories.MongoUserRepository
-	deckRepository          *repositories.MongoDeckRepository
-	deckReferenceRepository *repositories.MongoDeckReferenceRepository
+	userRepository          interfaces.UserRepository
+	deckRepository          interfaces.DeckRepository
+	deckReferenceRepository interfaces.DeckReferenceRepository
 )
 
 // ----------------------------

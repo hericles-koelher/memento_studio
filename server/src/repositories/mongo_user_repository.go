@@ -5,6 +5,7 @@ import (
 	"fmt"
 	ms_errors "server/src/errors"
 	"server/src/models"
+	"server/src/repositories/interfaces"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,7 +15,7 @@ type MongoUserRepository struct {
 	collection *mongo.Collection
 }
 
-func NewMongoUserRepository(collection *mongo.Collection) *MongoUserRepository {
+func NewMongoUserRepository(collection *mongo.Collection) interfaces.UserRepository {
 	repository := new(MongoUserRepository)
 	repository.collection = collection
 

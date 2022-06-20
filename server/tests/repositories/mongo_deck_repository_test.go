@@ -3,6 +3,7 @@ package repositories_tests
 import (
 	"server/src/models"
 	"testing"
+	"fmt"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -45,4 +46,20 @@ func TestDeleteDeck(t *testing.T) {
 	err := deckRepository.Delete(newDeck.UUID)
 
 	assert.Nil(t, err)
+}
+
+func TestReadAllDecks(t *testing.T) {
+	// Add decks
+	for i:=0; i <5; i++ {
+		newDeck.UUID = fmt.Sprintf("deckid%d",i)
+		deckRepository.InsertOrUpdate(&newDeck)
+	}
+
+	uuids := []string{"deckid0", "deckid1", "deckid2", "deckid3"}
+	limit, page := 10, 1
+
+	decks, err := deckRepository.ReadAll(uuids, limit, page)
+
+	assert.Nil(t, err)
+	assert.Equal(t, len(decks), len(uuids))
 }

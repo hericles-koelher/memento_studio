@@ -1,13 +1,13 @@
-package repositories
+package interfaces
 
 import (
-	memento_studio_errors "server/src/errors"
 	"server/src/models"
+	"server/src/errors"
 )
 
 type UserRepository interface {
-	Create(user *models.User) *memento_studio_errors.RepositoryError
-	Read(uuid string) (*models.User, *memento_studio_errors.RepositoryError)
-	UpdateDecks(uuid string, decks []string) *memento_studio_errors.RepositoryError
-	Delete(uuid string) *memento_studio_errors.RepositoryError
-}
+	Create(user *models.User) *errors.RepositoryError
+	Read(uuid string) (*models.User, *errors.RepositoryError)
+	UpdateDecks(uuid string, decks []string) *errors.RepositoryError
+	Delete(uuid string) *errors.RepositoryError
+} 
