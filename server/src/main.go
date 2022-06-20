@@ -22,10 +22,13 @@ func main() {
 
 	database := client.Database(databaseName)
 
+	// Estruturas que serão utilizadas por todas as rotas
 	server.Use(func(context *gin.Context) {
 		context.Set("auth", firebaseAuth)
 	})
 
+	// TODO: Decidir como modificar esse middleware aqui,
+	// pois a rota de referencias deve ser acessivel sem autenticação
 	server.Use(middleware.AuthMiddleware)
 
 	server.Use(func(context *gin.Context) {
@@ -34,13 +37,15 @@ func main() {
 		context.Set("deckReferenceRepository", repositories.NewMongoDeckReferenceRepository(database.Collection("deck_reference")))
 	})
 	
-	serverApi := server.Group("/api") // só por convenção
+	// Determinando os endpoints
+
+	serverApi := server.Group("/api")
 	routes.DeckRoutes(serverApi)
-	// routes.UserRoutes(serverApi)
+	routes.UserRoutes(serverApi)
 
 	serverApi.GET("/hello-world", func(context *gin.Context) {
 		context.JSON(http.StatusOK, gin.H{"message": "Hello my friend"})
-	})
+	})	
 
 	ginErr := server.Run("localhost:8080")
 
