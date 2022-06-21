@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 	"server/src/errors"
-	"server/src/middlewares"
 	"server/src/models"
 	"server/src/repositories/interfaces"
 	"time"
@@ -88,14 +87,4 @@ func GetUser(ginContext *gin.Context) {
 	} else {
 		ginContext.JSON(http.StatusOK, user)
 	}
-}
-
-func UserRoutes(routerGroup *gin.RouterGroup) {
-	userGroup := routerGroup.Group("/users")
-
-	userGroup.Use(middlewares.AuthMiddleware)
-
-	userGroup.DELETE("", DeleteUser)
-	userGroup.GET("", GetUser)
-	userGroup.POST("", CreateUser)
 }

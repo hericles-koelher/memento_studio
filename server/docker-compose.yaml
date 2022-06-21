@@ -1,5 +1,9 @@
 version: "3.3"
 
+# networks:
+#   memento-studio-net:
+#     external: false
+
 services:
   go-server:
     container_name: go-server
@@ -12,6 +16,8 @@ services:
     ports:
       - "8080:8080"
     network_mode: "host"
+    # networks:
+      # - memento-studio-net
 
   mongo:
     image: mongo:latest
@@ -23,5 +29,7 @@ services:
     ports:
       - "27017:27017"
     network_mode: "host"
+    # networks:
+      # - memento-studio-net
     volumes:
       - ./database-data:/data/db

@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"server/src/config"
-	"server/src/controllers"
 	"server/src/repositories"
+	"server/src/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,14 +28,20 @@ func main() {
 
 	server.Use(func(context *gin.Context) {
 		context.Set("userRepository", repositories.NewMongoUserRepository(database.Collection("user")))
-		context.Set("deckReferenceRepository", repositories.NewMongoDeckReferenceRepository(database.Collection("deckReference")))
+		context.Set("deckRepository", repositories.NewMongoDeckRepository(database.Collection("deck")))
+		context.Set("deckReferenceRepository", repositories.NewMongoDeckReferenceRepository(database.Collection("deck_reference")))
 	})
 
 	// Determinando os endpoints
-	routerGroup := server.Group("/api")
+	serverApi := server.Group("/api")
 
-	controllers.UserRoutes(routerGroup)
-	controllers.DeckReferenceRoutes(routerGroup)
+	routes.DeckRoutes(serverApi)
+	routes.UserRoutes(serverApi)
+	routes.DeckReferenceRoutes(serverApi)
+
+	serverApi.GET("/hello-world", func(context *gin.Context) {
+		context.JSON(http.StatusOK, gin.H{"message": "Hello my friend"})
+	})
 
 	// Iniciando o server
 	ginErr := server.Run("localhost:8080")

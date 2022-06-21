@@ -10,12 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func DeckReferenceRoutes(routerGroup *gin.RouterGroup) {
-	userGroup := routerGroup.Group("/decksReference")
-
-	userGroup.GET("", ReadAllDeckReference)
-}
-
 func ReadAllDeckReference(ginContext *gin.Context) {
 	deckReferenceRepo, ok := ginContext.MustGet("deckReferenceRepository").(interfaces.DeckReferenceRepository)
 

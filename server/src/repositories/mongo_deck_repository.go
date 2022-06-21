@@ -3,8 +3,11 @@ package repositories
 import (
 	"context"
 	"fmt"
+
 	"server/src/models"
+	"server/src/repositories/mongoutils"
 	"server/src/repositories/interfaces"
+	ms_errors "server/src/errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,22 +31,16 @@ func NewMongoDeckRepository(collection *mongo.Collection) interfaces.DeckReposit
 	return repository
 }
 
-func (repository MongoDeckRepository) Delete(uuid string) error {
+func (repository *MongoDeckRepository) Delete(uuid string) *ms_errors.RepositoryError {
 	_, err := repository.coll.DeleteOne(
 		context.TODO(),
 		bson.M{"UUID": uuid},
 	)
 
-	if err != nil {
-		fmt.Println("Erro ao deletar baralho...")
-
-		return err
-	} else {
-		return nil
-	}
+	return mongoutils.HandleError(err)
 }
 
-func (repository MongoDeckRepository) InsertOrUpdate(deck *models.Deck) (*models.Deck, bool, error) {
+func (repository MongoDeckRepository) InsertOrUpdate(deck *models.Deck) (*models.Deck, bool, *ms_errors.RepositoryError) {
 	// Flag que indica que caso o baralho não exista, então ele será inserido...
 	upsert := true
 
@@ -54,16 +51,10 @@ func (repository MongoDeckRepository) InsertOrUpdate(deck *models.Deck) (*models
 		&options.UpdateOptions{Upsert: &upsert},
 	)
 
-	if err != nil {
-		fmt.Println("Erro de inserção...")
-
-		return nil, false, err
-	} else {
-		return deck, updateResult.MatchedCount == 0, nil
-	}
+	return deck, updateResult.MatchedCount == 0, mongoutils.HandleError(err)
 }
 
-func (repository MongoDeckRepository) Read(uuid string) (*models.Deck, error) {
+func (repository MongoDeckRepository) Read(uuid string) (*models.Deck, *ms_errors.RepositoryError) {
 	result := new(models.Deck)
 
 	err := repository.coll.FindOne(
@@ -71,11 +62,32 @@ func (repository MongoDeckRepository) Read(uuid string) (*models.Deck, error) {
 		bson.M{"_id": uuid},
 	).Decode(result)
 
-	if err != nil {
-		fmt.Println("Erro de leitura...")
+	return result, mongoutils.HandleError(err)
+}
 
-		return nil, err
-	} else {
-		return result, nil
+func (repository MongoDeckRepository) ReadAll(uuids []string, limit, page int) ([]models.Deck, *ms_errors.RepositoryError) {
+	result := make([]models.Deck, 0)
+
+	filter := bson.M{"_id": bson.M{"$in": uuids}}
+	cursor, err := repository.coll.Find(
+		context.TODO(),
+		filter,
+		mongoutils.NewMongoPaginate(limit,page).GetPaginatedOpts())
+
+	if err != nil {
+		return result, mongoutils.HandleError(err)
 	}
+
+	for cursor.Next(context.TODO()) {
+		var deck models.Deck
+		if err := cursor.Decode(&deck); err != nil {
+			fmt.Println("Erro de leitura...")
+
+			return nil, mongoutils.HandleError(err)
+		}
+
+		result = append(result, deck)
+	 }
+
+	return result, nil
 }
