@@ -3,7 +3,11 @@ package repositories
 import (
 	"context"
 	"fmt"
+
 	"server/src/models"
+	"server/src/errors"
+	"server/src/repositories/mongoutils"
+	"server/src/repositories/interfaces"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +23,7 @@ type MongoDeckReferenceRepository struct {
 	coll *mongo.Collection
 }
 
-func NewMongoDeckReferenceRepository(collection *mongo.Collection) *MongoDeckReferenceRepository {
+func NewMongoDeckReferenceRepository(collection *mongo.Collection) interfaces.DeckReferenceRepository {
 	repository := new(MongoDeckReferenceRepository)
 
 	repository.coll = collection
@@ -27,7 +31,7 @@ func NewMongoDeckReferenceRepository(collection *mongo.Collection) *MongoDeckRef
 	return repository
 }
 
-func (repository MongoDeckReferenceRepository) Delete(uuid string) error {
+func (repository MongoDeckReferenceRepository) Delete(uuid string) *errors.RepositoryError {
 	_, err := repository.coll.DeleteOne(
 		context.TODO(),
 		bson.M{"UUID": uuid},
@@ -36,13 +40,14 @@ func (repository MongoDeckReferenceRepository) Delete(uuid string) error {
 	if err != nil {
 		fmt.Println("Erro ao deletar referencia do baralho...")
 
-		return err
+		return mongoutils.HandleError(err)
 	} else {
 		return nil
 	}
 }
 
-func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *models.DeckReference) (*models.DeckReference, bool, error) {
+func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *models.DeckReference) (*models.DeckReference, bool, *errors.RepositoryError) {
+
 	// Flag que indica que caso o baralho não exista, então ele será inserido...
 	upsert := true
 
@@ -56,13 +61,13 @@ func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *mod
 	if err != nil {
 		fmt.Println("Erro de inserção...")
 
-		return nil, false, err
+		return nil, false, mongoutils.HandleError(err)
 	} else {
 		return deckReference, updateResult.MatchedCount == 0, nil
 	}
 }
 
-func (repository MongoDeckReferenceRepository) Read(uuid string) (*models.DeckReference, error) {
+func (repository MongoDeckReferenceRepository) Read(uuid string) (*models.DeckReference, *errors.RepositoryError) {
 	result := new(models.DeckReference)
 
 	err := repository.coll.FindOne(
@@ -71,47 +76,26 @@ func (repository MongoDeckReferenceRepository) Read(uuid string) (*models.DeckRe
 	).Decode(result)
 
 	if err != nil {
-		fmt.Println("Erro de leitura...")
-
-		return nil, err
+		return nil, mongoutils.HandleError(err)
 	} else {
 		return result, nil
 	}
 }
 
-func (repository MongoDeckReferenceRepository) ReadAll(limit int, min int, max int, filter interface{}) ([]models.DeckReference, error) {
-	var result []models.DeckReference
+func (repository MongoDeckReferenceRepository) ReadAll(limit int, offset int, filter interface{}) ([]models.DeckReference, *errors.RepositoryError) {
+	result := []models.DeckReference{}
 
 	cursor, err := repository.coll.Find(
 		context.TODO(),
 		filter,
-		options.Find().SetLimit(int64(limit)).SetMin(min).SetMax(max),
+		options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)),
 	)
 
 	if err != nil {
-		fmt.Println("Erro de leitura...")
-
-		return nil, err
+		return nil, mongoutils.HandleError(err)
 	} else {
 		cursor.Decode(&result)
 
-		return result, nil
-	}
-}
-
-func (repository MongoDeckReferenceRepository) Search(filter interface{}) (*models.DeckReference, error) {
-	result := new(models.DeckReference)
-
-	err := repository.coll.FindOne(
-		context.TODO(),
-		filter,
-	).Decode(result)
-
-	if err != nil {
-		fmt.Println("Erro de leitura...")
-
-		return nil, err
-	} else {
 		return result, nil
 	}
 }

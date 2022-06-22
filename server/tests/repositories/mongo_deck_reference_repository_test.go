@@ -30,19 +30,10 @@ func TestReadDeckReference(t *testing.T) {
 }
 
 func TestReadAllDeckReference(t *testing.T) {
-	deckList, err := deckReferenceRepository.ReadAll(1, 0, 1, bson.M{
-		"_id": newDeckReference.UUID},
-	)
+	deckList, err := deckReferenceRepository.ReadAll(1, 0, bson.M{"_id": newDeckReference.UUID})
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, deckList)
-}
-
-func TestSearchDeckReference(t *testing.T) {
-	deck, err := deckReferenceRepository.Search(bson.M{"_id": newDeckReference.UUID})
-
-	assert.Nil(t, err)
-	assert.Equal(t, newDeckReference.UUID, deck.UUID)
 }
 
 func TestUpdateDeckReference(t *testing.T) {
