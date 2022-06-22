@@ -47,6 +47,7 @@ func (repository MongoDeckReferenceRepository) Delete(uuid string) *errors.Repos
 }
 
 func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *models.DeckReference) (*models.DeckReference, bool, *errors.RepositoryError) {
+
 	// Flag que indica que caso o baralho não exista, então ele será inserido...
 	upsert := true
 
