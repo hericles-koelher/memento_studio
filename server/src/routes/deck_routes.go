@@ -16,3 +16,11 @@ func DeckRoutes(routerGroup *gin.RouterGroup) {
 	deck.POST("", controllers.PostDecks)
 	deck.DELETE("/:id", controllers.DeleteDeck)
 }
+
+func DeckRoutesTest(routerGroup *gin.RouterGroup) {
+	deck := routerGroup.Group("/decks")
+
+	deck.GET("", controllers.GetDecks)
+	deck.POST("", controllers.PostDecks)
+	deck.DELETE("/:id", controllers.DeleteDeck)
+}

@@ -16,3 +16,11 @@ func UserRoutes(routerGroup *gin.RouterGroup) {
 	userGroup.GET("", controllers.GetUser)
 	userGroup.POST("", controllers.CreateUser)
 }
+
+func UserRoutesTest(routerGroup *gin.RouterGroup) {
+	userGroup := routerGroup.Group("/users")
+
+	userGroup.DELETE("", controllers.DeleteUser)
+	userGroup.GET("", controllers.GetUser)
+	userGroup.POST("", controllers.CreateUser)
+}

@@ -44,7 +44,7 @@ func setupRouter() {
 
 func setupRoutes() {
 	serverApi := router.Group("/api")
-	routes.DeckRoutes(serverApi)
+	routes.DeckRoutesTest(serverApi)
 	//routes.UserRoutes(serverApi)
 }
 
