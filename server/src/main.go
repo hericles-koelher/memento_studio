@@ -21,6 +21,8 @@ func main() {
 
 	database := client.Database(databaseName)
 
+	server.StaticFS("/image", http.Dir("public"))
+
 	// Estruturas que serão utilizadas por todas as rotas
 	server.Use(func(context *gin.Context) {
 		context.Set("auth", firebaseAuth)

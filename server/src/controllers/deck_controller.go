@@ -3,6 +3,11 @@ package controllers
 import (
 	"net/http"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"regexp"
+	"mime/multipart"
+	"encoding/json"
 
 	. "server/src/repositories/interfaces"
 	"server/src/utils"
@@ -12,6 +17,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
+type fileBytes []byte
 
 // TODO: Melhorar erros pra retornar uma mensagem e código apropriados
 
@@ -57,7 +64,7 @@ func PostDecks(context *gin.Context) {
 	deckReferenceRepository, okDeckReference := context.MustGet("deckReferenceRepository").(DeckReferenceRepository)
 	userRepository, okUser := context.MustGet("userRepository").(UserRepository)
 	if !okDeck || !okDeckReference || !okUser {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not post decks"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not post deck"})
 		return
 	}
 
@@ -65,59 +72,96 @@ func PostDecks(context *gin.Context) {
 	user := getUser(context, userRepository)
 	if user == nil { return }
 	
-	// Get decks in requisition's body
-	var decksReq = []models.Deck{}
-	if err := context.BindJSON(&decksReq); err!=nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not post decks"})
-		return
-	 }
+	// Get deck in requisition
+	reader, err := context.Request.MultipartReader()
+	if err != nil {
+        context.JSON(http.StatusInternalServerError, err.Error())
+        return
+    }
+
+	deck, deckCover, cardsFront, cardsBack, err := getDeckWithImages(reader)
+	if err != nil {
+        context.JSON(http.StatusBadRequest, err.Error())
+        return
+    }
+
+	// Fill deck
+	deckImgName := "deck-" + deck.UUID + ".jpeg"
+	filepath, err := utils.UploadFile(deckCover, deckImgName)
+	if err != nil {
+        context.JSON(http.StatusInternalServerError, err.Error())
+        return
+    }
+	deck.Cover = filepath
+
+	if deck.UUID == "" {
+		deck.UUID = uuid.New().String()
+	}
 	
-	var deckIds = user.Decks
-	for _,deck := range(decksReq) {
-		// Insert or update deck
-		if deck.UUID == "" {
-			deck.UUID = uuid.New().String()
+	cardsUpdated := []models.Card{}
+	for idx, card := range deck.Cards {
+		if card.UUID == "" {
+			card.UUID = uuid.New().String()
 		}
-		_, _, err := deckRepository.InsertOrUpdate(&deck)
+
+		// Save images and set the filepath for its images
+		frontName := "card-front" + deck.UUID + "-" + card.UUID + ".jpeg"
+		filepathFront, errFront := utils.UploadFile(cardsFront[idx], frontName)
+
+		backName := "card-back" + deck.UUID + "-" + card.UUID + ".jpeg"
+		filepathBack, errBack := utils.UploadFile(cardsBack[idx], backName)
+
+		if errFront != nil || errBack != nil {
+			context.JSON(http.StatusInternalServerError, err.Error())
+        	return
+		}
+
+		card.FrontImagePath = filepathFront
+		card.BackImagePath = filepathBack
+
+		cardsUpdated = append(cardsUpdated, card)
+	}
+
+	deck.Cards = cardsUpdated
+	_, _, errRepo := deckRepository.InsertOrUpdate(deck)
+	if err != nil {
+		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		return
+	}
+
+	// Insert or update deckReference
+	if deck.IsPublic {
+		var deckReference = new(models.DeckReference)
+		deckReference.Cover = deck.Cover
+		deckReference.Description = deck.Description
+		deckReference.Name = deck.Name
+		deckReference.NumberOfCards = len(deck.Cards)
+		deckReference.Tags = deck.Tags
+		deckReference.UUID = deck.UUID
+
+		_, _, errRepo = deckReferenceRepository.InsertOrUpdate(deckReference)
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not post decks"})
+			context.JSON(handleRepositoryError(errRepo), errRepo.Error())
 			return
-		}
-
-		// Insert or update deckReference
-		if deck.IsPublic {
-			var deckReference = new(models.DeckReference)
-			deckReference.Cover = deck.Cover
-			deckReference.Description = deck.Description
-			deckReference.Name = deck.Name
-			deckReference.NumberOfCards = len(deck.Cards)
-			deckReference.Tags = deck.Tags
-			deckReference.UUID = deck.UUID
-
-			_, _, err := deckReferenceRepository.InsertOrUpdate(deckReference)
-			if err != nil {
-				context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not post decks"})
-				return
-			}
-		}
-
-		// Update user's decks ids
-		if !utils.Contains(deckIds, deck.UUID, 
-			func (id1, id2 interface{}) bool {
-				return id1.(string) == id2.(string)
-			}) {
-			deckIds = append(deckIds, deck.UUID)
 		}
 	}
 
-	// Update user decks
-	errRepo := userRepository.UpdateDecks(user.UUID, deckIds)
+	// Update user's decks ids
+	deckIds := user.Decks
+	if !utils.Contains(deckIds, deck.UUID, 
+		func (id1, id2 interface{}) bool {
+			return id1.(string) == id2.(string)
+		}) {
+		deckIds = append(deckIds, deck.UUID)
+	}
+
+	errRepo = userRepository.UpdateDecks(user.UUID, deckIds)
 	if errRepo != nil {
 		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"userDecks": deckIds})
+	context.JSON(http.StatusOK, deck)
 }
 
 func GetDecks(context *gin.Context) {
@@ -159,7 +203,7 @@ func GetDecks(context *gin.Context) {
 }
 
 
-// Aux functions
+// --------------------- Aux functions --------------------- //
 
 func getUser(context *gin.Context, userRepository UserRepository) *models.User {
 	userContextId, _ := context.Get("UUID")
@@ -183,4 +227,55 @@ func handleRepositoryError(err *errors.RepositoryError) int {
 	default:
 		return http.StatusInternalServerError
 	}
+}
+
+func getDeckWithImages(reader *multipart.Reader) (*models.Deck, fileBytes, []fileBytes, []fileBytes, error) {
+	var deck 			models.Deck
+	var deckCover 	 	fileBytes
+	cardFrontImages := 	[]fileBytes{}
+	cardBackImages 	:= 	[]fileBytes{}
+
+	var regexCardFront = regexp.MustCompile("card-front-([0-9]+)")
+	var regexCardBack = regexp.MustCompile("card-back-([0-9]+)")
+
+	part, err := reader.NextPart()
+	for ; err != io.EOF; part, err = reader.NextPart() {
+		if err != nil {
+			return nil, nil, nil, nil, err
+		}
+		
+		switch name := part.FormName(); {
+		case name == "deck":
+			jsonDecoder := json.NewDecoder(part)
+            err = jsonDecoder.Decode(&deck)
+
+			if err != nil {
+				return nil, nil, nil, nil, err
+			}
+		case name == "deck-image":
+			deckCover, err = ioutil.ReadAll(part)
+			part.Close()
+
+		case regexCardFront.MatchString(name):
+			var bytesImg []byte
+			bytesImg, err = ioutil.ReadAll(part)
+			part.Close()
+
+			cardFrontImages = append(cardFrontImages, bytesImg)
+
+		case regexCardBack.MatchString(name):
+			var bytesImg []byte
+			bytesImg, err = ioutil.ReadAll(part)
+			part.Close()
+
+			cardBackImages = append(cardBackImages, bytesImg)
+		}
+
+		if err != nil {
+			fmt.Println("vish aqui")
+			return nil, nil, nil, nil, err
+		}
+	}
+
+	return &deck, deckCover, cardFrontImages, cardBackImages, nil
 }
