@@ -94,10 +94,26 @@ func PostDecks(context *gin.Context) {
     }
 	deck.Cover = filepath
 
+	// Check if deck is new or if user owns it
+	var isNewDeck bool
 	if deck.UUID == "" {
+		isNewDeck = true
 		deck.UUID = uuid.New().String()
+	} else {
+		userHasDeck := !utils.Contains(user.Decks, deck.UUID, 
+			func (id1, id2 interface{}) bool {
+				return id1.(string) == id2.(string)
+			})
+		
+		if !userHasDeck {
+			context.JSON(http.StatusUnauthorized, "User has no permission to update this deck")
+			return
+		}
+
+		isNewDeck = false
 	}
 	
+	// Update cards
 	cardsUpdated := []models.Card{}
 	for idx, card := range deck.Cards {
 		if card.UUID == "" {
@@ -146,12 +162,9 @@ func PostDecks(context *gin.Context) {
 		}
 	}
 
-	// Update user's decks ids
+	// Update user's decks ids if is a new deck
 	deckIds := user.Decks
-	if !utils.Contains(deckIds, deck.UUID, 
-		func (id1, id2 interface{}) bool {
-			return id1.(string) == id2.(string)
-		}) {
+	if isNewDeck {
 		deckIds = append(deckIds, deck.UUID)
 	}
 
