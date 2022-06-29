@@ -199,6 +199,13 @@ func GetDecks(context *gin.Context) {
 	}
 
 	// Get decks from db
+	if reqBody["limit"] == nil {
+		reqBody["limit"] = 30
+	}
+	if reqBody["page"] == nil {
+		reqBody["page"] = 1
+	}
+
 	limit, okLim := reqBody["limit"].(float64)
 	page, okPage := reqBody["page"].(float64)
 	if !okLim || !okPage {
