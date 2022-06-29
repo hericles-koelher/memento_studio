@@ -82,20 +82,29 @@ func (repository MongoDeckReferenceRepository) Read(uuid string) (*models.DeckRe
 	}
 }
 
-func (repository MongoDeckReferenceRepository) ReadAll(limit int, offset int, filter interface{}) ([]models.DeckReference, *errors.RepositoryError) {
+func (repository MongoDeckReferenceRepository) ReadAll(limit, page int, filter interface{}) ([]models.DeckReference, *errors.RepositoryError) {
 	result := []models.DeckReference{}
 
 	cursor, err := repository.coll.Find(
 		context.TODO(),
 		filter,
-		options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)),
+		mongoutils.NewMongoPaginate(limit,page).GetPaginatedOpts(),
 	)
 
 	if err != nil {
 		return nil, mongoutils.HandleError(err)
-	} else {
-		cursor.Decode(&result)
-
-		return result, nil
 	}
+
+	for cursor.Next(context.TODO()) {
+		var deckRef models.DeckReference
+		if err := cursor.Decode(&deckRef); err != nil {
+			fmt.Println("Erro de leitura...")
+
+			return nil, mongoutils.HandleError(err)
+		}
+
+		result = append(result, deckRef)
+	}
+
+	return result, nil
 }

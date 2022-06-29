@@ -1,11 +1,10 @@
 package controllers
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"server/src/repositories/interfaces"
 	"strconv"
+	"server/src/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +18,7 @@ func ReadAllDeckReference(ginContext *gin.Context) {
 	}
 
 	limitString := ginContext.Query("limit")
-	offsetString := ginContext.Query("offset")
+	pageString := ginContext.Query("page")
 
 	if limitString == "" {
 		limitString = "30"
@@ -32,29 +31,27 @@ func ReadAllDeckReference(ginContext *gin.Context) {
 		return
 	}
 
-	if offsetString == "" {
-		offsetString = "0"
+	if pageString == "" {
+		pageString = "1"
 	}
 
-	offset, offsetErr := strconv.Atoi(offsetString)
+	page, pageErr := strconv.Atoi(pageString)
 
-	if offsetErr != nil || offset < 0 {
-		ginContext.AbortWithStatusJSON(http.StatusBadRequest, "Offset inválido, por favor informe um número inteiro maior que 0")
+	if pageErr != nil || page < 1 {
+		ginContext.AbortWithStatusJSON(http.StatusBadRequest, "Página inválida, por favor informe um número inteiro maior que 1")
 		return
 	}
 
 	var filter map[string]interface{}
-
-	buffer, _ := ioutil.ReadAll(ginContext.Request.Body)
-
-	if len(buffer) > 0 {
-		if bodyUnmarshalErr := json.Unmarshal(buffer, &filter); bodyUnmarshalErr != nil {
-			ginContext.AbortWithStatusJSON(http.StatusBadRequest, bodyUnmarshalErr)
+	if ginContext.Request.Body != nil {
+		err := utils.GetRequestBody(ginContext.Request.Body, &filter)
+		if err != nil {
+			ginContext.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 			return
 		}
 	}
 
-	decksReference, decksReferenceErr := deckReferenceRepo.ReadAll(limit, offset, filter)
+	decksReference, decksReferenceErr := deckReferenceRepo.ReadAll(limit, page, filter)
 
 	if decksReferenceErr != nil {
 		ginContext.JSON(http.StatusInternalServerError, decksReferenceErr)

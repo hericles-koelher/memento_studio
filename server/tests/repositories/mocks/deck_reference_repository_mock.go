@@ -7,10 +7,12 @@ import (
 )
 
 type DeckReferenceRepositoryMock struct {
+	DeckReferences		[]models.DeckReference
 }
 
 func NewDeckReferenceRepositoryMock() interfaces.DeckReferenceRepository {
 	repository := new(DeckReferenceRepositoryMock)
+	repository.DeckReferences = []models.DeckReference{}
 
 	return repository
 }
@@ -28,5 +30,5 @@ func (repository DeckReferenceRepositoryMock) Read(uuid string) (*models.DeckRef
 }
 
 func (repository DeckReferenceRepositoryMock) ReadAll(limit int, offset int, filter interface{}) ([]models.DeckReference, *errors.RepositoryError) {
-	return []models.DeckReference{}, nil
+	return repository.DeckReferences, nil
 }
