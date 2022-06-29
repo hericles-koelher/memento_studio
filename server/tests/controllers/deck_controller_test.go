@@ -17,6 +17,8 @@ import (
 )
 
 func TestDeleteDeck(t *testing.T) {
+	responseRecorder.Body.Reset()
+
 	request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/decks/%s", deckId), nil)
 	if err != nil {
 		t.FailNow()
@@ -28,6 +30,8 @@ func TestDeleteDeck(t *testing.T) {
 }
 
 func TestPostDecks(t *testing.T) {
+	responseRecorder.Body.Reset()
+
 	cards := []models.Card{
 		models.Card {
 			FrontText: 	"Texto da frente do card 1",
@@ -100,6 +104,8 @@ func TestPostDecks(t *testing.T) {
 }
 
 func TestGetDecks(t *testing.T) {
+	responseRecorder.Body.Reset()
+	
 	body := map[string]float64 {
 		"limit": 10,
 		"page": 1,

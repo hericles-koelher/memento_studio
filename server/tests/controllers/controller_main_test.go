@@ -8,6 +8,7 @@ import (
 
 	"server/tests/repositories/mocks"
 	"server/src/routes"
+	"server/src/repositories/interfaces"
 )
 
 const (
@@ -19,6 +20,10 @@ var (
 	ginContext 			*gin.Context
 	router				*gin.Engine
 	responseRecorder	*httptest.ResponseRecorder
+
+	userRepository				interfaces.UserRepository
+	deckRepository				interfaces.DeckRepository
+	deckReferenceRepository		interfaces.DeckReferenceRepository
 )
 
 // ----------------------------
@@ -45,6 +50,7 @@ func setupRouter() {
 func setupRoutes() {
 	serverApi := router.Group("/api")
 	routes.DeckRoutesTest(serverApi)
+	routes.DeckReferenceRoutes(serverApi)
 	//routes.UserRoutes(serverApi)
 }
 
@@ -55,9 +61,13 @@ func setupUser() {
 }
 
 func setupRepositories() {
+	userRepository = repositories_mock.NewUserRepositoryMock(userId, []string{deckId})
+	deckRepository = repositories_mock.NewDeckRepositoryMock()
+	deckReferenceRepository = repositories_mock.NewDeckReferenceRepositoryMock()
+
 	router.Use(func (context *gin.Context) {
-		context.Set("userRepository", repositories_mock.NewUserRepositoryMock(userId, []string{deckId}))
-		context.Set("deckRepository", repositories_mock.NewDeckRepositoryMock())
-		context.Set("deckReferenceRepository", repositories_mock.NewDeckReferenceRepositoryMock())
+		context.Set("userRepository", userRepository)
+		context.Set("deckRepository", deckRepository)
+		context.Set("deckReferenceRepository", deckReferenceRepository)
 	})
 }

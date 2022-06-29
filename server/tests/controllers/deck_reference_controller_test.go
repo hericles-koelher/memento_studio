@@ -1,27 +1,44 @@
 package controllers_tests
 
 import (
+	"io"
 	"testing"
-	// "fmt"
-	// "bytes"
 	"net/http"
-	// "encoding/json"
+	"encoding/json"
 
-	// "server/src/models"
+	"server/src/models"
+	"server/tests/repositories/mocks"
 	
 	"github.com/stretchr/testify/assert"
-	
-	// "io"
 )
 
 func TestReadAllDeckReference(t *testing.T) {
-	request, err := http.NewRequest(http.MethodGet, "/decksReference", nil)
+	responseRecorder.Body.Reset()
+
+	repo, _ := deckReferenceRepository.(*repositories_mock.DeckReferenceRepositoryMock)
+
+	repo.DeckReferences = []models.DeckReference{
+		models.DeckReference{
+			Description: 	"Batatinha quando nasce espalha rama ou esparrama?",
+			Name:          	"Batata",
+			NumberOfCards: 	24,
+			Author:         "Geraldinho",
+			UUID:			"testtest123",
+		},
+	}
+
+	request, err := http.NewRequest(http.MethodGet, "/api/decksReference", nil)
 	if err != nil {
 		t.FailNow()
 	}
 	
 	router.ServeHTTP(responseRecorder, request)
 
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
-}
+	var decks []map[string]interface{}
+	response, _ := io.ReadAll(responseRecorder.Body)
+	err = json.Unmarshal(response, &decks)
 
+	assert.Equal(t, http.StatusOK, responseRecorder.Code)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, decks)
+}
