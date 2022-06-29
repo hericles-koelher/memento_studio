@@ -51,7 +51,7 @@ func setupRoutes() {
 	serverApi := router.Group("/api")
 	routes.DeckRoutesTest(serverApi)
 	routes.DeckReferenceRoutes(serverApi)
-	//routes.UserRoutes(serverApi)
+	routes.UserRoutesTest(serverApi)
 }
 
 func setupUser() {
