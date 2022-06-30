@@ -7,11 +7,12 @@ import (
 )
 
 type DeckRepositoryMock struct {
-	// Colocar aqui alguma variavel de controle, por exemplo se devia falhar com erro X
+	Decks map[string]*models.Deck
 }
 
 func NewDeckRepositoryMock() interfaces.DeckRepository {
 	repository := new(DeckRepositoryMock)
+	repository.Decks = map[string]*models.Deck{}
 
 	return repository
 }
@@ -21,17 +22,12 @@ func (repository DeckRepositoryMock) Delete(uuid string) *ms_errors.RepositoryEr
 }
 
 func (repository DeckRepositoryMock) InsertOrUpdate(deck *models.Deck) (*models.Deck, bool, *ms_errors.RepositoryError) {
+	repository.Decks[deck.UUID] = deck
 	return deck, true, nil
 }
 
 func (repository DeckRepositoryMock) Read(uuid string) (*models.Deck, *ms_errors.RepositoryError) {
-	return &models.Deck{
-		Name:             "Test Deck",
-		Cards:            []models.Card{},
-		LastModification: 1654638124,
-		IsPublic:         false,
-		UUID:             uuid,
-	}, nil
+	return repository.Decks[uuid], nil
 }
 
 func (repository DeckRepositoryMock) ReadAll(uuids []string, limit, page int) ([]models.Deck, *ms_errors.RepositoryError) {
