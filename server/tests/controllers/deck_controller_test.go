@@ -171,3 +171,26 @@ func TestCopyPublicDeck(t *testing.T) {
 	assert.NotEqual(t, deckCopy.UUID, publicDeck.UUID, "decks UUIDs are the same")
 	assert.NotEqual(t, cardOfCopy.UUID, publicCardId, "card UUID is the same")
 }
+
+func TestCopyPrivateDeck(t *testing.T) {
+	setup()
+
+	privateDeck := models.Deck {
+		UUID: 			"abctest",
+		Name: 			"Baralho privado",
+		Description: 	"Baralho privado que não vai ser copiado",
+		IsPublic: 		false,
+	}
+
+	repo, _ := deckRepository.(*repositories_mock.DeckRepositoryMock)
+	repo.Decks[privateDeck.UUID] = &privateDeck
+
+	request, err := http.NewRequest(http.MethodPost, "/api/decks/copy/" + string(privateDeck.UUID), nil)
+	if err != nil {
+		t.FailNow()
+	}
+
+	router.ServeHTTP(responseRecorder, request)
+
+	assert.Equal(t, http.StatusForbidden, responseRecorder.Code, "Error status code")
+}

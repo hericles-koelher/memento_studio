@@ -13,7 +13,7 @@ import (
 )
 
 func TestReadAllDeckReference(t *testing.T) {
-	responseRecorder.Body.Reset()
+	setup()
 
 	repo, _ := deckReferenceRepository.(*repositories_mock.DeckReferenceRepositoryMock)
 
