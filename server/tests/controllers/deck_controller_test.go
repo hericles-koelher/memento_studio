@@ -52,6 +52,7 @@ func TestPostDecks(t *testing.T) {
 			LastModification: 1654638124,
 			IsPublic:         false,
 			UUID:             "testdeckid1",
+			Tags:			  []string{},
 		}
 	
 	// Create form
@@ -69,22 +70,22 @@ func TestPostDecks(t *testing.T) {
 
 	absPath, _ = filepath.Abs("../imagesfortest/laika.jpg")
 	imageBytes, err = os.ReadFile(absPath)
-	formField, _ = w.CreateFormField("card-front-1")
+	formField, _ = w.CreateFormField("card-front-testecardid1")
 	formField.Write(imageBytes)
 	
 	absPath, _ = filepath.Abs("../imagesfortest/sushiraldo.jpg")
 	imageBytes, err = os.ReadFile(absPath)
-	formField, _ = w.CreateFormField("card-front-2")
+	formField, _ = w.CreateFormField("card-front-testecardid2")
 	formField.Write(imageBytes)
 	
 	absPath, _ = filepath.Abs("../imagesfortest/tirinha.jpg")
 	imageBytes, err = os.ReadFile(absPath)
-	formField, _ = w.CreateFormField("card-back-1")
+	formField, _ = w.CreateFormField("card-back-testecardid1")
 	formField.Write(imageBytes)
 	
 	absPath, _ = filepath.Abs("../imagesfortest/meme.jpg")
 	imageBytes, err = os.ReadFile(absPath)
-	formField, _ = w.CreateFormField("card-back-2")
+	formField, _ = w.CreateFormField("card-back-testecardid2")
 	formField.Write(imageBytes)
 
 	w.Close()
@@ -193,4 +194,139 @@ func TestCopyPrivateDeck(t *testing.T) {
 	router.ServeHTTP(responseRecorder, request)
 
 	assert.Equal(t, http.StatusForbidden, responseRecorder.Code, "Error status code")
+}
+
+func TestPutDeckAddingImage(t *testing.T) {
+	setup()
+
+	card := models.Card{
+		UUID: 		"batata",
+		FrontText: 	"Frente card",
+		BackText:	"Costas card",
+	}
+
+	deck := models.Deck {
+		UUID: 				deckId,
+		Name: 				"Titulo antigo",
+		Description: 		"Descrição antiga",
+		Cards: 				[]models.Card{card},
+	}
+	
+	// Add deck in repository
+	repo, _ := deckRepository.(*repositories_mock.DeckRepositoryMock)
+	repo.Decks[deck.UUID] = &deck
+
+	// Updates in deck: front image for card and deck cover
+	updates := map[string]interface{} {
+		"name": 		"Novo título",
+		"description":	"Esse baralho é demais",
+	}
+
+	// Create form
+	bodyBuffer := new(bytes.Buffer)
+	w := multipart.NewWriter(bodyBuffer)
+	
+	deckBytes, _ := json.Marshal(updates)
+	formField, _ := w.CreateFormField("deck")
+	formField.Write(deckBytes)
+
+	absPath, _ := filepath.Abs("../imagesfortest/geraldin.jpg")
+	imageBytes, _ := os.ReadFile(absPath)
+	formField, _ = w.CreateFormField("deck-image")
+	formField.Write(imageBytes)
+
+	absPath, _ = filepath.Abs("../imagesfortest/sushiraldo.jpg")
+	imageBytes, _ = os.ReadFile(absPath)
+	formField, _ = w.CreateFormField("card-front-" + card.UUID)
+	formField.Write(imageBytes)
+
+	w.Close()
+
+	request, err := http.NewRequest(http.MethodPut, "/api/decks/" + deck.UUID , bodyBuffer)
+	request.Header.Add("Content-Type", w.FormDataContentType())
+
+	if err != nil {
+		t.FailNow()
+	}
+	
+	router.ServeHTTP(responseRecorder, request)
+
+	assert.Equal(t, http.StatusOK, responseRecorder.Code)
+
+	var responseDeck *models.Deck
+	response, _ := io.ReadAll(responseRecorder.Body)
+	err = json.Unmarshal(response, &responseDeck)
+	if err != nil {
+		t.FailNow()
+	}
+
+	assert.Equal(t, responseDeck.Name, updates["name"])
+	assert.Equal(t, responseDeck.Description, updates["description"])
+	assert.NotEmpty(t, responseDeck.Cover)
+	assert.NotEmpty(t, responseDeck.Cards[0].FrontImagePath)
+}
+
+func TestPutDeckRemovingImage(t *testing.T) {
+	setup()
+
+	card := models.Card{
+		UUID: 			"batata",
+		FrontText: 		"Frente card",
+		BackText:		"Costas card",
+		FrontImagePath:		"http://localhost:8080/image/card-fronttestdeckid-batata.jpeg",
+	}
+
+	deck := models.Deck {
+		UUID: 				deckId,
+		Name: 				"Titulo antigo",
+		Description: 		"Descrição antiga",
+		Cards: 				[]models.Card{card},
+		Cover:				"http://localhost:8080/image/deck-testdeckid.jpeg",
+	}
+	
+	// Add deck in repository
+	repo, _ := deckRepository.(*repositories_mock.DeckRepositoryMock)
+	repo.Decks[deck.UUID] = &deck
+
+	// Updates in deck: front image for card and deck cover
+	updates := map[string]interface{} {
+		"cover":		nil,
+	}
+
+	// Create form
+	bodyBuffer := new(bytes.Buffer)
+	w := multipart.NewWriter(bodyBuffer)
+	
+	deckBytes, _ := json.Marshal(updates)
+	formField, _ := w.CreateFormField("deck")
+	formField.Write(deckBytes)
+
+	formField, _ = w.CreateFormField("deck-image")
+	formField.Write(nil)
+
+	formField, _ = w.CreateFormField("card-front-" + card.UUID)
+	formField.Write(nil)
+
+	w.Close()
+
+	request, err := http.NewRequest(http.MethodPut, "/api/decks/" + deck.UUID , bodyBuffer)
+	request.Header.Add("Content-Type", w.FormDataContentType())
+
+	if err != nil {
+		t.FailNow()
+	}
+	
+	router.ServeHTTP(responseRecorder, request)
+
+	assert.Equal(t, http.StatusOK, responseRecorder.Code)
+
+	var responseDeck *models.Deck
+	response, _ := io.ReadAll(responseRecorder.Body)
+	err = json.Unmarshal(response, &responseDeck)
+	if err != nil {
+		t.FailNow()
+	}
+
+	assert.Empty(t, responseDeck.Cover)
+	assert.Empty(t, responseDeck.Cards[0].FrontImagePath)
 }

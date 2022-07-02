@@ -24,7 +24,7 @@ func UploadFile(file []byte, filename string) (string, error) {
 }
 
 func RemoveFile(onlinePath string) error {
-	filename := strings.Replace(onlinePath, "http://localhost:8080/image/", "", -1)
+	filename := strings.Replace(onlinePath, ImagesRoute + "/", "", -1)
 	absPath, _ := filepath.Abs(ImagesDir + filename)
 
 	err := os.Remove(absPath)
