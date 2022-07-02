@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:html';
 
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,8 +9,6 @@ import '../../entities.dart' as ms_entities;
 
 part 'auth_state.dart';
 
-enum CredentialProvider { facebook, google }
-
 class AuthCubit extends Cubit<AuthState> {
   final FirebaseAuth _auth;
   StreamSubscription? _userStreamSubscription;
@@ -20,6 +17,22 @@ class AuthCubit extends Cubit<AuthState> {
       : _auth = FirebaseAuth.instance,
         super(Unknown()) {
     _listenToUserStream();
+  }
+
+  ms_entities.CredentialProvider? _getUserProvider() {
+    String? providerId = _auth.currentUser?.providerData.first.providerId;
+
+    if (EmailAuthProvider.PROVIDER_ID.compareTo(providerId ?? '') == 0) {
+      return ms_entities.CredentialProvider.email;
+    } else if (FacebookAuthProvider.PROVIDER_ID.compareTo(providerId ?? '') ==
+        0) {
+      return ms_entities.CredentialProvider.facebook;
+    } else if (GoogleAuthProvider.PROVIDER_ID.compareTo(providerId ?? '') ==
+        0) {
+      return ms_entities.CredentialProvider.google;
+    } else {
+      return null;
+    }
   }
 
   MSAuthException _handleFirebaseAuthException(FirebaseAuthException e) {
@@ -44,25 +57,31 @@ class AuthCubit extends Cubit<AuthState> {
           message: "E-mail e/ou senha incorreta",
           code: MSAuthExceptionCode.wrongPassword,
         );
-
       case "account-exists-with-different-credential":
         return MSAuthException(
           message: "Uma conta com este e-mail já existe",
           code: MSAuthExceptionCode.accountExistsWithDifferentCredential,
         );
-
       case "email-already-in-use":
         return MSAuthException(
           message: "Este e-mail já está em uso",
           code: MSAuthExceptionCode.emailAlreadyInUse,
         );
-
       case "weak-password":
         return MSAuthException(
           message: "A senha apresentada é muito fraca",
           code: MSAuthExceptionCode.weakPassword,
         );
-
+      case "requires-recent-login":
+        return MSAuthException(
+          message: "Por favor, faça login novamente antes de efetuar esta ação",
+          code: MSAuthExceptionCode.requiresRecentLogin,
+        );
+      case "user-mismatch":
+        return MSAuthException(
+          message: "Credenciais não correspondem com a conta em uso",
+          code: MSAuthExceptionCode.userMismatch,
+        );
       default:
         return MSAuthException(
           message: "Erro desconhecido: ${e.message}",
@@ -80,6 +99,7 @@ class AuthCubit extends Cubit<AuthState> {
               id: user.uid,
               name: user.displayName,
               token: await user.getIdToken(),
+              provider: _getUserProvider()!,
             ),
           ),
         );
@@ -96,7 +116,7 @@ class AuthCubit extends Cubit<AuthState> {
     return super.close();
   }
 
-  Future<void> logout() async {
+  Future<void> signOut() async {
     if (state is Autheticated) {
       emit(Loading());
 
@@ -112,6 +132,7 @@ class AuthCubit extends Cubit<AuthState> {
             name: _auth.currentUser!.displayName,
             id: _auth.currentUser!.uid,
             token: await _auth.currentUser!.getIdToken(),
+            provider: _getUserProvider()!,
           ),
         ),
       );
@@ -135,7 +156,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> signInWithCredential({
-    required CredentialProvider provider,
+    required ms_entities.CredentialProvider provider,
     required String accessToken,
     String? idToken,
   }) async {
@@ -146,15 +167,25 @@ class AuthCubit extends Cubit<AuthState> {
         AuthCredential credential;
 
         switch (provider) {
-          case CredentialProvider.facebook:
+          case ms_entities.CredentialProvider.facebook:
             credential = FacebookAuthProvider.credential(accessToken);
             break;
-          case CredentialProvider.google:
+          case ms_entities.CredentialProvider.google:
             credential = GoogleAuthProvider.credential(
               accessToken: accessToken,
               idToken: idToken,
             );
             break;
+          case ms_entities.CredentialProvider.email:
+            emit(
+              AuthenticationError(
+                MSAuthException(
+                  message: "Provedor de credenciais inválido para este método",
+                  code: MSAuthExceptionCode.unknown,
+                ),
+              ),
+            );
+            return;
         }
 
         await _auth.signInWithCredential(credential);
@@ -179,6 +210,53 @@ class AuthCubit extends Cubit<AuthState> {
         await _auth.currentUser!.updateDisplayName(name);
       } on FirebaseAuthException catch (e) {
         emit(AuthenticationError(_handleFirebaseAuthException(e)));
+      }
+    }
+  }
+
+  Future<void> deleteAccount({
+    required ms_entities.CredentialProvider provider,
+    String? email,
+    String? password,
+    String? accessToken,
+    String? idToken,
+  }) async {
+    if (state is Autheticated) {
+      // TODO: Verificar se os dados informados batem com o tipo de provider informado.
+
+      try {
+        var currentUser = _auth.currentUser!;
+
+        AuthCredential credential;
+
+        switch (provider) {
+          case ms_entities.CredentialProvider.email:
+            credential = EmailAuthProvider.credential(
+              email: email!,
+              password: password!,
+            );
+            break;
+          case ms_entities.CredentialProvider.facebook:
+            credential = FacebookAuthProvider.credential(accessToken!);
+            break;
+          case ms_entities.CredentialProvider.google:
+            credential = GoogleAuthProvider.credential(
+              accessToken: accessToken,
+              idToken: idToken,
+            );
+            break;
+        }
+
+        await currentUser.reauthenticateWithCredential(credential);
+
+        await _auth.currentUser!.delete();
+      } on FirebaseAuthException catch (e) {
+        emit(
+          AccountDeletionError(
+            (state as Autheticated).user,
+            _handleFirebaseAuthException(e),
+          ),
+        );
       }
     }
   }
