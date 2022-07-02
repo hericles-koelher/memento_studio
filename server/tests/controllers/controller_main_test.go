@@ -36,6 +36,7 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
+	gin.SetMode(gin.TestMode)
 	setupRouter()
 	setupUser()
 	setupRepositories()

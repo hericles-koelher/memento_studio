@@ -214,12 +214,74 @@ func GetDecks(context *gin.Context) {
 	}
 
 	decksResult, errRepo := deckRepository.ReadAll(user.Decks, (int)(limit), (int)(page))
-	if err != nil {
+	if errRepo != nil {
 		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 	
 	context.JSON(http.StatusOK, decksResult)
+}
+
+func CopyDeck(context *gin.Context) {
+	// Get repositories
+	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
+	userRepository, okUser := context.MustGet("userRepository").(UserRepository)
+	if !okDeck || !okUser {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could copy deck"})
+		return
+	}
+
+	// Get param
+	id := context.Param("id")
+
+	// Get deck from db
+	deck, errRepo := deckRepository.Read(id)
+	if errRepo != nil {
+		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		return
+	}
+
+	// Check if deck is public
+	if !deck.IsPublic {
+		context.JSON(http.StatusForbidden, "Cannot copy a private deck")
+		return
+	}
+
+	// Make copy
+	deckCopy := *deck
+	deckCopy.UUID = uuid.New().String()
+	deckCopy.IsPublic = false
+
+	var newCards = []models.Card{}
+	for _, card:= range deck.Cards {
+		card.UUID = uuid.New().String()
+		newCards = append(newCards, card)
+	}
+	deckCopy.Cards = newCards
+
+	// Add deck to user collection
+	user := getUser(context, userRepository)
+	if user == nil {
+		return
+	}
+
+	user.Decks = append(user.Decks, deckCopy.UUID)
+
+	// Save deck and user updated
+	_, _, errRepo = deckRepository.InsertOrUpdate(&deckCopy)
+	if errRepo != nil {
+		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		return
+	}
+
+	errRepo = userRepository.UpdateDecks(user.UUID, user.Decks)
+	if errRepo != nil {
+		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		return
+	}
+
+	context.JSON(http.StatusOK, deckCopy)
+	return 
 }
 
 

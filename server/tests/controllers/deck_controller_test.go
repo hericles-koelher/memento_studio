@@ -1,7 +1,7 @@
 package controllers_tests
 
 import (
-	// "io"
+	"io"
 	"os"
 	"testing"
 	"fmt"
@@ -12,12 +12,13 @@ import (
 	"mime/multipart"
 
 	"server/src/models"
+	"server/tests/repositories/mocks"
 	
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDeleteDeck(t *testing.T) {
-	responseRecorder.Body.Reset()
+	setup()
 
 	request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/decks/%s", deckId), nil)
 	if err != nil {
@@ -30,7 +31,7 @@ func TestDeleteDeck(t *testing.T) {
 }
 
 func TestPostDecks(t *testing.T) {
-	responseRecorder.Body.Reset()
+	setup()
 
 	cards := []models.Card{
 		models.Card {
@@ -104,7 +105,7 @@ func TestPostDecks(t *testing.T) {
 }
 
 func TestGetDecks(t *testing.T) {
-	responseRecorder.Body.Reset()
+	setup()
 	
 	body := map[string]float64 {
 		"limit": 10,
@@ -125,4 +126,71 @@ func TestGetDecks(t *testing.T) {
 
 	// response, _ := io.ReadAll(responseRecorder.Body)
 	// fmt.Println(string(response))
+}
+
+func TestCopyPublicDeck(t *testing.T) {
+	setup()
+	
+	publicCardId := "123cardtest"
+
+	publicDeck := models.Deck {
+		UUID: 			"123test",
+		Name: 			"Baralho público",
+		Description: 	"Baralho público que vai ser copiado",
+		IsPublic: 		true,
+		Cards: []models.Card{
+			models.Card{
+					UUID: 		publicCardId,
+					FrontText: 	"Frente card",
+					BackText:	"Costas card",
+			},
+		},
+	}
+
+	repo, _ := deckRepository.(*repositories_mock.DeckRepositoryMock)
+	repo.Decks[publicDeck.UUID] = &publicDeck
+
+	request, err := http.NewRequest(http.MethodPost, "/api/decks/copy/" + string(publicDeck.UUID), nil)
+	if err != nil {
+		t.FailNow()
+	}
+	
+	router.ServeHTTP(responseRecorder, request)
+
+	assert.Equal(t, http.StatusOK, responseRecorder.Code, "Error status code")
+
+	var deckCopy *models.Deck
+	responseBytes, _ := io.ReadAll(responseRecorder.Body)
+	err = json.Unmarshal(responseBytes, &deckCopy)
+	if err != nil {
+		t.FailNow()
+	}
+
+	cardOfCopy := deckCopy.Cards[0]
+
+	assert.NotEqual(t, deckCopy.UUID, publicDeck.UUID, "decks UUIDs are the same")
+	assert.NotEqual(t, cardOfCopy.UUID, publicCardId, "card UUID is the same")
+}
+
+func TestCopyPrivateDeck(t *testing.T) {
+	setup()
+
+	privateDeck := models.Deck {
+		UUID: 			"abctest",
+		Name: 			"Baralho privado",
+		Description: 	"Baralho privado que não vai ser copiado",
+		IsPublic: 		false,
+	}
+
+	repo, _ := deckRepository.(*repositories_mock.DeckRepositoryMock)
+	repo.Decks[privateDeck.UUID] = &privateDeck
+
+	request, err := http.NewRequest(http.MethodPost, "/api/decks/copy/" + string(privateDeck.UUID), nil)
+	if err != nil {
+		t.FailNow()
+	}
+
+	router.ServeHTTP(responseRecorder, request)
+
+	assert.Equal(t, http.StatusForbidden, responseRecorder.Code, "Error status code")
 }

@@ -13,7 +13,7 @@ import (
 )
 
 func TestCreateUser(t *testing.T) {
-	responseRecorder.Body.Reset()
+	setup()
 
 	request, err := http.NewRequest(http.MethodPost, "/api/users", nil)
 	if err != nil {
@@ -22,11 +22,11 @@ func TestCreateUser(t *testing.T) {
 	
 	router.ServeHTTP(responseRecorder, request)
 
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
+	assert.Equal(t, http.StatusCreated, responseRecorder.Code)
 }
 
 func TestDeleteUser(t *testing.T) {
-	responseRecorder.Body.Reset()
+	setup()
 
 	request, err := http.NewRequest(http.MethodDelete, "/api/users", nil)
 	if err != nil {
@@ -39,7 +39,7 @@ func TestDeleteUser(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	responseRecorder.Body.Reset()
+	setup()
 
 	request, err := http.NewRequest(http.MethodGet, "/api/users", nil)
 	if err != nil {

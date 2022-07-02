@@ -15,6 +15,7 @@ func DeckRoutes(routerGroup *gin.RouterGroup) {
 	deck.GET("", controllers.GetDecks)
 	deck.POST("", controllers.PostDecks)
 	deck.DELETE("/:id", controllers.DeleteDeck)
+	deck.POST("/copy/:id", controllers.CopyDeck)
 }
 
 func DeckRoutesTest(routerGroup *gin.RouterGroup) {
@@ -23,4 +24,5 @@ func DeckRoutesTest(routerGroup *gin.RouterGroup) {
 	deck.GET("", controllers.GetDecks)
 	deck.POST("", controllers.PostDecks)
 	deck.DELETE("/:id", controllers.DeleteDeck)
+	deck.POST("/copy/:id", controllers.CopyDeck)
 }
