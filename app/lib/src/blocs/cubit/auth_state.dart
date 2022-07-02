@@ -20,3 +20,9 @@ class Autheticated extends AuthState {
 
   Autheticated(this.user);
 }
+
+class AccountDeletionError extends Autheticated {
+  final MSAuthException exception;
+
+  AccountDeletionError(ms_entities.User user, this.exception) : super(user);
+}

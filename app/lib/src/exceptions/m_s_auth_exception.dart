@@ -8,6 +8,8 @@ enum MSAuthExceptionCode {
   accountExistsWithDifferentCredential,
   emailAlreadyInUse,
   weakPassword,
+  requiresRecentLogin,
+  userMismatch,
   unknown,
 }
 
