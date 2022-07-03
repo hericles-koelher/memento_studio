@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"strings"
 	"path/filepath"
 )
 
@@ -20,4 +21,13 @@ func UploadFile(file []byte, filename string) (string, error) {
 	}
 
 	return imageFilepath, nil
+}
+
+func RemoveFile(onlinePath string) error {
+	filename := strings.Replace(onlinePath, ImagesRoute + "/", "", -1)
+	absPath, _ := filepath.Abs(ImagesDir + filename)
+
+	err := os.Remove(absPath)
+
+	return err
 }

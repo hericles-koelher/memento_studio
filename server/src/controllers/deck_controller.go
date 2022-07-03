@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"mime/multipart"
 	"encoding/json"
+	"strings"
+	
 
 	. "server/src/repositories/interfaces"
 	"server/src/utils"
@@ -16,6 +18,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/oleiade/reflections"
 )
 
 type fileBytes []byte
@@ -79,11 +82,18 @@ func PostDecks(context *gin.Context) {
         return
     }
 
-	deck, deckCover, cardsFront, cardsBack, err := getDeckWithImages(reader)
+	deckBytes, deckCover, cardsFront, cardsBack, err := getDeckWithImages(reader)
 	if err != nil {
         context.JSON(http.StatusBadRequest, err.Error())
         return
     }
+
+	var deck models.Deck
+	err = json.Unmarshal(deckBytes, &deck)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, "Could not get deck in request")
+        return
+	}
 
 	// Fill deck
 	deckImgName := "deck-" + deck.UUID + ".jpeg"
@@ -115,31 +125,41 @@ func PostDecks(context *gin.Context) {
 	
 	// Update cards
 	cardsUpdated := []models.Card{}
-	for idx, card := range deck.Cards {
+	for _, card := range deck.Cards {
 		if card.UUID == "" {
 			card.UUID = uuid.New().String()
 		}
 
 		// Save images and set the filepath for its images
-		frontName := "card-front" + deck.UUID + "-" + card.UUID + ".jpeg"
-		filepathFront, errFront := utils.UploadFile(cardsFront[idx], frontName)
+		if cardsFront[card.UUID] != nil {
+			frontName := "card-front" + deck.UUID + "-" + card.UUID + ".jpeg"
+			filepathFront, errFront := utils.UploadFile(cardsFront[card.UUID], frontName)
 
-		backName := "card-back" + deck.UUID + "-" + card.UUID + ".jpeg"
-		filepathBack, errBack := utils.UploadFile(cardsBack[idx], backName)
+			if errFront != nil {
+				context.JSON(http.StatusInternalServerError, err.Error())
+				return
+			}
 
-		if errFront != nil || errBack != nil {
-			context.JSON(http.StatusInternalServerError, err.Error())
-        	return
+			card.FrontImagePath = filepathFront
 		}
 
-		card.FrontImagePath = filepathFront
-		card.BackImagePath = filepathBack
+		if cardsBack[card.UUID] != nil {
+			backName := "card-back" + deck.UUID + "-" + card.UUID + ".jpeg"
+			filepathBack, errBack := utils.UploadFile(cardsBack[card.UUID], backName)
+
+			if errBack != nil {
+				context.JSON(http.StatusInternalServerError, err.Error())
+				return
+			}
+
+			card.BackImagePath = filepathBack
+		}
 
 		cardsUpdated = append(cardsUpdated, card)
 	}
 
 	deck.Cards = cardsUpdated
-	_, _, errRepo := deckRepository.InsertOrUpdate(deck)
+	_, _, errRepo := deckRepository.InsertOrUpdate(&deck)
 	if err != nil {
 		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
 		return
@@ -227,7 +247,7 @@ func CopyDeck(context *gin.Context) {
 	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
 	userRepository, okUser := context.MustGet("userRepository").(UserRepository)
 	if !okDeck || !okUser {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could copy deck"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not copy deck"})
 		return
 	}
 
@@ -284,6 +304,136 @@ func CopyDeck(context *gin.Context) {
 	return 
 }
 
+func PutDeck(context *gin.Context) {
+	// Get repositories
+	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
+	userRepository, okUser := context.MustGet("userRepository").(UserRepository)
+	if !okDeck || !okUser {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update deck"})
+		return
+	}
+
+	// Get param
+	id := context.Param("id")
+
+	// Get user
+	user := getUser(context, userRepository)
+	if user == nil { return }
+
+	// Check if deck exists
+	deckInDB, errRepo := deckRepository.Read(id)
+	if errRepo != nil {
+		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+	}
+
+	// Check if user owns this deck
+	var containsDeck = utils.Contains(user.Decks, id, 
+		func (id1, id2 interface{}) bool {
+			return id1.(string) == id2.(string)
+		})
+	if !containsDeck {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "User has no permission to update this deck"})
+		return
+	}
+
+	// Get deck in requisition
+	reader, err := context.Request.MultipartReader()
+	if err != nil {
+        context.JSON(http.StatusInternalServerError, err.Error())
+        return
+    }
+
+	deckBytes, deckCover, cardsFront, cardsBack, err := getDeckWithImages(reader)
+	if err != nil {
+        context.JSON(http.StatusBadRequest, err.Error())
+        return
+    }
+
+	// Parse deck from requisition to map
+	var deck map[string]interface{}
+	err = json.Unmarshal(deckBytes, &deck)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, err.Error())
+        return
+	}
+
+	if len(deckCover) != 0 { // Save and update deck cover image
+		deckImgName := "deck-" + id + ".jpeg"
+		filepath, err := utils.UploadFile(deckCover, deckImgName)
+		if err != nil {
+			context.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		deckInDB.Cover = filepath
+	}
+
+	// Update fields
+	for key, value := range deck {
+		if key == "cover" && deck[key] == nil {
+			utils.RemoveFile(deckInDB.Cover)
+			deckInDB.Cover = ""
+			continue
+		}
+
+		err := reflections.SetField(deckInDB, strings.Title(key), value)
+
+		if err != nil {
+			context.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+	}
+
+	// Update cards images
+	var updatedCards []models.Card
+	for _, card := range deckInDB.Cards {
+		// Check if there's a image update for this card
+		if imgFrontBytes, ok := cardsFront[card.UUID]; ok {
+			if len(imgFrontBytes) == 0 { // remove card image from server
+				utils.RemoveFile(card.FrontImagePath)
+				card.FrontImagePath = ""
+			} else { // Save new image and update path
+				frontName := "card-front" + id + "-" + card.UUID + ".jpeg"
+				filepathFront, errFront := utils.UploadFile(cardsFront[card.UUID], frontName)
+				if errFront != nil {
+					context.JSON(http.StatusBadRequest, errFront.Error())
+					return
+				}
+				
+				card.FrontImagePath = filepathFront
+			}
+		}
+
+		if imgBackBytes, ok := cardsBack[card.UUID]; ok {
+			if len(imgBackBytes) == 0 { // remove card image from server
+				utils.RemoveFile(card.BackImagePath)
+				card.BackImagePath = ""
+			} else { // Save new image and update path
+				backName := "card-back" + id + "-" + card.UUID + ".jpeg"
+				filepathBack, errBack := utils.UploadFile(cardsBack[card.UUID], backName)
+				if errBack != nil {
+					context.JSON(http.StatusBadRequest, errBack.Error())
+					return
+				}
+				
+				card.BackImagePath = filepathBack
+			}
+		}
+
+		updatedCards = append(updatedCards, card)
+	}
+
+	deckInDB.Cards = updatedCards
+
+	// Save updated deck in DB
+	_, _, errRepo = deckRepository.InsertOrUpdate(deckInDB)
+	if errRepo != nil {
+		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		return
+	}
+
+	context.JSON(http.StatusOK, deckInDB)
+}
+
 
 // --------------------- Aux functions --------------------- //
 
@@ -311,14 +461,14 @@ func handleRepositoryError(err *errors.RepositoryError) int {
 	}
 }
 
-func getDeckWithImages(reader *multipart.Reader) (*models.Deck, fileBytes, []fileBytes, []fileBytes, error) {
-	var deck 			models.Deck
+func getDeckWithImages(reader *multipart.Reader) ([]byte, fileBytes, map[string]fileBytes, map[string]fileBytes, error) {
+	var deck []byte
 	var deckCover 	 	fileBytes
-	cardFrontImages := 	[]fileBytes{}
-	cardBackImages 	:= 	[]fileBytes{}
+	cardFrontImages := 	map[string]fileBytes{}
+	cardBackImages 	:= 	map[string]fileBytes{}
 
-	var regexCardFront = regexp.MustCompile("card-front-([0-9]+)")
-	var regexCardBack = regexp.MustCompile("card-back-([0-9]+)")
+	var regexCardFront = regexp.MustCompile("card-front-(.+)")
+	var regexCardBack = regexp.MustCompile("card-back-(.+)")
 
 	part, err := reader.NextPart()
 	for ; err != io.EOF; part, err = reader.NextPart() {
@@ -328,12 +478,9 @@ func getDeckWithImages(reader *multipart.Reader) (*models.Deck, fileBytes, []fil
 		
 		switch name := part.FormName(); {
 		case name == "deck":
-			jsonDecoder := json.NewDecoder(part)
-            err = jsonDecoder.Decode(&deck)
+			deck, err = ioutil.ReadAll(part)
+			part.Close()
 
-			if err != nil {
-				return nil, nil, nil, nil, err
-			}
 		case name == "deck-image":
 			deckCover, err = ioutil.ReadAll(part)
 			part.Close()
@@ -343,21 +490,22 @@ func getDeckWithImages(reader *multipart.Reader) (*models.Deck, fileBytes, []fil
 			bytesImg, err = ioutil.ReadAll(part)
 			part.Close()
 
-			cardFrontImages = append(cardFrontImages, bytesImg)
+			cardId := strings.Replace(name, "card-front-", "", -1)
+			cardFrontImages[cardId] = bytesImg
 
 		case regexCardBack.MatchString(name):
 			var bytesImg []byte
 			bytesImg, err = ioutil.ReadAll(part)
 			part.Close()
 
-			cardBackImages = append(cardBackImages, bytesImg)
+			cardId := strings.Replace(name, "card-back-", "", -1)
+			cardBackImages[cardId] = bytesImg
 		}
 
 		if err != nil {
-			fmt.Println("vish aqui")
 			return nil, nil, nil, nil, err
 		}
 	}
 
-	return &deck, deckCover, cardFrontImages, cardBackImages, nil
+	return deck, deckCover, cardFrontImages, cardBackImages, nil
 }
