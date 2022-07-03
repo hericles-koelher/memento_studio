@@ -1,6 +1,9 @@
+import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:memento_studio/src/entities.dart';
 
-// TODO: Adicionar "Copy With"
+part 'user.g.dart';
+
+@CopyWith()
 class User {
   final String id;
   final String? name;

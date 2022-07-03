@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 
-import '../../exceptions.dart';
-import '../../entities.dart' as ms_entities;
+import '../exceptions.dart';
+import '../entities.dart' as ms_entities;
 
 part 'auth_state.dart';
 
@@ -13,22 +14,20 @@ class AuthCubit extends Cubit<AuthState> {
   final FirebaseAuth _auth;
   StreamSubscription? _userStreamSubscription;
 
-  AuthCubit()
-      : _auth = FirebaseAuth.instance,
+  AuthCubit(FirebaseAuth auth)
+      : _auth = auth,
         super(Unknown()) {
     _listenToUserStream();
   }
 
-  ms_entities.CredentialProvider? _getUserProvider() {
-    String? providerId = _auth.currentUser?.providerData.first.providerId;
+  ms_entities.CredentialProvider? _getUserProvider(User user) {
+    String? providerId = user.providerData.first.providerId;
 
-    if (EmailAuthProvider.PROVIDER_ID.compareTo(providerId ?? '') == 0) {
+    if (EmailAuthProvider.PROVIDER_ID.compareTo(providerId) == 0) {
       return ms_entities.CredentialProvider.email;
-    } else if (FacebookAuthProvider.PROVIDER_ID.compareTo(providerId ?? '') ==
-        0) {
+    } else if (FacebookAuthProvider.PROVIDER_ID.compareTo(providerId) == 0) {
       return ms_entities.CredentialProvider.facebook;
-    } else if (GoogleAuthProvider.PROVIDER_ID.compareTo(providerId ?? '') ==
-        0) {
+    } else if (GoogleAuthProvider.PROVIDER_ID.compareTo(providerId) == 0) {
       return ms_entities.CredentialProvider.google;
     } else {
       return null;
@@ -99,7 +98,7 @@ class AuthCubit extends Cubit<AuthState> {
               id: user.uid,
               name: user.displayName,
               token: await user.getIdToken(),
-              provider: _getUserProvider()!,
+              provider: _getUserProvider(user)!,
             ),
           ),
         );
@@ -128,12 +127,9 @@ class AuthCubit extends Cubit<AuthState> {
     if (state is Autheticated) {
       emit(
         Autheticated(
-          ms_entities.User(
-            name: _auth.currentUser!.displayName,
-            id: _auth.currentUser!.uid,
-            token: await _auth.currentUser!.getIdToken(),
-            provider: _getUserProvider()!,
-          ),
+          (state as Autheticated).user.copyWith(
+                token: await _auth.currentUser!.getIdToken(),
+              ),
         ),
       );
     }
@@ -196,7 +192,6 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> signUpWithEmail({
-    required String name,
     required String email,
     required String password,
   }) async {
@@ -206,8 +201,6 @@ class AuthCubit extends Cubit<AuthState> {
           email: email,
           password: password,
         );
-
-        await _auth.currentUser!.updateDisplayName(name);
       } on FirebaseAuthException catch (e) {
         emit(AuthenticationError(_handleFirebaseAuthException(e)));
       }
