@@ -27,9 +27,7 @@ class HomePage extends StatelessWidget {
                   onPressed: () {},
                   icon: const Icon(Icons.search),
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
+                border: const OutlineInputBorder(),
               ),
             ),
           ),

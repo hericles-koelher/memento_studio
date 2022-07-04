@@ -10,6 +10,7 @@ enum MSAuthExceptionCode {
   weakPassword,
   requiresRecentLogin,
   userMismatch,
+  invalidCredentialType,
   unknown,
 }
 

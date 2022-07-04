@@ -23,7 +23,7 @@ void main() {
 
   // ------------------------------- TEST SETUP -------------------------------
 
-  test("Criação de usuário deve funcionar", () async {
+  test("Criação de usuário com email deve funcionar", () async {
     var auth = MockFirebaseAuth();
     var user = MockUser();
 
@@ -61,7 +61,7 @@ void main() {
     expect(authCubit.state, isA<Autheticated>());
   });
 
-  test("Criação de usuário deve falhar", () async {
+  test("Criação de usuário com email deve falhar", () async {
     var auth = MockFirebaseAuth();
 
     when(() => auth.createUserWithEmailAndPassword(

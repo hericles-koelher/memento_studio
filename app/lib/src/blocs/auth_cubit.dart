@@ -115,6 +115,53 @@ class AuthCubit extends Cubit<AuthState> {
     return super.close();
   }
 
+  Future<void> deleteAccount(ms_entities.Credential credential) async {
+    if (state is Autheticated) {
+      try {
+        emit(AccountDeletionLoading((state as Autheticated).user));
+
+        var currentUser = _auth.currentUser!;
+
+        AuthCredential fbCredential;
+
+        if (credential is ms_entities.EmailCredential) {
+          fbCredential = EmailAuthProvider.credential(
+            email: credential.email,
+            password: credential.password,
+          );
+        } else if (credential is ms_entities.FacebookCredential) {
+          fbCredential =
+              FacebookAuthProvider.credential(credential.accessToken);
+        } else if (credential is ms_entities.GoogleCredential) {
+          fbCredential = GoogleAuthProvider.credential(
+            accessToken: credential.accessToken,
+            idToken: credential.idToken,
+          );
+        } else {
+          emit(AuthenticationError(
+            MSAuthException(
+              code: MSAuthExceptionCode.invalidCredentialType,
+              message:
+                  "O tipo de credencial informado não é utilizado no momento",
+            ),
+          ));
+          return;
+        }
+
+        await currentUser.reauthenticateWithCredential(fbCredential);
+
+        await _auth.currentUser!.delete();
+      } on FirebaseAuthException catch (e) {
+        emit(
+          AccountDeletionError(
+            (state as Autheticated).user,
+            _handleFirebaseAuthException(e),
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> signOut() async {
     if (state is Autheticated) {
       emit(Loading());
@@ -135,59 +182,38 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> signInWithEmail(
-      {required String email, required String password}) async {
-    if (state is Unautheticated) {
-      try {
-        emit(Loading());
+  Future<void> signInWithCredential(ms_entities.Credential credential) async {
+    try {
+      emit(Loading());
 
-        await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
+      AuthCredential fbCredential;
+
+      if (credential is ms_entities.EmailCredential) {
+        fbCredential = EmailAuthProvider.credential(
+          email: credential.email,
+          password: credential.password,
         );
-      } on FirebaseAuthException catch (e) {
-        emit(AuthenticationError(_handleFirebaseAuthException(e)));
+      } else if (credential is ms_entities.FacebookCredential) {
+        fbCredential = FacebookAuthProvider.credential(credential.accessToken);
+      } else if (credential is ms_entities.GoogleCredential) {
+        fbCredential = GoogleAuthProvider.credential(
+          accessToken: credential.accessToken,
+          idToken: credential.idToken,
+        );
+      } else {
+        emit(AuthenticationError(
+          MSAuthException(
+            code: MSAuthExceptionCode.invalidCredentialType,
+            message:
+                "O tipo de credencial informado não é utilizado no momento",
+          ),
+        ));
+        return;
       }
-    }
-  }
 
-  Future<void> signInWithCredential({
-    required ms_entities.CredentialProvider provider,
-    required String accessToken,
-    String? idToken,
-  }) async {
-    if (state is Unautheticated) {
-      try {
-        emit(Loading());
-
-        AuthCredential credential;
-
-        switch (provider) {
-          case ms_entities.CredentialProvider.facebook:
-            credential = FacebookAuthProvider.credential(accessToken);
-            break;
-          case ms_entities.CredentialProvider.google:
-            credential = GoogleAuthProvider.credential(
-              accessToken: accessToken,
-              idToken: idToken,
-            );
-            break;
-          case ms_entities.CredentialProvider.email:
-            emit(
-              AuthenticationError(
-                MSAuthException(
-                  message: "Provedor de credenciais inválido para este método",
-                  code: MSAuthExceptionCode.unknown,
-                ),
-              ),
-            );
-            return;
-        }
-
-        await _auth.signInWithCredential(credential);
-      } on FirebaseAuthException catch (e) {
-        emit(AuthenticationError(_handleFirebaseAuthException(e)));
-      }
+      await _auth.signInWithCredential(fbCredential);
+    } on FirebaseAuthException catch (e) {
+      emit(AuthenticationError(_handleFirebaseAuthException(e)));
     }
   }
 
@@ -207,50 +233,11 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> deleteAccount({
-    required ms_entities.CredentialProvider provider,
-    String? email,
-    String? password,
-    String? accessToken,
-    String? idToken,
-  }) async {
+  Future<void> updateName(String? name) async {
     if (state is Autheticated) {
-      // TODO: Verificar se os dados informados batem com o tipo de provider informado.
-
-      try {
-        var currentUser = _auth.currentUser!;
-
-        AuthCredential credential;
-
-        switch (provider) {
-          case ms_entities.CredentialProvider.email:
-            credential = EmailAuthProvider.credential(
-              email: email!,
-              password: password!,
-            );
-            break;
-          case ms_entities.CredentialProvider.facebook:
-            credential = FacebookAuthProvider.credential(accessToken!);
-            break;
-          case ms_entities.CredentialProvider.google:
-            credential = GoogleAuthProvider.credential(
-              accessToken: accessToken,
-              idToken: idToken,
-            );
-            break;
-        }
-
-        await currentUser.reauthenticateWithCredential(credential);
-
-        await _auth.currentUser!.delete();
-      } on FirebaseAuthException catch (e) {
-        emit(
-          AccountDeletionError(
-            (state as Autheticated).user,
-            _handleFirebaseAuthException(e),
-          ),
-        );
-      }
+      await _auth.currentUser!.updateDisplayName(name);
     }
   }
+
+  // TODO: codificar updateEmail e updatePassword e configurar o firebase para tal...
 }

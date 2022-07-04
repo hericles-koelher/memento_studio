@@ -26,3 +26,7 @@ class AccountDeletionError extends Autheticated {
 
   AccountDeletionError(ms_entities.User user, this.exception) : super(user);
 }
+
+class AccountDeletionLoading extends Autheticated {
+  AccountDeletionLoading(ms_entities.User user) : super(user);
+}
