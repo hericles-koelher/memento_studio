@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/blocs.dart';
@@ -29,6 +30,10 @@ Future<void> injectDependencies() async {
 
   kiwi.registerInstance(AuthCubit(FirebaseAuth.instanceFor(app: fbApp)));
   kiwi.registerInstance(Logger());
+
+  kiwi.registerSingleton(
+    (container) => GoogleSignIn(scopes: ["email", "profile"]),
+  );
 }
 
 final GoRouter _router = GoRouter(
@@ -44,6 +49,12 @@ final GoRouter _router = GoRouter(
             name: 'explore',
             builder: (BuildContext context, GoRouterState state) =>
                 const ExplorePage(),
+          ),
+          GoRoute(
+            path: 'my_account',
+            name: 'my_account',
+            builder: (BuildContext context, GoRouterState state) =>
+                const MyAccountPage(),
           ),
           GoRoute(
             path: 'sign_in',

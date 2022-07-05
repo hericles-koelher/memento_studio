@@ -93,7 +93,7 @@ class AuthCubit extends Cubit<AuthState> {
     _userStreamSubscription = _auth.userChanges().listen((User? user) async {
       if (user != null) {
         emit(
-          Autheticated(
+          Authenticated(
             ms_entities.User(
               id: user.uid,
               name: user.displayName,
@@ -103,7 +103,7 @@ class AuthCubit extends Cubit<AuthState> {
           ),
         );
       } else {
-        emit(Unautheticated());
+        emit(Unauthenticated());
       }
     });
   }
@@ -116,9 +116,9 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> deleteAccount(ms_entities.Credential credential) async {
-    if (state is Autheticated) {
+    if (state is Authenticated) {
       try {
-        emit(AccountDeletionLoading((state as Autheticated).user));
+        emit(AccountDeletionLoading((state as Authenticated).user));
 
         var currentUser = _auth.currentUser!;
 
@@ -154,7 +154,7 @@ class AuthCubit extends Cubit<AuthState> {
       } on FirebaseAuthException catch (e) {
         emit(
           AccountDeletionError(
-            (state as Autheticated).user,
+            (state as Authenticated).user,
             _handleFirebaseAuthException(e),
           ),
         );
@@ -163,7 +163,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> signOut() async {
-    if (state is Autheticated) {
+    if (state is Authenticated) {
       emit(Loading());
 
       await _auth.signOut();
@@ -171,10 +171,10 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> refreshToken() async {
-    if (state is Autheticated) {
+    if (state is Authenticated) {
       emit(
-        Autheticated(
-          (state as Autheticated).user.copyWith(
+        Authenticated(
+          (state as Authenticated).user.copyWith(
                 token: await _auth.currentUser!.getIdToken(),
               ),
         ),
@@ -221,7 +221,7 @@ class AuthCubit extends Cubit<AuthState> {
     required String email,
     required String password,
   }) async {
-    if (state is Unautheticated) {
+    if (state is Unauthenticated) {
       try {
         await _auth.createUserWithEmailAndPassword(
           email: email,
@@ -234,7 +234,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> updateName(String? name) async {
-    if (state is Autheticated) {
+    if (state is Authenticated) {
       await _auth.currentUser!.updateDisplayName(name);
     }
   }

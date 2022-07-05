@@ -11,8 +11,8 @@ abstract class Credential {
   }
 
   static Credential fromGoogle({
-    required String accessToken,
-    required String idToken,
+    required String? accessToken,
+    required String? idToken,
   }) {
     return GoogleCredential(accessToken, idToken);
   }
@@ -32,8 +32,8 @@ class FacebookCredential implements Credential {
 }
 
 class GoogleCredential implements Credential {
-  final String accessToken;
-  final String idToken;
+  final String? accessToken;
+  final String? idToken;
 
   GoogleCredential(this.accessToken, this.idToken);
 }

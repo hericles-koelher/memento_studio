@@ -58,7 +58,7 @@ void main() {
 
     await Future.delayed(const Duration(seconds: 2));
 
-    expect(authCubit.state, isA<Autheticated>());
+    expect(authCubit.state, isA<Authenticated>());
   });
 
   test("Criação de usuário com email deve falhar", () async {

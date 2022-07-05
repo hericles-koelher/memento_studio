@@ -14,12 +14,12 @@ class MSDrawer extends StatelessWidget {
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: KiwiContainer().resolve<AuthCubit>(),
       builder: (context, state) {
-        String username = state is Autheticated && state.user.name != null
+        String username = state is Authenticated && state.user.name != null
             ? state.user.name!
             : "Usuário";
 
         String jdenticonString =
-            state is Autheticated ? state.user.id : "default_jdenticon";
+            state is Authenticated ? state.user.id : "default_jdenticon";
 
         return Drawer(
           child: Column(
@@ -55,16 +55,17 @@ class MSDrawer extends StatelessWidget {
                 leading: const Icon(Icons.search),
                 onTap: () => GoRouter.of(context).goNamed("explore"),
               ),
-              if (state is Unautheticated)
+              if (state is Unauthenticated)
                 ListTile(
                   title: const Text("Autenticação"),
                   leading: const Icon(Icons.person),
                   onTap: () => GoRouter.of(context).goNamed("sign_in"),
                 ),
-              if (state is Autheticated)
+              if (state is Authenticated)
                 ListTile(
                   title: Text("Minha Conta"),
                   leading: Icon(Icons.person),
+                  onTap: () => GoRouter.of(context).goNamed("my_account"),
                 ),
               ListTile(
                 title: Text("Informações"),

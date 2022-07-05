@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/blocs.dart';
@@ -20,6 +21,7 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final Logger _logger = KiwiContainer().resolve();
   final AuthCubit _authCubit = KiwiContainer().resolve();
+  final GoogleSignIn _googleSignIn = KiwiContainer().resolve();
   bool _remember = false;
 
   @override
@@ -120,6 +122,10 @@ class _SignInPageState extends State<SignInPage> {
                             _logger.d(loginResult.status);
 
                             if (loginResult.status == LoginStatus.success) {
+                              _logger.i(
+                                "Autenticação com Facebook foi permitida",
+                              );
+
                               var credential = Credential.fromFacebook(
                                 loginResult.accessToken!.token,
                               );
@@ -138,7 +144,24 @@ class _SignInPageState extends State<SignInPage> {
                               ),
                             ),
                           ),
-                          onTap: () {},
+                          onTap: () async {
+                            var googleAccount = await _googleSignIn.signIn();
+
+                            if (googleAccount != null) {
+                              googleAccount.authentication.then((authData) {
+                                _logger.i(
+                                  "Autenticação com Google foi permitida",
+                                );
+
+                                _authCubit.signInWithCredential(
+                                  Credential.fromGoogle(
+                                    accessToken: authData.accessToken,
+                                    idToken: authData.idToken,
+                                  ),
+                                );
+                              });
+                            }
+                          },
                         ),
                       ],
                     ),

@@ -7,26 +7,26 @@ class Unknown extends AuthState {}
 
 class Loading extends Unknown {}
 
-class Unautheticated extends AuthState {}
+class Unauthenticated extends AuthState {}
 
-class AuthenticationError extends Unautheticated {
+class AuthenticationError extends Unauthenticated {
   final MSAuthException exception;
 
   AuthenticationError(this.exception);
 }
 
-class Autheticated extends AuthState {
+class Authenticated extends AuthState {
   final ms_entities.User user;
 
-  Autheticated(this.user);
+  Authenticated(this.user);
 }
 
-class AccountDeletionError extends Autheticated {
+class AccountDeletionError extends Authenticated {
   final MSAuthException exception;
 
   AccountDeletionError(ms_entities.User user, this.exception) : super(user);
 }
 
-class AccountDeletionLoading extends Autheticated {
+class AccountDeletionLoading extends Authenticated {
   AccountDeletionLoading(ms_entities.User user) : super(user);
 }
