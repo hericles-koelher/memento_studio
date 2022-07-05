@@ -23,14 +23,12 @@ class MSDrawer extends StatelessWidget {
 
         return Drawer(
           child: Column(
-            // padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // const Spacer(),
                     Expanded(
                       flex: 4,
                       child: SvgPicture.string(
@@ -40,7 +38,6 @@ class MSDrawer extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // const Spacer(),
                     Text("Olá $username"),
                   ],
                 ),
@@ -63,8 +60,8 @@ class MSDrawer extends StatelessWidget {
                 ),
               if (state is Authenticated)
                 ListTile(
-                  title: Text("Minha Conta"),
-                  leading: Icon(Icons.person),
+                  title: const Text("Minha Conta"),
+                  leading: const Icon(Icons.person),
                   onTap: () => GoRouter.of(context).goNamed("my_account"),
                 ),
               ListTile(

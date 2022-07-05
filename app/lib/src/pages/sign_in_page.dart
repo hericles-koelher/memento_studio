@@ -11,6 +11,7 @@ import 'package:memento_studio/src/utils.dart';
 
 import '../widgets.dart';
 
+// TODO: Salvar o endereço de email em algum local caso usuário selecione essa opção...
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key}) : super(key: key);
 
@@ -22,6 +23,10 @@ class _SignInPageState extends State<SignInPage> {
   final Logger _logger = KiwiContainer().resolve();
   final AuthCubit _authCubit = KiwiContainer().resolve();
   final GoogleSignIn _googleSignIn = KiwiContainer().resolve();
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePasswordText = true;
   bool _remember = false;
 
   @override
@@ -44,6 +49,7 @@ class _SignInPageState extends State<SignInPage> {
                   children: [
                     Flexible(
                       child: Form(
+                        key: _formKey,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -52,20 +58,45 @@ class _SignInPageState extends State<SignInPage> {
                                 horizontal: kHorizontalPadding,
                               ),
                               child: TextFormField(
+                                controller: _emailController,
                                 decoration: const InputDecoration(
                                   labelText: "E-mail",
                                   border: OutlineInputBorder(),
                                 ),
+                                validator: (email) {
+                                  if (email == null ||
+                                      !Validator.isEmail(email)) {
+                                    return "E-mail inválido";
+                                  }
+
+                                  return null;
+                                },
                               ),
                             ),
                             const SizedBox(height: 15),
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: kHorizontalPadding),
+                                horizontal: kHorizontalPadding,
+                              ),
                               child: TextFormField(
-                                decoration: const InputDecoration(
+                                controller: _passwordController,
+                                obscureText: _obscurePasswordText,
+                                decoration: InputDecoration(
                                   labelText: "Senha",
-                                  border: OutlineInputBorder(),
+                                  border: const OutlineInputBorder(),
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscurePasswordText =
+                                            !_obscurePasswordText;
+                                      });
+                                    },
+                                    icon: FaIcon(
+                                      _obscurePasswordText
+                                          ? FontAwesomeIcons.eye
+                                          : FontAwesomeIcons.eyeSlash,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -97,7 +128,20 @@ class _SignInPageState extends State<SignInPage> {
                               ],
                             ),
                             ElevatedButton(
-                                onPressed: () {}, child: const Text("Entrar")),
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  _logger.i("Formulário de login válido.");
+
+                                  _authCubit.signInWithCredential(
+                                    Credential.fromEmail(
+                                      email: _emailController.text,
+                                      password: _passwordController.text,
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text("Entrar"),
+                            ),
                           ],
                         ),
                       ),
@@ -169,11 +213,11 @@ class _SignInPageState extends State<SignInPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("Não tem uma conta?"),
+                          const Text("Não tem uma conta?"),
                           TextButton(
                             onPressed: () =>
                                 GoRouter.of(context).goNamed("sign_up"),
-                            child: Text("Crie uma"),
+                            child: const Text("Crie uma"),
                           ),
                         ],
                       ),
@@ -184,5 +228,13 @@ class _SignInPageState extends State<SignInPage> {
             )),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+
+    super.dispose();
   }
 }

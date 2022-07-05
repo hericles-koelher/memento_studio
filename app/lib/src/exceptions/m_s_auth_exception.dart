@@ -1,5 +1,6 @@
 import 'package:memento_studio/src/exceptions.dart';
 
+// TODO: Ajustar esses códigos aqui...
 enum MSAuthExceptionCode {
   invalidEmail,
   disableAccount,
