@@ -1,3 +1,3 @@
-const double kHorizontalPadding = 35.0;
+const double horizontalPadding = 35.0;
 
-const double kIconButtonSize = 30;
+const double iconButtonSize = 30;

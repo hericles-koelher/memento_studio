@@ -5,9 +5,9 @@ abstract class AuthState {}
 
 class Unknown extends AuthState {}
 
-class Loading extends Unknown {}
-
 class Unauthenticated extends AuthState {}
+
+class AuthenticationLoading extends Unauthenticated {}
 
 class AuthenticationError extends Unauthenticated {
   final MSAuthException exception;
@@ -19,6 +19,10 @@ class Authenticated extends AuthState {
   final ms_entities.User user;
 
   Authenticated(this.user);
+}
+
+class LogoutLoading extends Authenticated {
+  LogoutLoading(ms_entities.User user) : super(user);
 }
 
 class AccountDeletionError extends Authenticated {

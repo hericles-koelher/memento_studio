@@ -164,7 +164,11 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> signOut() async {
     if (state is Authenticated) {
-      emit(Loading());
+      emit(LogoutLoading((state as Authenticated).user));
+
+      // Inicialmente coloquei esse delay pra testar animação de carregamento
+      // mas se eu achar necessário vou manter isso aqui.
+      Future.delayed(const Duration(seconds: 1));
 
       await _auth.signOut();
     }
@@ -184,7 +188,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> signInWithCredential(ms_entities.Credential credential) async {
     try {
-      emit(Loading());
+      emit(AuthenticationLoading());
 
       AuthCredential fbCredential;
 

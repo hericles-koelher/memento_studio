@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:jdenticon_dart/jdenticon_dart.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/blocs.dart';
+import 'package:memento_studio/src/utils.dart';
 
 class MSDrawer extends StatelessWidget {
   const MSDrawer({Key? key}) : super(key: key);
@@ -45,24 +46,40 @@ class MSDrawer extends StatelessWidget {
               ListTile(
                 title: const Text("Meus Baralhos"),
                 leading: const Icon(Icons.home),
-                onTap: () => GoRouter.of(context).goNamed("home"),
+                onTap: () {
+                  // Esse pop é pra fechar a Drawer
+                  Navigator.pop(context);
+                  GoRouter.of(context).goNamed(MSRouter.homeRouteName);
+                },
               ),
               ListTile(
                 title: const Text("Explorar"),
                 leading: const Icon(Icons.search),
-                onTap: () => GoRouter.of(context).goNamed("explore"),
+                onTap: () {
+                  // Esse pop é pra fechar a Drawer
+                  Navigator.pop(context);
+                  GoRouter.of(context).goNamed(MSRouter.exploreRouteName);
+                },
               ),
               if (state is Unauthenticated)
                 ListTile(
                   title: const Text("Autenticação"),
                   leading: const Icon(Icons.person),
-                  onTap: () => GoRouter.of(context).goNamed("sign_in"),
+                  onTap: () {
+                    // Esse pop é pra fechar a Drawer
+                    Navigator.pop(context);
+                    GoRouter.of(context).goNamed(MSRouter.signInRouteName);
+                  },
                 ),
               if (state is Authenticated)
                 ListTile(
                   title: const Text("Minha Conta"),
                   leading: const Icon(Icons.person),
-                  onTap: () => GoRouter.of(context).goNamed("my_account"),
+                  onTap: () {
+                    // Esse pop é pra fechar a Drawer
+                    Navigator.pop(context);
+                    GoRouter.of(context).goNamed(MSRouter.myAccountRouteName);
+                  },
                 ),
               ListTile(
                 title: Text("Informações"),
