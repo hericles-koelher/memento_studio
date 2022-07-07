@@ -11,6 +11,17 @@ require (
 )
 
 require (
+	github.com/acobaugh/osrelease v0.1.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/oleiade/reflections v1.0.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/spf13/afero v1.8.2 // indirect
+	github.com/stretchr/testify v1.7.1 // indirect
+	github.com/strikesecurity/strikememongo v0.2.4 // indirect
+	gopkg.in/yaml.v3 v3.0.0 // indirect
+)
+
+require (
 	cloud.google.com/go v0.100.2 // indirect
 	cloud.google.com/go/compute v1.6.0 // indirect
 	cloud.google.com/go/firestore v1.6.1 // indirect
@@ -40,7 +51,7 @@ require (
 	github.com/xdg-go/stringprep v1.0.2 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/crypto v0.0.0-20201216223049-8b5274cf687f // indirect
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
