@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:memento_studio/src/pages.dart';
 import 'package:memento_studio/src/utils/ms_theme.dart';
 
+import 'package:logging/logging.dart';
+
 import 'firebase_options.dart';
 
 void main() async {
@@ -13,7 +15,16 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  _setupLogging();
+
   runApp(const MementoStudio());
+}
+
+void _setupLogging() {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((rec) {
+    print('${rec.level.name}: ${rec.time}: ${rec.message}');
+  });
 }
 
 final GoRouter _router = GoRouter(
