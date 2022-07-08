@@ -212,25 +212,24 @@ func GetDecks(context *gin.Context) {
 
 	// Get requisition's body
 	var reqBody map[string]interface{}
-	err := utils.GetRequestBody(context.Request.Body, &reqBody)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, err.Error())
-		return
+
+	if context.Request.Body != nil {
+		err := utils.GetRequestBody(context.Request.Body, &reqBody)
+		if err != nil {
+			context.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
 	}
 
 	// Get decks from db
-	if reqBody["limit"] == nil {
-		reqBody["limit"] = 30
-	}
-	if reqBody["page"] == nil {
-		reqBody["page"] = 1
-	}
-
 	limit, okLim := reqBody["limit"].(float64)
 	page, okPage := reqBody["page"].(float64)
-	if !okLim || !okPage {
-		context.JSON(http.StatusBadRequest, "Limite e página devem ser um número")
-		return
+	if !okLim {
+		limit = 30
+	}
+	
+	if !okPage {
+		page = 1
 	}
 
 	decksResult, errRepo := deckRepository.ReadAll(user.Decks, (int)(limit), (int)(page))
