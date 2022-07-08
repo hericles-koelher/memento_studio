@@ -51,6 +51,10 @@ dependencies:
   flutter_svg: ^1.1.1+1
   font_awesome_flutter: ^10.1.0
   logger: ^1.1.0
+  chopper: ^4.0.6
+  json_annotation: ^4.0.0
+  json_serializable: ^6.1.5
+  logging: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +68,8 @@ dev_dependencies:
   flutter_lints: ^1.0.0
   copy_with_extension_gen: ^4.0.2
   mocktail: ^0.3.0
+  chopper_generator: ^4.0.6
+  test: ^1.21.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
