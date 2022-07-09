@@ -8,14 +8,14 @@ import (
 
 const (
 	ImagesRoute 	= "http://localhost:8080/image"
-	ImagesDir 		= "../../public/"
+	imagesDirKey	= "IMAGES_FILE_PATH"
 )
 
 func UploadFile(file []byte, filename string) (string, error) {
 	var imageFilepath = ImagesRoute + "/" + filename
-	absPath, _ := filepath.Abs(ImagesDir + filename)
+	var imagesDir = getImagesFilePath()
 
-	err := os.WriteFile(absPath, file, 0644)
+	err := os.WriteFile(imagesDir + filename, file, 0644)
 	if err != nil {
 		return "", err
 	}
@@ -25,9 +25,21 @@ func UploadFile(file []byte, filename string) (string, error) {
 
 func RemoveFile(onlinePath string) error {
 	filename := strings.Replace(onlinePath, ImagesRoute + "/", "", -1)
-	absPath, _ := filepath.Abs(ImagesDir + filename)
+	var imagesDir = getImagesFilePath()
+
+	absPath, _ := filepath.Abs(imagesDir + filename)
 
 	err := os.Remove(absPath)
 
 	return err
+}
+
+func getImagesFilePath() string {
+	var imagesDir	  = "../../public/" // for tests
+
+	if value, ok := os.LookupEnv(imagesDirKey); ok { // in container
+		imagesDir = value
+	}
+
+	return imagesDir
 }
