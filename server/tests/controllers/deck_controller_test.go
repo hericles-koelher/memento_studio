@@ -51,7 +51,6 @@ func TestPostDecks(t *testing.T) {
 			Cards:            cards,
 			LastModification: 1654638124,
 			IsPublic:         false,
-			UUID:             "testdeckid1",
 			Tags:			  []string{},
 		}
 	

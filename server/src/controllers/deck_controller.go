@@ -91,18 +91,9 @@ func PostDecks(context *gin.Context) {
 	var deck models.Deck
 	err = json.Unmarshal(deckBytes, &deck)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, "Could not get deck in request")
+		context.JSON(http.StatusBadRequest, err.Error())
         return
 	}
-
-	// Fill deck
-	deckImgName := "deck-" + deck.UUID + ".jpeg"
-	filepath, err := utils.UploadFile(deckCover, deckImgName)
-	if err != nil {
-        context.JSON(http.StatusInternalServerError, err.Error())
-        return
-    }
-	deck.Cover = filepath
 
 	// Check if deck is new or if user owns it
 	var isNewDeck bool
@@ -110,7 +101,7 @@ func PostDecks(context *gin.Context) {
 		isNewDeck = true
 		deck.UUID = uuid.New().String()
 	} else {
-		userHasDeck := !utils.Contains(user.Decks, deck.UUID, 
+		userHasDeck := utils.Contains(user.Decks, deck.UUID, 
 			func (id1, id2 interface{}) bool {
 				return id1.(string) == id2.(string)
 			})
@@ -121,6 +112,17 @@ func PostDecks(context *gin.Context) {
 		}
 
 		isNewDeck = false
+	}
+
+	// Fill deck
+	if len(deckCover) > 0 {
+		deckImgName := "deck-" + deck.UUID + ".jpeg"
+		filepath, err := utils.UploadFile(deckCover, deckImgName)
+		if err != nil {
+			context.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		deck.Cover = filepath
 	}
 	
 	// Update cards
@@ -461,7 +463,7 @@ func handleRepositoryError(err *errors.RepositoryError) int {
 }
 
 func getDeckWithImages(reader *multipart.Reader) ([]byte, fileBytes, map[string]fileBytes, map[string]fileBytes, error) {
-	var deck []byte
+	var deck fileBytes
 	var deckCover 	 	fileBytes
 	cardFrontImages := 	map[string]fileBytes{}
 	cardBackImages 	:= 	map[string]fileBytes{}
