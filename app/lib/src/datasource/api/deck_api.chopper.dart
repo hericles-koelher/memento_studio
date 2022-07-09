@@ -25,17 +25,17 @@ class _$DeckApi extends DeckApi {
   }
 
   @override
-  Future<Response<dynamic>> postDeck(Deck deck, dynamic files) {
+  Future<Response<Deck>> postDeck(dynamic deck, dynamic images) {
     final $url = '/decks';
     final $headers = {
       'Content-Type': 'multipart/form-data',
     };
 
-    final $parts = <PartValue>[PartValue<Deck>('deck', deck)];
-    $parts.addAll(files);
+    final $parts = <PartValue>[PartValue<dynamic>('deck', deck)];
+    $parts.addAll(images);
     final $request = Request('POST', $url, client.baseUrl,
         parts: $parts, multipart: true, headers: $headers);
-    return client.send<dynamic, dynamic>($request);
+    return client.send<Deck, Deck>($request);
   }
 
   @override
@@ -47,7 +47,7 @@ class _$DeckApi extends DeckApi {
 
     final $parts = <PartValue>[PartValue<Deck>('deck', deck)];
     $parts.addAll(files);
-    final $request = Request('POST', $url, client.baseUrl,
+    final $request = Request('PUT', $url, client.baseUrl,
         parts: $parts, multipart: true, headers: $headers);
     return client.send<dynamic, dynamic>($request);
   }
