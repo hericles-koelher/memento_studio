@@ -24,10 +24,10 @@ abstract class DeckApi extends ChopperService {
   @Put(path: "/{id}",
     headers: { "Content-Type": "multipart/form-data" })
   @multipart
-  Future<Response> putDeck(
+  Future<Response<Deck>> putDeck(
     @Path("id") String deckId,
-    @Part() Deck deck,
-    @PartMap() files
+    @Part("deck") String deckUpdates,
+    @PartFileMap() var images,
   );
 
   @Delete(path: "/{id}")

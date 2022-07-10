@@ -78,10 +78,29 @@ class DeckRepository extends DeckRepositoryInterface{
     }
   }
 
-  // Future<Response> updateDeck() {
-  //   Future<Response> response = _api.putDeck();
-  //   return response;
-  // }
+  Future<DeckResult> updateDeck(String id, Map<String, dynamic> deckUpdates, Map<String, Uint8List> images) async {
+    // Adiciona as imagens em uma part para ser enviada na requisicao
+    List<PartValueFile> parts = [];
+    images.forEach((key, value) { 
+      parts.add(PartValueFile(key, value));
+    });
+
+    // Envia requisição PUT
+    final response = await _api.putDeck(id, json.encode(deckUpdates), parts);
+
+    // Trata resposta
+    if (!response.isSuccessful) {
+      return Error(Exception(response.error.toString()));
+    } else {
+      final deck = response.body?.toDomainModel();
+
+      if (deck == null) {
+        return Error(Exception("Could not parse response body to deck model"));
+      }
+      
+      return Success(deck);
+    }
+  }
 
   // Future<Response> deleteDeck() {
   //   Future<Response> response = _api.deleteDeck();
