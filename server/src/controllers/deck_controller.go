@@ -168,20 +168,10 @@ func PostDecks(context *gin.Context) {
 	}
 
 	// Insert or update deckReference
-	if deck.IsPublic {
-		var deckReference = new(models.DeckReference)
-		deckReference.Cover = deck.Cover
-		deckReference.Description = deck.Description
-		deckReference.Name = deck.Name
-		deckReference.NumberOfCards = len(deck.Cards)
-		deckReference.Tags = deck.Tags
-		deckReference.UUID = deck.UUID
-
-		_, _, errRepo = deckReferenceRepository.InsertOrUpdate(deckReference)
-		if err != nil {
-			context.JSON(handleRepositoryError(errRepo), errRepo.Error())
-			return
-		}
+	errRepo = updateIsPublicStatus(deck, deckReferenceRepository)
+	if errRepo != nil {
+		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		return
 	}
 
 	// Update user's decks ids if is a new deck
@@ -308,8 +298,9 @@ func CopyDeck(context *gin.Context) {
 func PutDeck(context *gin.Context) {
 	// Get repositories
 	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
+	deckReferenceRepository, okDeckReference := context.MustGet("deckReferenceRepository").(DeckReferenceRepository)
 	userRepository, okUser := context.MustGet("userRepository").(UserRepository)
-	if !okDeck || !okUser {
+	if !okDeck || !okDeckReference || !okUser {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update deck"})
 		return
 	}
@@ -425,6 +416,13 @@ func PutDeck(context *gin.Context) {
 
 	deckInDB.Cards = updatedCards
 
+	// Insert or update deckReference
+	errRepo = updateIsPublicStatus(*deckInDB, deckReferenceRepository)
+	if errRepo != nil {
+		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		return
+	}
+
 	// Save updated deck in DB
 	_, _, errRepo = deckRepository.InsertOrUpdate(deckInDB)
 	if errRepo != nil {
@@ -509,4 +507,25 @@ func getDeckWithImages(reader *multipart.Reader) ([]byte, fileBytes, map[string]
 	}
 
 	return deck, deckCover, cardFrontImages, cardBackImages, nil
+}
+
+func updateIsPublicStatus(deck models.Deck, deckReferenceRepository DeckReferenceRepository) *errors.RepositoryError {
+	if deck.IsPublic { // Create or update deck reference
+		var deckReference = new(models.DeckReference)
+		deckReference.Cover = deck.Cover
+		deckReference.Description = deck.Description
+		deckReference.Name = deck.Name
+		deckReference.NumberOfCards = len(deck.Cards)
+		deckReference.Tags = deck.Tags
+		deckReference.UUID = deck.UUID
+
+		_, _, errRepo := deckReferenceRepository.InsertOrUpdate(deckReference)
+		if errRepo != nil {
+			return errRepo
+		}
+	} else { // Remove deck reference
+		deckReferenceRepository.Delete(deck.UUID)
+	}
+
+	return nil
 }
