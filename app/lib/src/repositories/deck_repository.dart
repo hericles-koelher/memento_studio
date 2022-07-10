@@ -102,10 +102,16 @@ class DeckRepository extends DeckRepositoryInterface{
     }
   }
 
-  // Future<Response> deleteDeck() {
-  //   Future<Response> response = _api.deleteDeck();
-  //   return response;
-  // }
+  Future<Result> deleteDeck(String id) async {
+    final response = await _api.deleteDeck(id);
+
+    // Trata resposta
+    if (!response.isSuccessful) {
+      return Error(Exception(response.error.toString()));
+    } else {    
+      return Success(response.body);
+    }
+  }
 
   // Future<Response> copyDeck() {
   //   Future<Response> response = _api.copyDeck();

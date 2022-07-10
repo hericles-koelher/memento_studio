@@ -31,7 +31,7 @@ abstract class DeckApi extends ChopperService {
   );
 
   @Delete(path: "/{id}")
-  Future<Response> deleteDeck(
+  Future<Response<Map<String, dynamic>>> deleteDeck(
     @Path("id") String deckId
   );
 

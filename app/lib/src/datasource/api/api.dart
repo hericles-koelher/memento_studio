@@ -15,7 +15,8 @@ class Api {
         HttpLoggingInterceptor()
       ],
       converter: JsonToTypeConverter({
-            Deck: (jsonData) => Deck.fromJson(jsonData)
+            Deck: (jsonData) => Deck.fromJson(jsonData),
+            Map<String, dynamic>: (jsonData) => jsonData
           }
         )
     );
