@@ -28,8 +28,9 @@ type fileBytes []byte
 func DeleteDeck(context *gin.Context) {
 	// Get repositories
 	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
+	deckReferenceRepository, okDeckReference := context.MustGet("deckReferenceRepository").(DeckReferenceRepository)
 	userRepository, okUser := context.MustGet("userRepository").(UserRepository)
-	if !okDeck || !okUser {
+	if !okDeck || !okDeckReference ||!okUser {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete deck"})
 		return
 	}
@@ -41,7 +42,7 @@ func DeleteDeck(context *gin.Context) {
 	user := getUser(context, userRepository)
 	if user == nil { return }
 
-	// Check if user owns that deck
+	// Check if user owns this deck
 	var containsDeck = utils.Contains(user.Decks, id, 
 		func (id1, id2 interface{}) bool {
 			return id1.(string) == id2.(string)
@@ -51,12 +52,26 @@ func DeleteDeck(context *gin.Context) {
 		return
 	}
 
+	// Remove deck id from user decks
+	user.Decks = utils.Remove(user.Decks, id)
+	errRepo := userRepository.UpdateDecks(user.UUID, user.Decks)
+	if errRepo != nil {
+		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		return
+	}
+
 	// Delete deck
 	err := deckRepository.Delete(id)
 	if err != nil {
 		context.JSON(handleRepositoryError(err), err.Error())
 		return
 	}
+
+	// Delete deck reference if it is public
+	deckReferenceRepository.Delete(id)
+
+	// Delete files of deck
+	utils.RemoveFolder(id)
 
 	context.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Deck with id %s has been deleted", id)})
 }
@@ -117,7 +132,7 @@ func PostDecks(context *gin.Context) {
 	// Fill deck
 	if len(deckCover) > 0 {
 		deckImgName := "deck-" + deck.UUID + ".jpeg"
-		filepath, err := utils.UploadFile(deckCover, deckImgName)
+		filepath, err := utils.UploadFile(deckCover, deck.UUID, deckImgName)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, err.Error())
 			return
@@ -135,7 +150,7 @@ func PostDecks(context *gin.Context) {
 		// Save images and set the filepath for its images
 		if cardsFront[card.UUID] != nil {
 			frontName := "card-front" + deck.UUID + "-" + card.UUID + ".jpeg"
-			filepathFront, errFront := utils.UploadFile(cardsFront[card.UUID], frontName)
+			filepathFront, errFront := utils.UploadFile(cardsFront[card.UUID], deck.UUID, frontName)
 
 			if errFront != nil {
 				context.JSON(http.StatusInternalServerError, err.Error())
@@ -147,7 +162,7 @@ func PostDecks(context *gin.Context) {
 
 		if cardsBack[card.UUID] != nil {
 			backName := "card-back" + deck.UUID + "-" + card.UUID + ".jpeg"
-			filepathBack, errBack := utils.UploadFile(cardsBack[card.UUID], backName)
+			filepathBack, errBack := utils.UploadFile(cardsBack[card.UUID], deck.UUID, backName)
 
 			if errBack != nil {
 				context.JSON(http.StatusInternalServerError, err.Error())
@@ -351,7 +366,7 @@ func PutDeck(context *gin.Context) {
 
 	if len(deckCover) != 0 { // Save and update deck cover image
 		deckImgName := "deck-" + id + ".jpeg"
-		filepath, err := utils.UploadFile(deckCover, deckImgName)
+		filepath, err := utils.UploadFile(deckCover, id, deckImgName)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, err.Error())
 			return
@@ -362,7 +377,7 @@ func PutDeck(context *gin.Context) {
 	// Update fields
 	for key, value := range deck {
 		if key == "cover" && deck[key] == nil {
-			utils.RemoveFile(deckInDB.Cover)
+			utils.RemoveFile(deckInDB.Cover, deckInDB.UUID)
 			deckInDB.Cover = ""
 			continue
 		}
@@ -381,11 +396,11 @@ func PutDeck(context *gin.Context) {
 		// Check if there's a image update for this card
 		if imgFrontBytes, ok := cardsFront[card.UUID]; ok {
 			if len(imgFrontBytes) == 0 { // remove card image from server
-				utils.RemoveFile(card.FrontImagePath)
+				utils.RemoveFile(card.FrontImagePath, id)
 				card.FrontImagePath = ""
 			} else { // Save new image and update path
 				frontName := "card-front" + id + "-" + card.UUID + ".jpeg"
-				filepathFront, errFront := utils.UploadFile(cardsFront[card.UUID], frontName)
+				filepathFront, errFront := utils.UploadFile(cardsFront[card.UUID], id, frontName)
 				if errFront != nil {
 					context.JSON(http.StatusBadRequest, errFront.Error())
 					return
@@ -397,11 +412,11 @@ func PutDeck(context *gin.Context) {
 
 		if imgBackBytes, ok := cardsBack[card.UUID]; ok {
 			if len(imgBackBytes) == 0 { // remove card image from server
-				utils.RemoveFile(card.BackImagePath)
+				utils.RemoveFile(card.BackImagePath, id)
 				card.BackImagePath = ""
 			} else { // Save new image and update path
 				backName := "card-back" + id + "-" + card.UUID + ".jpeg"
-				filepathBack, errBack := utils.UploadFile(cardsBack[card.UUID], backName)
+				filepathBack, errBack := utils.UploadFile(cardsBack[card.UUID], id, backName)
 				if errBack != nil {
 					context.JSON(http.StatusBadRequest, errBack.Error())
 					return

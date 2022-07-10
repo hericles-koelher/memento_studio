@@ -11,11 +11,13 @@ const (
 	imagesDirKey	= "IMAGES_FILE_PATH"
 )
 
-func UploadFile(file []byte, filename string) (string, error) {
-	var imageFilepath = ImagesRoute + "/" + filename
-	var imagesDir = getImagesFilePath()
+func UploadFile(file []byte, folderName, filename string) (string, error) {
+	var imageFilepath = ImagesRoute + "/" + folderName + "/" + filename
+	var imagesDir = GetImagesFilePath()
 
-	err := os.WriteFile(imagesDir + filename, file, 0644)
+	os.Mkdir(imagesDir + "/" + folderName, 0755)
+
+	err := os.WriteFile(imagesDir + folderName + "/" + filename, file, 0755)
 	if err != nil {
 		return "", err
 	}
@@ -23,9 +25,13 @@ func UploadFile(file []byte, filename string) (string, error) {
 	return imageFilepath, nil
 }
 
-func RemoveFile(onlinePath string) error {
+func RemoveFile(onlinePath, folder string) error {
 	filename := strings.Replace(onlinePath, ImagesRoute + "/", "", -1)
-	var imagesDir = getImagesFilePath()
+	if !strings.Contains(filename, folder) {
+		return nil
+	}
+
+	var imagesDir = GetImagesFilePath()
 
 	absPath, _ := filepath.Abs(imagesDir + filename)
 
@@ -34,7 +40,17 @@ func RemoveFile(onlinePath string) error {
 	return err
 }
 
-func getImagesFilePath() string {
+func RemoveFolder(folder string) error {
+	var imagesDir = GetImagesFilePath()
+
+	absPath, _ := filepath.Abs(imagesDir + folder)
+
+	err := os.RemoveAll(absPath)
+
+	return err
+}
+
+func GetImagesFilePath() string {
 	var imagesDir	  = "../../public/" // for tests
 
 	if value, ok := os.LookupEnv(imagesDirKey); ok { // in container

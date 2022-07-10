@@ -38,3 +38,13 @@ func GetRequestBody(bodyBuffer io.ReadCloser, result *map[string]interface{}) er
 
 	return err
 }
+
+func Remove(arr []string, value string) []string {
+	for i, v := range arr {
+		if v == value {
+			return append(arr[:i], arr[i+1:]...)
+		}
+	}
+
+	return arr
+}
