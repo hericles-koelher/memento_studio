@@ -35,8 +35,8 @@ abstract class DeckApi extends ChopperService {
     @Path("id") String deckId
   );
 
-  @Post(path: "/{id}")
-  Future<Response> copyDeck(
+  @Post(path: "/copy/{id}")
+  Future<Response<Deck>> copyDeck(
     @Path("id") String deckId
   );
 
