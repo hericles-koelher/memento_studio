@@ -113,8 +113,20 @@ class DeckRepository extends DeckRepositoryInterface{
     }
   }
 
-  // Future<Response> copyDeck() {
-  //   Future<Response> response = _api.copyDeck();
-  //   return response;
-  // }
+  Future<DeckResult> copyDeck(String id) async {
+    final response = await _api.copyDeck(id);
+
+    // Trata resposta
+    if (!response.isSuccessful) {
+      return Error(Exception(response.error.toString()));
+    } else {
+      final deck = response.body?.toDomainModel();
+
+      if (deck == null) {
+        return Error(Exception("Could not parse response body to deck model"));
+      }
+      
+      return Success(deck);
+    }
+  }
 }

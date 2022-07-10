@@ -61,9 +61,9 @@ class _$DeckApi extends DeckApi {
   }
 
   @override
-  Future<Response<dynamic>> copyDeck(String deckId) {
-    final $url = '/decks/${deckId}';
+  Future<Response<Deck>> copyDeck(String deckId) {
+    final $url = '/decks/copy/${deckId}';
     final $request = Request('POST', $url, client.baseUrl);
-    return client.send<dynamic, dynamic>($request);
+    return client.send<Deck, Deck>($request);
   }
 }
