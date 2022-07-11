@@ -5,6 +5,7 @@ import (
 	"server/src/errors"
 	"server/src/models"
 	"server/src/repositories/interfaces"
+	"server/src/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -44,23 +45,37 @@ func CreateUser(ginContext *gin.Context) {
 
 // TODO: Deletar também os decks no banco e no sistema de arquivos...
 func DeleteUser(ginContext *gin.Context) {
-	userRepo, ok := ginContext.MustGet("userRepository").(interfaces.UserRepository)
+	userRepo, okUser := ginContext.MustGet("userRepository").(interfaces.UserRepository)
+	deckRepo, okDeck := ginContext.MustGet("deckRepository").(interfaces.DeckRepository)
+	deckRefRepo, okDeckRef := ginContext.MustGet("deckReferenceRepository").(interfaces.DeckReferenceRepository)
 
-	if !ok {
+	if !okUser || !okDeck || !okDeckRef {
 		ginContext.Status(http.StatusInternalServerError)
 		return
 	}
 
 	uuid := ginContext.MustGet("UUID").(string)
+	user, err := userRepo.Read(uuid)
 
-	err := userRepo.Delete(uuid)
+	// Delete decks and its data
+	for _, deckId := range user.Decks {
+		// Delete deck
+		errRepo := deckRepo.Delete(deckId)
+		if errRepo != nil {
+			ginContext.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
+			return
+		}
+		// Delete public reference if it exists
+		deckRefRepo.Delete(deckId)
+
+		// Delete folder with images
+		utils.RemoveFolder(deckId)
+	}
+
+	err = userRepo.Delete(uuid)
 
 	if err != nil {
-		if err.Code == errors.Timeout {
-			ginContext.AbortWithStatusJSON(http.StatusRequestTimeout, err)
-		} else {
-			ginContext.AbortWithStatusJSON(http.StatusInternalServerError, err)
-		}
+		ginContext.AbortWithStatusJSON(utils.HandleRepositoryError(err), err.Error())
 	} else {
 		ginContext.Status(http.StatusOK)
 	}
