@@ -33,6 +33,7 @@ class DeckRepository extends DeckRepositoryInterface{
     }
   }
 
+  @override
   Future<DeckResult> saveDeck(local_model.Deck newDeck, Map<String, Uint8List> images) async {
     // Adiciona as imagens em uma part para ser enviada na requisicao
     List<PartValueFile> parts = [];
@@ -78,6 +79,7 @@ class DeckRepository extends DeckRepositoryInterface{
     }
   }
 
+  @override
   Future<DeckResult> updateDeck(String id, Map<String, dynamic> deckUpdates, Map<String, Uint8List> images) async {
     // Adiciona as imagens em uma part para ser enviada na requisicao
     List<PartValueFile> parts = [];
@@ -102,6 +104,7 @@ class DeckRepository extends DeckRepositoryInterface{
     }
   }
 
+  @override
   Future<Result> deleteDeck(String id) async {
     final response = await _api.deleteDeck(id);
 
@@ -113,6 +116,7 @@ class DeckRepository extends DeckRepositoryInterface{
     }
   }
 
+  @override
   Future<DeckResult> copyDeck(String id) async {
     final response = await _api.copyDeck(id);
 
