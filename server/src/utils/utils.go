@@ -3,8 +3,11 @@ package utils
 import (
 	"os"
 	"io"
+	"net/http"
 	"io/ioutil"
 	"encoding/json"
+
+	"server/src/errors"
 )
 type compareFunc func(interface{}, interface{}) bool
 
@@ -47,4 +50,15 @@ func Remove(arr []string, value string) []string {
 	}
 
 	return arr
+}
+
+func HandleRepositoryError(err *errors.RepositoryError) int {
+	switch err.Code {
+	case errors.DuplicateKey:
+		return http.StatusForbidden
+	case errors.Timeout:
+		return http.StatusRequestTimeout
+	default:
+		return http.StatusInternalServerError
+	}
 }

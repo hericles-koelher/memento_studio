@@ -56,14 +56,14 @@ func DeleteDeck(context *gin.Context) {
 	user.Decks = utils.Remove(user.Decks, id)
 	errRepo := userRepository.UpdateDecks(user.UUID, user.Decks)
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
 	// Delete deck
 	err := deckRepository.Delete(id)
 	if err != nil {
-		context.JSON(handleRepositoryError(err), err.Error())
+		context.JSON(utils.HandleRepositoryError(err), err.Error())
 		return
 	}
 
@@ -178,14 +178,14 @@ func PostDecks(context *gin.Context) {
 	deck.Cards = cardsUpdated
 	_, _, errRepo := deckRepository.InsertOrUpdate(&deck)
 	if err != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
 	// Insert or update deckReference
 	errRepo = updateIsPublicStatus(deck, deckReferenceRepository)
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
@@ -197,7 +197,7 @@ func PostDecks(context *gin.Context) {
 
 	errRepo = userRepository.UpdateDecks(user.UUID, deckIds)
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
@@ -241,7 +241,7 @@ func GetDecks(context *gin.Context) {
 
 	decksResult, errRepo := deckRepository.ReadAll(user.Decks, (int)(limit), (int)(page))
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 	
@@ -263,7 +263,7 @@ func CopyDeck(context *gin.Context) {
 	// Get deck from db
 	deck, errRepo := deckRepository.Read(id)
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
@@ -296,13 +296,13 @@ func CopyDeck(context *gin.Context) {
 	// Save deck and user updated
 	_, _, errRepo = deckRepository.InsertOrUpdate(&deckCopy)
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
 	errRepo = userRepository.UpdateDecks(user.UUID, user.Decks)
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
@@ -330,7 +330,7 @@ func PutDeck(context *gin.Context) {
 	// Check if deck exists
 	deckInDB, errRepo := deckRepository.Read(id)
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 	}
 
 	// Check if user owns this deck
@@ -434,14 +434,14 @@ func PutDeck(context *gin.Context) {
 	// Insert or update deckReference
 	errRepo = updateIsPublicStatus(*deckInDB, deckReferenceRepository)
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
 	// Save updated deck in DB
 	_, _, errRepo = deckRepository.InsertOrUpdate(deckInDB)
 	if errRepo != nil {
-		context.JSON(handleRepositoryError(errRepo), errRepo.Error())
+		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
 
@@ -457,22 +457,11 @@ func getUser(context *gin.Context, userRepository UserRepository) *models.User {
 
 	user, err := userRepository.Read(userid)
 	if err != nil {
-		context.JSON(handleRepositoryError(err), err.Error())
+		context.JSON(utils.HandleRepositoryError(err), err.Error())
 		return nil
 	}
 
 	return user
-}
-
-func handleRepositoryError(err *errors.RepositoryError) int {
-	switch err.Code {
-	case errors.DuplicateKey:
-		return http.StatusForbidden
-	case errors.Timeout:
-		return http.StatusRequestTimeout
-	default:
-		return http.StatusInternalServerError
-	}
 }
 
 func getDeckWithImages(reader *multipart.Reader) ([]byte, fileBytes, map[string]fileBytes, map[string]fileBytes, error) {
