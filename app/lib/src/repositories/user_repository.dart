@@ -1,5 +1,3 @@
-import 'package:chopper/chopper.dart';
-
 import '../datasource/api/user_api.dart';
 import '../entities/api/user.dart';
 import '../entities/local/result.dart';
