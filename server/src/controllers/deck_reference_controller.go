@@ -43,12 +43,10 @@ func ReadAllDeckReference(ginContext *gin.Context) {
 	}
 
 	var filter map[string]interface{}
-	if ginContext.Request.Body != nil {
-		err := utils.GetRequestBody(ginContext.Request.Body, &filter)
-		if err != nil {
-			ginContext.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
-			return
-		}
+	err := utils.GetRequestBody(ginContext.Request.Body, &filter)
+	if err != nil {
+		ginContext.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
 	}
 
 	decksReference, decksReferenceErr := deckReferenceRepo.ReadAll(limit, page, filter)
