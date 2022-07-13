@@ -43,10 +43,12 @@ func ReadAllDeckReference(ginContext *gin.Context) {
 	}
 
 	var filter map[string]interface{}
-	err := utils.GetRequestBody(ginContext.Request.Body, &filter)
-	if err != nil {
-		ginContext.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
-		return
+	if ginContext.Request.Body != nil {
+		err := utils.GetRequestBody(ginContext.Request.Body, &filter)
+		if err != nil {
+			ginContext.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+			return
+		}
 	}
 
 	decksReference, decksReferenceErr := deckReferenceRepo.ReadAll(limit, page, filter)
@@ -57,4 +59,29 @@ func ReadAllDeckReference(ginContext *gin.Context) {
 	} else {
 		ginContext.JSON(http.StatusOK, decksReference)
 	}
+}
+
+func GetPublicDeck(ginContext *gin.Context) {
+	deckRepository, ok := ginContext.MustGet("deckRepository").(interfaces.DeckRepository)
+	if !ok {
+		ginContext.AbortWithStatusJSON(http.StatusInternalServerError, "error when getting repository")
+		return
+	}
+
+	// Get deck
+	id := ginContext.Param("id")
+
+	deck, errRepo := deckRepository.Read(id)
+	if errRepo != nil {
+		ginContext.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
+		return
+	}
+
+	// Check if it is public
+	if !deck.IsPublic {
+		ginContext.AbortWithStatusJSON(http.StatusUnauthorized, "Can't get a private deck")
+	}
+
+	// Return deck
+	ginContext.JSON(http.StatusOK, deck)
 }
