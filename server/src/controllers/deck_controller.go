@@ -331,6 +331,7 @@ func PutDeck(context *gin.Context) {
 	deckInDB, errRepo := deckRepository.Read(id)
 	if errRepo != nil {
 		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
+		return
 	}
 
 	// Check if user owns this deck
