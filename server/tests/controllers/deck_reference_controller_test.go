@@ -42,3 +42,43 @@ func TestReadAllDeckReference(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEmpty(t, decks)
 }
+
+func TestGetPublicDeck(t *testing.T) {
+	setup()
+
+	testePublicDeckId := "testtest123"
+	publicDeck := models.Deck {
+		Name: "Batata",
+		Description: "Batatinha quando nasce espalha rama ou esparrama?",
+		IsPublic: true,
+	}
+
+	repoRef, _ := deckReferenceRepository.(*repositories_mock.DeckReferenceRepositoryMock)
+	repoDeck, _ := deckRepository.(*repositories_mock.DeckRepositoryMock)
+
+	repoDeck.Decks[testePublicDeckId] = &publicDeck
+
+	repoRef.DeckReferences = []models.DeckReference{
+		models.DeckReference{
+			Description: 	"Batatinha quando nasce espalha rama ou esparrama?",
+			Name:          	"Batata",
+			NumberOfCards: 	24,
+			Author:         "Geraldinho",
+			UUID:			testePublicDeckId,
+		},
+	}
+
+	request, err := http.NewRequest(http.MethodGet, "/api/decksReference/" + testePublicDeckId, nil)
+	if err != nil {
+		t.FailNow()
+	}
+
+	router.ServeHTTP(responseRecorder, request)
+
+	response, _ := io.ReadAll(responseRecorder.Body)
+	deckBytes, _:= json.Marshal(publicDeck)
+
+	assert.Equal(t, http.StatusOK, responseRecorder.Code)
+	assert.Nil(t, err)
+	assert.Equal(t, string(response), string(deckBytes))
+}
