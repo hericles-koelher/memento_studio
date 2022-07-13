@@ -26,4 +26,11 @@ class _$DeckReferenceApi extends DeckReferenceApi {
         Request('GET', $url, client.baseUrl, body: $body, parameters: $params);
     return client.send<List<DeckReference>, DeckReference>($request);
   }
+
+  @override
+  Future<Response<Deck>> getDeck(dynamic deckId) {
+    final $url = '/decksReference/${deckId}';
+    final $request = Request('GET', $url, client.baseUrl);
+    return client.send<Deck, Deck>($request);
+  }
 }
