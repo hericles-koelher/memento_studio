@@ -18,7 +18,8 @@ class Api {
         // Colocar os outros (user, referencia) aqui também
       ],
       interceptors: [
-        HttpLoggingInterceptor()
+        HttpLoggingInterceptor(),
+        const HeadersInterceptor({"Authorization": "Bearer "}) // TODO: adicionar token
       ],
       converter: JsonToTypeConverter({
             Deck: (jsonData) => Deck.fromJson(jsonData),
