@@ -11,6 +11,13 @@
             "type": "dart"
         },
         {
+            "name": "app (debug)",
+            "cwd": "app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug"
+        },
+        {
             "name": "app (profile mode)",
             "cwd": "app",
             "request": "launch",
