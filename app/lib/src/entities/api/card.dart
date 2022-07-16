@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../local/card.dart' as local;
+import '../local/deck/card.dart' as local;
 
 part 'card.g.dart';
 

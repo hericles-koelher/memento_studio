@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../../entities/local/deck.dart';
+import '../../entities/local/deck/deck.dart';
 
 abstract class DeckRepositoryInterface {
   dynamic getDecks(int page, int pageSize);

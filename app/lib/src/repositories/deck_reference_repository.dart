@@ -1,9 +1,8 @@
 import '../datasource/api/deck_reference_api.dart';
 import '../entities/local/result.dart';
 import 'interfaces/deck_reference_repository_interface.dart';
-import 'package:memento_studio/src/entities/local/result.dart';
-import 'package:memento_studio/src/entities/local/deck_reference.dart' as local_model;
-import 'package:memento_studio/src/entities/local/deck.dart';
+import 'package:memento_studio/src/entities/local/deck/deck_reference.dart' as local_model;
+import 'package:memento_studio/src/entities/local/deck/deck.dart';
 
 typedef DeckListResult = Result<List<local_model.DeckReference>>;
 typedef DeckResult = Result<Deck>;

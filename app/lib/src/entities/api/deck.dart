@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../local/deck.dart' as local_deck;
-import '../local/card.dart' as local_card;
+import '../local/deck/deck.dart' as local_deck;
+import '../local/deck/card.dart' as local_card;
 import 'card.dart';
 
 part 'deck.g.dart';

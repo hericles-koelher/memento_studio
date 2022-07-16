@@ -5,7 +5,7 @@ import 'package:chopper/chopper.dart';
 import 'package:memento_studio/src/datasource/api/deck_api.dart';
 import 'package:memento_studio/src/repositories/interfaces/deck_repository_interface.dart';
 import 'package:memento_studio/src/entities/local/result.dart';
-import 'package:memento_studio/src/entities/local/deck.dart' as local_model;
+import 'package:memento_studio/src/entities/local/deck/deck.dart' as local_model;
 import 'package:memento_studio/src/entities/api/deck.dart' as api_model;
 import 'package:memento_studio/src/entities/api/card.dart' as api_model_card;
 

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:memento_studio/src/entities/local/deck_reference.dart' as local_model;
+import 'package:memento_studio/src/entities/local/deck/deck_reference.dart' as local_model;
 
 part 'deck_reference.g.dart';
 
