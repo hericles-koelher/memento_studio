@@ -12,23 +12,11 @@ import (
 	"mime/multipart"
 
 	"server/src/models"
+	"server/src/utils"
 	"server/tests/repositories/mocks"
 	
 	"github.com/stretchr/testify/assert"
 )
-
-func TestDeleteDeck(t *testing.T) {
-	setup()
-
-	request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/decks/%s", deckId), nil)
-	if err != nil {
-		t.FailNow()
-	}
-	
-	router.ServeHTTP(responseRecorder, request)
-
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
-}
 
 func TestPostDecks(t *testing.T) {
 	setup()
@@ -51,7 +39,6 @@ func TestPostDecks(t *testing.T) {
 			Cards:            cards,
 			LastModification: 1654638124,
 			IsPublic:         false,
-			UUID:             "testdeckid1",
 			Tags:			  []string{},
 		}
 	
@@ -199,6 +186,8 @@ func TestCopyPrivateDeck(t *testing.T) {
 func TestPutDeckAddingImage(t *testing.T) {
 	setup()
 
+	os.Mkdir(utils.GetImagesFilePath() + "/" + deckId, 0755)
+
 	card := models.Card{
 		UUID: 		"batata",
 		FrontText: 	"Frente card",
@@ -329,4 +318,17 @@ func TestPutDeckRemovingImage(t *testing.T) {
 
 	assert.Empty(t, responseDeck.Cover)
 	assert.Empty(t, responseDeck.Cards[0].FrontImagePath)
+}
+
+func TestDeleteDeck(t *testing.T) {
+	setup()
+
+	request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/decks/%s", deckId), nil)
+	if err != nil {
+		t.FailNow()
+	}
+	
+	router.ServeHTTP(responseRecorder, request)
+
+	assert.Equal(t, http.StatusOK, responseRecorder.Code)
 }
