@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
-import 'package:memento_studio/src/blocs.dart';
+import 'package:memento_studio/src/state_managers.dart';
 
 import '../pages.dart';
 

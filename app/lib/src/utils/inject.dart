@@ -5,7 +5,8 @@ import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 
 import '../../firebase_options.dart';
-import '../blocs.dart';
+import '../state_managers.dart';
+import '../utils.dart';
 
 Future<void> injectDependencies() async {
   var kiwi = KiwiContainer();
@@ -19,6 +20,8 @@ Future<void> injectDependencies() async {
   kiwi.registerInstance(Logger());
 
   kiwi.registerSingleton(
-    (container) => GoogleSignIn(scopes: ["email", "profile"]),
+    (_) => GoogleSignIn(scopes: ["email", "profile"]),
   );
+
+  kiwi.registerInstance(await ObjectBox.create());
 }

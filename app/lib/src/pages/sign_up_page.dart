@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 
-import '../blocs.dart';
+import '../state_managers.dart';
 import '../utils.dart';
 
 class SignUpPage extends StatefulWidget {
