@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart';
 
+import '../entities/local/deck/deck_reference.dart';
+
 class DeckListTile extends StatelessWidget {
-  final Deck deck;
+  final DeckReference deck;
   const DeckListTile({Key? key, required this.deck}) : super(key: key);
 
   @override
@@ -44,8 +46,8 @@ class DeckListTile extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Por fulano de tal"),
-                              Text("${deck.cards.length} cards")
+                              Text("Por ${deck.author} de tal"),
+                              Text("${deck.numberOfCards} cards")
                             ],
                           ),
                         ),
