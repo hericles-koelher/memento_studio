@@ -16,8 +16,7 @@ class DeckReferenceRepository extends DeckReferenceRepositoryInterface {
   @override
   Future<DeckListResult> getDecks(int page, int pageSize,
       {Map<String, dynamic>? filter}) async {
-    final response =
-        await api.getDecks(pageSize, page, filter ?? <String, dynamic>{});
+    final response = await api.getDecks(pageSize, page, filter);
 
     if (!response.isSuccessful) {
       return Error(Exception(response.error.toString()));
