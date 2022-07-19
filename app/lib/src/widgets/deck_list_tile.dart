@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memento_studio/src/entities.dart';
 
 import '../entities/local/deck/deck_reference.dart';
 

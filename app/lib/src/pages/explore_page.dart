@@ -5,10 +5,8 @@ import 'package:memento_studio/src/entities/local/result.dart';
 import 'package:memento_studio/src/repositories/interfaces/deck_reference_repository_interface.dart';
 import 'package:memento_studio/src/widgets.dart';
 
-import '../entities.dart';
 import '../entities/local/deck/deck_reference.dart';
 import '../repositories/deck_reference_repository.dart';
-import '../utils.dart';
 
 // TODO: utilizar infinite_pagination_scroll
 class ExplorePage extends StatefulWidget {
@@ -63,7 +61,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     return ListView.separated(
                       itemBuilder: (_, index) =>
                           DeckListTile(deck: decks[index]),
-                      separatorBuilder: (_, __) => Divider(),
+                      separatorBuilder: (_, __) => const Divider(),
                       itemCount: decks.length,
                     );
                   }
@@ -71,10 +69,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   logger.e((decksResult as Error).exception.toString());
                   return const Center(child: Text("Deu merda"));
                 default:
-                  if (snapshot.hasError)
-                    return Text('Error: ${snapshot.error}');
-                  else
-                    return Text('Result: ${snapshot.data}');
+                  return const Text("Error");
               }
             }),
       ),
