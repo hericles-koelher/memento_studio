@@ -8,6 +8,7 @@ class UserRepository extends UserRepositoryInterface {
 
   UserRepository(this.api);
 
+  @override
   Future<Result<User>> getUser() async {
     final response = await api.getUser();
 
@@ -18,11 +19,12 @@ class UserRepository extends UserRepositoryInterface {
       if (response.body == null) {
         return Error(Exception("Could not parse response body"));
       }
-      
+
       return Success(response.body!);
     }
   }
 
+  @override
   Future<Result<User>> createUser() async {
     final response = await api.postUser();
 
@@ -33,11 +35,12 @@ class UserRepository extends UserRepositoryInterface {
       if (response.body == null) {
         return Error(Exception("Could not parse response body"));
       }
-      
+
       return Success(response.body!);
     }
   }
 
+  @override
   Future<Result> deleteUser() async {
     final response = await api.deleteUser();
 
@@ -49,4 +52,3 @@ class UserRepository extends UserRepositoryInterface {
     }
   }
 }
-

@@ -165,7 +165,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signOut() async {
     if (state is Authenticated) {
       emit(LogoutLoading((state as Authenticated).user));
-
+      
       // Inicialmente coloquei esse delay pra testar animação de carregamento
       // mas se eu achar necessário vou manter isso aqui.
       Future.delayed(const Duration(seconds: 1));
@@ -241,6 +241,14 @@ class AuthCubit extends Cubit<AuthState> {
     if (state is Authenticated) {
       await _auth.currentUser!.updateDisplayName(name);
     }
+  }
+
+  String? getToken() {
+    if (state is Authenticated) {
+      return (state as Authenticated).user.token;
+    }
+
+    return null;
   }
 
   // TODO: codificar updateEmail e updatePassword e configurar o firebase para tal...

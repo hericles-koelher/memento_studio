@@ -1,5 +1,4 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
-import 'package:memento_studio/src/entities.dart';
 
 part 'deck_reference.g.dart';
 

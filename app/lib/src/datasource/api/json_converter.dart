@@ -2,12 +2,10 @@ import 'dart:convert';
 
 import 'package:chopper/chopper.dart';
 
-
 class JsonToTypeConverter extends JsonConverter {
-
   final Map<Type, Function> typeToJsonFactoryMap;
 
-  JsonToTypeConverter(this.typeToJsonFactoryMap);
+  const JsonToTypeConverter(this.typeToJsonFactoryMap);
 
   @override
   Response<BodyType> convertResponse<BodyType, InnerType>(Response response) {
@@ -16,7 +14,8 @@ class JsonToTypeConverter extends JsonConverter {
     }
 
     return response.copyWith(
-      body: fromJsonData<BodyType, InnerType>(response.body, typeToJsonFactoryMap[InnerType]!),
+      body: fromJsonData<BodyType, InnerType>(
+          response.body, typeToJsonFactoryMap[InnerType]!),
     );
   }
 
@@ -24,7 +23,9 @@ class JsonToTypeConverter extends JsonConverter {
     var jsonMap = json.decode(jsonData);
 
     if (jsonMap is List) {
-      return jsonMap.map((item) => jsonParser(item as Map<String, dynamic>) as InnerType).toList() as T;
+      return jsonMap
+          .map((item) => jsonParser(item as Map<String, dynamic>) as InnerType)
+          .toList() as T;
     }
 
     return jsonParser(jsonMap);

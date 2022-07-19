@@ -6,6 +6,10 @@ import 'package:logger/logger.dart';
 
 import '../../firebase_options.dart';
 import '../blocs.dart';
+import '../datasource/api/api.dart';
+import '../datasource/api/deck_reference_api.dart';
+import '../repositories/deck_reference_repository.dart';
+import '../repositories/interfaces/deck_reference_repository_interface.dart';
 
 Future<void> injectDependencies() async {
   var kiwi = KiwiContainer();
@@ -17,6 +21,9 @@ Future<void> injectDependencies() async {
 
   kiwi.registerInstance(AuthCubit(FirebaseAuth.instanceFor(app: fbApp)));
   kiwi.registerInstance(Logger());
+
+  final chopperClient = Api.createInstance();
+  kiwi.registerInstance<DeckReferenceRepositoryInterface>(DeckReferenceRepository(chopperClient.getService<DeckReferenceApi>()));
 
   kiwi.registerSingleton(
     (container) => GoogleSignIn(scopes: ["email", "profile"]),

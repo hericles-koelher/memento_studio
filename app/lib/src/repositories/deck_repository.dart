@@ -5,14 +5,15 @@ import 'package:chopper/chopper.dart';
 import 'package:memento_studio/src/datasource/api/deck_api.dart';
 import 'package:memento_studio/src/repositories/interfaces/deck_repository_interface.dart';
 import 'package:memento_studio/src/entities/local/result.dart';
-import 'package:memento_studio/src/entities/local/deck/deck.dart' as local_model;
+import 'package:memento_studio/src/entities/local/deck/deck.dart'
+    as local_model;
 import 'package:memento_studio/src/entities/api/deck.dart' as api_model;
 import 'package:memento_studio/src/entities/api/card.dart' as api_model_card;
 
 typedef DeckListResult = Result<List<local_model.Deck>>;
 typedef DeckResult = Result<local_model.Deck>;
 
-class DeckRepository extends DeckRepositoryInterface{
+class DeckRepository extends DeckRepositoryInterface {
   final DeckApi _api;
 
   DeckRepository(this._api);
@@ -27,30 +28,29 @@ class DeckRepository extends DeckRepositoryInterface{
       return Error(Exception(response.error.toString()));
     } else {
       final deckApiList = response.body;
-      List<local_model.Deck> decks = deckApiList?.map((deck) => deck.toDomainModel()).toList() ?? <local_model.Deck>[];
-      
+      List<local_model.Deck> decks =
+          deckApiList?.map((deck) => deck.toDomainModel()).toList() ??
+              <local_model.Deck>[];
+
       return Success(decks);
     }
   }
 
   @override
-  Future<DeckResult> saveDeck(local_model.Deck newDeck, Map<String, Uint8List> images) async {
+  Future<DeckResult> saveDeck(
+      local_model.Deck newDeck, Map<String, Uint8List> images) async {
     // Adiciona as imagens em uma part para ser enviada na requisicao
     List<PartValueFile> parts = [];
-    images.forEach((key, value) { 
+    images.forEach((key, value) {
       parts.add(PartValueFile(key, value));
     });
 
     // Converte o baralho pro modelo da api
     final cardsApi = <api_model_card.Card>[];
-    newDeck.cards.forEach((c) {
-      cardsApi.add(
-        api_model_card.Card(
-          backText: c.backText,
-          frontText: c.frontText,
-          id: c.id)
-        );
-    });
+    for (var c in newDeck.cards) {
+      cardsApi.add(api_model_card.Card(
+          backText: c.backText, frontText: c.frontText, id: c.id));
+    }
 
     final newDeckApi = api_model.Deck(
         cards: cardsApi,
@@ -59,12 +59,12 @@ class DeckRepository extends DeckRepositoryInterface{
         name: newDeck.name,
         isPublic: newDeck.isPublic,
         tags: newDeck.tags,
-        lastModification: newDeck.lastModification.microsecondsSinceEpoch
-      );
+        lastModification: newDeck.lastModification.microsecondsSinceEpoch);
 
     // Envia requisição POST
-    final response = await _api.postDeck(json.encode(newDeckApi.toJson()), parts);
-    
+    final response =
+        await _api.postDeck(json.encode(newDeckApi.toJson()), parts);
+
     // Trata resposta
     if (!response.isSuccessful) {
       return Error(Exception(response.error.toString()));
@@ -74,16 +74,17 @@ class DeckRepository extends DeckRepositoryInterface{
       if (deck == null) {
         return Error(Exception("Could not parse response body to deck model"));
       }
-      
+
       return Success(deck);
     }
   }
 
   @override
-  Future<DeckResult> updateDeck(String id, Map<String, dynamic> deckUpdates, Map<String, Uint8List> images) async {
+  Future<DeckResult> updateDeck(String id, Map<String, dynamic> deckUpdates,
+      Map<String, Uint8List> images) async {
     // Adiciona as imagens em uma part para ser enviada na requisicao
     List<PartValueFile> parts = [];
-    images.forEach((key, value) { 
+    images.forEach((key, value) {
       parts.add(PartValueFile(key, value));
     });
 
@@ -99,7 +100,7 @@ class DeckRepository extends DeckRepositoryInterface{
       if (deck == null) {
         return Error(Exception("Could not parse response body to deck model"));
       }
-      
+
       return Success(deck);
     }
   }
@@ -111,7 +112,7 @@ class DeckRepository extends DeckRepositoryInterface{
     // Trata resposta
     if (!response.isSuccessful) {
       return Error(Exception(response.error.toString()));
-    } else {    
+    } else {
       return Success(response.body);
     }
   }
@@ -129,7 +130,7 @@ class DeckRepository extends DeckRepositoryInterface{
       if (deck == null) {
         return Error(Exception("Could not parse response body to deck model"));
       }
-      
+
       return Success(deck);
     }
   }
