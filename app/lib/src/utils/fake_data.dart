@@ -12,10 +12,11 @@ abstract class FakeData {
     ),
     Deck(
       id: "bca",
-      description: "xablay",
-      name: "Teste2",
+      description: "Habilidades de um pássaro para uma guerra.",
+      name: "War birb",
       lastModification: DateTime.now(),
-      tags: ["matematica", "biologia"],
+      tags: ["matematica", "biologia", "guerra", "passaro"],
+      cover: "assets/images/war-birb-wallpaper.jpeg",
     ),
     Deck(
       id: "acb",
