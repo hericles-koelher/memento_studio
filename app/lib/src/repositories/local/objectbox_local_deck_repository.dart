@@ -1,6 +1,6 @@
 import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/entities.dart';
-import 'package:memento_studio/src/exceptions/m_s_storage_exception.dart';
+import 'package:memento_studio/src/exceptions.dart';
 import 'package:memento_studio/src/repositories/local/local_deck_repository.dart';
 import 'package:memento_studio/src/utils.dart';
 

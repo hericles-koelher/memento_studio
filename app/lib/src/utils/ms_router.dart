@@ -15,6 +15,7 @@ class MSRouter {
 
   static const homeRouteName = "home";
   static const exploreRouteName = "explore";
+  static const deckCreationRouteName = "deck_creation";
   static const signInRouteName = "sign_in";
   static const signUpRouteName = "sign_up";
   static const myAccountRouteName = "my_account";
@@ -43,32 +44,32 @@ class MSRouter {
         GoRoute(
           path: '/',
           name: homeRouteName,
-          builder: (BuildContext context, GoRouterState state) =>
-              const HomePage(),
+          builder: (_, __) => const HomePage(),
           routes: [
+            GoRoute(
+              path: "deck_creation",
+              name: deckCreationRouteName,
+              builder: (_, __) => const DeckCreationPage(),
+            ),
             GoRoute(
               path: 'explore',
               name: exploreRouteName,
-              builder: (BuildContext context, GoRouterState state) =>
-                  const ExplorePage(),
+              builder: (_, __) => const ExplorePage(),
             ),
             GoRoute(
               path: 'my_account',
               name: myAccountRouteName,
-              builder: (BuildContext context, GoRouterState state) =>
-                  const MyAccountPage(),
+              builder: (_, __) => const MyAccountPage(),
             ),
             GoRoute(
               path: 'sign_in',
               name: signInRouteName,
-              builder: (BuildContext context, GoRouterState state) =>
-                  const SignInPage(),
+              builder: (_, __) => const SignInPage(),
               routes: [
                 GoRoute(
                   path: 'sign_up',
                   name: signUpRouteName,
-                  builder: (BuildContext context, GoRouterState state) =>
-                      const SignUpPage(),
+                  builder: (_, __) => const SignUpPage(),
                 ),
               ],
             ),
