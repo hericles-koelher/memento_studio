@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart' as ms_entities;
 
@@ -28,7 +30,7 @@ class DeckCard extends StatelessWidget {
     var coverDecoration = BoxDecoration(
       image: shouldShowImage
           ? DecorationImage(
-              image: AssetImage(deck.cover!),
+              image: Image.file(File(deck.cover!)).image,
               fit: BoxFit.cover,
             )
           : null,

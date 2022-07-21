@@ -8,7 +8,6 @@ abstract class FakeData {
       name: "Teste1",
       lastModification: DateTime.now(),
       tags: ["adg", "yabada"],
-      cover: "assets/images/kazuma.png",
     ),
     Deck(
       id: "bca",
@@ -43,7 +42,6 @@ abstract class FakeData {
       name: "Teste1",
       lastModification: DateTime.now(),
       tags: ["adg", "yabada"],
-      cover: "assets/images/kazuma.png",
     ),
     Deck(
       id: "bca",
@@ -58,7 +56,6 @@ abstract class FakeData {
       name: "Teste1",
       lastModification: DateTime.now(),
       tags: ["adg", "yabada"],
-      cover: "assets/images/kazuma.png",
     ),
     Deck(
       id: "bca",
