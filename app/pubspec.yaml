@@ -56,6 +56,10 @@ dependencies:
   json_serializable: ^6.1.5
   logging: ^1.0.0
   cached_network_image: ^3.2.1
+  percent_indicator: ^4.2.2
+  carousel_slider: ^4.1.1
+  auto_size_text: ^3.0.0
+  flip_card: ^0.6.0
 
 dev_dependencies:
   flutter_test:
