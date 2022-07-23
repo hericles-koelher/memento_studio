@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart';
 
+import 'card_page.dart';
+
 class DeckPage extends StatefulWidget {
   final Deck deck;
   final bool isPersonalDeck;
@@ -114,7 +116,20 @@ class _DeckPageState extends State<DeckPage> {
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      widget.deck.cards.shuffle();
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CardPage(
+                              deckTitle: widget.deck.name,
+                              deckDescription: widget.deck.description ?? "",
+                              cards: widget.deck.cards,
+                              isPersonalDeck: widget.isPersonalDeck),
+                        ),
+                      );
+                    },
                     child: const Text('Começar'),
                   ),
                 ],
@@ -126,7 +141,7 @@ class _DeckPageState extends State<DeckPage> {
     );
   }
 
-  dynamic getDeckCover() {
+  Widget getDeckCover() {
     bool shouldShowImage =
         widget.deck.cover != null && widget.deck.cover!.isNotEmpty;
     var imageHeight = 300.0;

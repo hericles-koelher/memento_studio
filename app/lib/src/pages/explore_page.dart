@@ -81,7 +81,6 @@ class _ExplorePageState extends State<ExplorePage> {
 
   Future<void> goToDeckPage(String id, BuildContext context) async {
     final deckResult = await repo.getDeck(id);
-    print("Clicou em ${id}");
 
     if (deckResult is Error) {
       final scaffold = ScaffoldMessenger.of(context);
