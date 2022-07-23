@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_const
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart';
 
@@ -19,20 +20,7 @@ class _DeckPageState extends State<DeckPage> {
   Widget build(BuildContext context) {
     var tags = widget.deck.tags.isNotEmpty ? widget.deck.tags : ["Sem Tags"];
 
-    bool shouldShowImage =
-        widget.deck.cover != null && widget.deck.cover!.isNotEmpty;
-
-    // if from ... else fromInternet
-
-    var imageCover = BoxDecoration(
-      image: shouldShowImage
-          ? DecorationImage(
-              image: AssetImage(widget.deck.cover!),
-              fit: BoxFit.cover,
-            )
-          : null,
-      color: shouldShowImage ? null : Colors.amber,
-    );
+    dynamic imageCover = getDeckCover();
 
     var popUpMenu = PopupMenuButton(
         // add icon, by default "3 dot" icon
@@ -84,11 +72,7 @@ class _DeckPageState extends State<DeckPage> {
       body: SingleChildScrollView(
         child: Wrap(
           children: [
-            Container(
-              height: 300,
-              width: MediaQuery.of(context).size.width,
-              decoration: imageCover,
-            ),
+            imageCover,
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
               child: Column(
@@ -138,6 +122,47 @@ class _DeckPageState extends State<DeckPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  dynamic getDeckCover() {
+    bool shouldShowImage =
+        widget.deck.cover != null && widget.deck.cover!.isNotEmpty;
+    var imageHeight = 300.0;
+
+    var placeholderImage = const BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage("assets/images/placeholder.png"),
+        fit: BoxFit.cover,
+      ),
+    );
+
+    if (shouldShowImage && !widget.deck.cover!.contains('http')) {
+      return Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(widget.deck.cover!),
+            fit: BoxFit.cover,
+          ),
+        ),
+        height: imageHeight,
+      );
+    } else if (!shouldShowImage) {
+      return Container(
+        decoration: placeholderImage,
+        height: imageHeight,
+      );
+    }
+
+    return CachedNetworkImage(
+      width: MediaQuery.of(context).size.width,
+      height: imageHeight,
+      imageUrl: widget.deck.cover ?? "",
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator()),
+      errorWidget: (context, url, error) => Container(
+        decoration: placeholderImage,
       ),
     );
   }
