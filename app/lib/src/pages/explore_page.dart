@@ -7,6 +7,7 @@ import 'package:memento_studio/src/widgets.dart';
 
 import '../entities/local/deck/deck_reference.dart';
 import '../repositories/deck_reference_repository.dart';
+import 'deck_page.dart';
 
 // TODO: utilizar infinite_pagination_scroll
 class ExplorePage extends StatefulWidget {
@@ -59,8 +60,10 @@ class _ExplorePageState extends State<ExplorePage> {
                         (decksResult as Success<List<DeckReference>>).value;
 
                     return ListView.separated(
-                      itemBuilder: (_, index) =>
-                          DeckListTile(deck: decks[index]),
+                      itemBuilder: (_, index) => InkWell(
+                        onTap: () => goToDeckPage(decks[index].id, context),
+                        child: DeckListTile(deck: decks[index]),
+                      ),
                       separatorBuilder: (_, __) => const Divider(),
                       itemCount: decks.length,
                     );
@@ -72,6 +75,32 @@ class _ExplorePageState extends State<ExplorePage> {
                   return const Text("Error");
               }
             }),
+      ),
+    );
+  }
+
+  Future<void> goToDeckPage(String id, BuildContext context) async {
+    final deckResult = await repo.getDeck(id);
+    print("Clicou em ${id}");
+
+    if (deckResult is Error) {
+      final scaffold = ScaffoldMessenger.of(context);
+
+      scaffold.showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao pegar baralho público'),
+        ),
+      );
+
+      return;
+    }
+
+    final deck = (deckResult as Success).value;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DeckPage(deck: deck, isPersonalDeck: false),
       ),
     );
   }
