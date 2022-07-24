@@ -35,7 +35,7 @@ class _CardPageState extends State<CardPage> {
   var _currentCard = 0;
   @override
   Widget build(BuildContext context) {
-    final cardSize = 0.72 * MediaQuery.of(context).size.height;
+    final cardSize = 0.70 * MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.deckTitle),
@@ -100,7 +100,11 @@ class _CardPageState extends State<CardPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.deckDescription),
+          Text(
+            widget.deckDescription,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 10.0),
           LinearPercentIndicator(
             width: MediaQuery.of(context).size.width - 3.5 * horizontalPadding,
