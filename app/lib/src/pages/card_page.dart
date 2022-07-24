@@ -35,43 +35,11 @@ class _CardPageState extends State<CardPage> {
   var _currentCard = 0;
   @override
   Widget build(BuildContext context) {
-    var popUpMenu = PopupMenuButton(itemBuilder: (context) {
-      return widget.isPersonalDeck
-          ? [
-              const PopupMenuItem<int>(
-                value: 1,
-                child: Text("Editar"),
-              ),
-              const PopupMenuItem<int>(
-                value: 2,
-                child: Text(
-                  "Deletar",
-                  style: TextStyle(color: Colors.red),
-                ),
-              )
-            ]
-          : [
-              // const PopupMenuItem<int>(
-              //   value: 0,
-              //   child: Text("Copiar baralho"),
-              // )
-            ];
-    }, onSelected: (value) {
-      switch (value) {
-        case 1:
-          // Editar carta
-          break;
-        case 2:
-          // Deletar carta
-          break;
-      }
-    });
-
+    final cardSize = 0.72 * MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.deckTitle),
         backgroundColor: Colors.transparent,
-        actions: [popUpMenu],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +49,7 @@ class _CardPageState extends State<CardPage> {
           const Spacer(),
           CarouselSlider(
             options: CarouselOptions(
-                height: 450.0,
+                height: cardSize,
                 enlargeCenterPage: true,
                 onPageChanged: (index, _) {
                   setState(() {
@@ -100,12 +68,14 @@ class _CardPageState extends State<CardPage> {
                       front: CardView(
                         text: card.value.frontText ?? "",
                         imagePath: card.value.frontImage ?? "",
+                        height: cardSize,
                         color: CardPage.cardsColors[
                             card.key % CardPage.cardsColors.length],
                       ),
                       back: CardView(
                         text: card.value.backText ?? "",
                         imagePath: card.value.backImage ?? "",
+                        height: cardSize,
                         color: CardPage.cardsColors[
                             card.key % CardPage.cardsColors.length],
                       ),

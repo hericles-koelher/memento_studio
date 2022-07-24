@@ -4,14 +4,17 @@ import 'package:flutter/material.dart';
 // import 'package:memento_studio/src/entities.dart' as ms_entities;
 
 class CardView extends StatelessWidget {
-  final _imageHeight = 180.0;
-
   final String text;
   final String? imagePath;
   final Color color;
+  final double height;
 
   const CardView(
-      {Key? key, required this.text, this.imagePath, required this.color})
+      {Key? key,
+      required this.text,
+      this.imagePath,
+      required this.color,
+      required this.height})
       : super(key: key);
 
   @override
@@ -20,34 +23,36 @@ class CardView extends StatelessWidget {
 
     bool shouldShowImage = imagePath != null && imagePath!.isNotEmpty;
 
-    return Column(children: [
-      shouldShowImage ? const Spacer() : Container(),
-      shouldShowImage
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(15.0),
-              child: cardImage(),
-            )
-          : const Spacer(),
-      Card(
+    return Container(
+      decoration: BoxDecoration(color: Colors.transparent),
+      child: Card(
         color: color,
-        child: Container(
-          height: shouldShowImage ? _imageHeight : 2 * _imageHeight,
-          width: double.infinity,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: AutoSizeText(
-                text,
-                style: const TextStyle(fontSize: 28),
-                textAlign: TextAlign.center,
-                maxLines: 3,
+        child: Column(children: [
+          shouldShowImage
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(12.0),
+                  child: cardImage(),
+                )
+              : const Spacer(),
+          shouldShowImage ? Spacer() : Container(),
+          Container(
+            width: double.infinity,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: AutoSizeText(
+                  text,
+                  style: const TextStyle(fontSize: 28),
+                  textAlign: TextAlign.center,
+                  maxLines: 4,
+                ),
               ),
             ),
           ),
-        ),
+          const Spacer(),
+        ]),
       ),
-      const Spacer()
-    ]);
+    );
   }
 
   Widget cardImage() {
@@ -67,13 +72,13 @@ class CardView extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        height: _imageHeight,
+        height: height / 2,
       );
     }
 
     return CachedNetworkImage(
       // width: MediaQuery.of(context).size.width,
-      height: _imageHeight,
+      height: height / 2,
       width: double.infinity,
       imageUrl: imagePath!,
       placeholder: (context, url) =>
