@@ -35,12 +35,16 @@ class _DeckPageState extends State<DeckPage> {
                 child: Text("Editar"),
               ),
               const PopupMenuItem<int>(
+                value: 3,
+                child: Text("Tornar público"),
+              ),
+              const PopupMenuItem<int>(
                 value: 2,
                 child: Text(
                   "Deletar",
                   style: TextStyle(color: Colors.red),
                 ),
-              )
+              ),
             ]
           : [
               const PopupMenuItem<int>(
@@ -59,8 +63,13 @@ class _DeckPageState extends State<DeckPage> {
           print("Editar baralho");
           break;
         case 2:
-          // TODO: Deletar baralho
+          showDeleteDeckDialog();
           print("Deletar baralho");
+          break;
+        case 3:
+          // TODO: Tornar baralho público
+          showTurnPublicDialog();
+          print("Tornar público");
       }
     });
 
@@ -111,31 +120,38 @@ class _DeckPageState extends State<DeckPage> {
                       style: const TextStyle(fontSize: 16.0),
                     ),
                   ),
-                  const SizedBox(height: 25.0),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
-                    onPressed: () {
-                      widget.deck.cards.shuffle();
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CardPage(
-                              deckTitle: widget.deck.name,
-                              deckDescription: widget.deck.description ?? "",
-                              cards: widget.deck.cards,
-                              isPersonalDeck: widget.isPersonalDeck),
-                        ),
-                      );
-                    },
-                    child: const Text('Começar'),
-                  ),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+          ),
+          onPressed: () {
+            if (widget.deck.cards.isEmpty) {
+              showNoCardsDialog();
+              return;
+            }
+
+            widget.deck.cards.shuffle();
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CardPage(
+                    deckTitle: widget.deck.name,
+                    deckDescription: widget.deck.description ?? "",
+                    cards: widget.deck.cards,
+                    isPersonalDeck: widget.isPersonalDeck),
+              ),
+            );
+          },
+          child: const Text('Começar'),
         ),
       ),
     );
@@ -178,6 +194,71 @@ class _DeckPageState extends State<DeckPage> {
           const Center(child: CircularProgressIndicator()),
       errorWidget: (context, url, error) => Container(
         decoration: placeholderImage,
+      ),
+    );
+  }
+
+  void showNoCardsDialog() {
+    var noCardsDescription =
+        widget.isPersonalDeck ? "Crie cartas para ele!" : "";
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Sem cartas'),
+        content: Text(
+            "Ainda não há cartas disponíveis nesse baralho. $noCardsDescription"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: Text(widget.isPersonalDeck ? "Adicionar" : "Ok"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showTurnPublicDialog() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Tornar baralho público?'),
+        content: const Text(
+            "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas coleções próprias. Tem certeza disso?"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancelar'),
+            child: const Text('Não'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text("Sim"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showDeleteDeckDialog() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Deletar baralho?'),
+        content: const Text(
+            "Ao confirmar, este baralho será removido da sua coleção. Tem certeza disso?"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancelar'),
+            child: const Text('Não'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text("Sim"),
+          ),
+        ],
       ),
     );
   }
