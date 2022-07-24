@@ -6,3 +6,4 @@ export 'utils/dependency_injection.dart';
 export 'utils/ms_router.dart';
 export 'utils/objectbox_store.dart';
 export 'utils/image_handler.dart';
+export 'utils/asset_manager.dart';

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart' as ms_entities;
+import 'package:memento_studio/src/utils.dart';
 
 class DeckCard extends StatelessWidget {
   final ms_entities.Deck deck;
@@ -28,16 +29,16 @@ class DeckCard extends StatelessWidget {
     bool shouldShowImage = deck.cover != null && deck.cover!.isNotEmpty;
 
     var coverDecoration = BoxDecoration(
-      image: shouldShowImage
-          ? DecorationImage(
-              image: Image.file(File(deck.cover!)).image,
-              fit: BoxFit.cover,
-            )
-          : null,
-      color: shouldShowImage ? null : defaultCoverColor,
+      image: DecorationImage(
+        image: (shouldShowImage
+                ? Image.file(File(deck.cover!))
+                : Image.asset(AssetManager.noImagePath))
+            .image,
+        fit: BoxFit.cover,
+      ),
       borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(15),
-        bottomRight: Radius.circular(15),
+        bottomLeft: Radius.circular(borderRadius),
+        bottomRight: Radius.circular(borderRadius),
       ),
     );
 

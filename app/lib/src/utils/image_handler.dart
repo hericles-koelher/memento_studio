@@ -39,10 +39,12 @@ Future<Uint8List> getImageBytes(String path) {
   }
 }
 
-Future<MemoryImage?> getImageFromDeviceGallery() async {
+Future<MemoryImage?> getImageFromDevice({required bool fromGallery}) async {
   ImagePicker picker = KiwiContainer().resolve();
 
-  var xfile = await picker.pickImage(source: ImageSource.gallery);
+  var xfile = await picker.pickImage(
+    source: fromGallery ? ImageSource.gallery : ImageSource.camera,
+  );
 
   if (xfile != null) {
     return MemoryImage(

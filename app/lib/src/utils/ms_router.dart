@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
+import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/state_managers.dart';
 
 import '../pages.dart';
@@ -16,6 +17,7 @@ class MSRouter {
   static const homeRouteName = "home";
   static const exploreRouteName = "explore";
   static const deckCreationRouteName = "deck_creation";
+  static const deckEditRouteName = "deck_edit";
   static const signInRouteName = "sign_in";
   static const signUpRouteName = "sign_up";
   static const myAccountRouteName = "my_account";
@@ -50,6 +52,12 @@ class MSRouter {
               path: "deck_creation",
               name: deckCreationRouteName,
               builder: (_, __) => const DeckCreationPage(),
+            ),
+            GoRoute(
+              path: "deck_edit",
+              name: deckEditRouteName,
+              builder: (_, state) =>
+                  DeckEditPage(deck: (state.extra as Deck?)!),
             ),
             GoRoute(
               path: 'explore',
