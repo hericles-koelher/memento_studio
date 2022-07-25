@@ -2,8 +2,12 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:kiwi/kiwi.dart';
+import 'package:memento_studio/src/blocs/auth_cubit.dart';
 import 'package:memento_studio/src/entities.dart';
 
+import '../entities/local/result.dart';
+import '../repositories/interfaces/deck_repository_interface.dart';
 import 'card_page.dart';
 
 class DeckPage extends StatefulWidget {
@@ -18,6 +22,9 @@ class DeckPage extends StatefulWidget {
 }
 
 class _DeckPageState extends State<DeckPage> {
+  final DeckRepositoryInterface repo = KiwiContainer().resolve();
+  final AuthCubit auth = KiwiContainer().resolve();
+
   @override
   Widget build(BuildContext context) {
     var tags = widget.deck.tags.isNotEmpty ? widget.deck.tags : ["Sem Tags"];
@@ -55,8 +62,7 @@ class _DeckPageState extends State<DeckPage> {
     }, onSelected: (value) {
       switch (value) {
         case 0:
-          // TODO: Fazer cópia de baralho
-          print("Faz cópia de baralho");
+          showCopyDeckDialog();
           break;
         case 1:
           // TODO: Ir pra tela de edição de baralho
@@ -64,12 +70,9 @@ class _DeckPageState extends State<DeckPage> {
           break;
         case 2:
           showDeleteDeckDialog();
-          print("Deletar baralho");
           break;
         case 3:
-          // TODO: Tornar baralho público
           showTurnPublicDialog();
-          print("Tornar público");
       }
     });
 
@@ -187,6 +190,7 @@ class _DeckPageState extends State<DeckPage> {
     }
 
     return CachedNetworkImage(
+      fit: BoxFit.cover,
       width: MediaQuery.of(context).size.width,
       height: imageHeight,
       imageUrl: widget.deck.cover ?? "",
@@ -210,11 +214,75 @@ class _DeckPageState extends State<DeckPage> {
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.pop(context, 'Cancel'),
-            child: const Text('Cancelar'),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.red)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, 'OK'),
-            child: Text(widget.isPersonalDeck ? "Adicionar" : "Ok"),
+            child: Text(widget.isPersonalDeck ? "Criar" : "Ok"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showCopyDeckDialog() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text.rich(
+          TextSpan(
+            text: "Deseja fazer uma cópia de ",
+            children: <TextSpan>[
+              TextSpan(
+                text: "'${widget.deck.name}'",
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
+              const TextSpan(text: "?")
+            ],
+          ),
+        ),
+        content: Text.rich(
+          TextSpan(
+            text: "Uma cópia do baralho ",
+            children: <TextSpan>[
+              TextSpan(
+                text: "'${widget.deck.name}'",
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
+              const TextSpan(text: " será adicionada a sua coleção.")
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancelar'),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // Tira dialog para mostrar loading
+              showLoadingDialog();
+
+              // Salva baralho localmente
+
+              String newId = "";
+              if (auth.state is Authenticated) {
+                var result = await repo
+                    .copyDeck(widget.deck.id); // Salva baralho no servidor
+
+                if (result is Error) {
+                  // Falha ao salvar baralho no servidor. Sincronize mais tarde.
+                } else {
+                  newId = ((result as Success).value as Deck).id;
+                }
+              }
+
+              Navigator.pop(context, 'ok');
+            },
+            child: const Text("Confirmar"),
           ),
         ],
       ),
@@ -227,11 +295,11 @@ class _DeckPageState extends State<DeckPage> {
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Tornar baralho público?'),
         content: const Text(
-            "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas coleções próprias. Tem certeza disso?"),
+            "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas próprias coleções. Tem certeza disso?"),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.pop(context, 'Cancelar'),
-            child: const Text('Não'),
+            child: const Text('Não', style: TextStyle(color: Colors.red)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, 'OK'),
@@ -252,7 +320,7 @@ class _DeckPageState extends State<DeckPage> {
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.pop(context, 'Cancelar'),
-            child: const Text('Não'),
+            child: const Text('Não', style: TextStyle(color: Colors.red)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, 'OK'),
@@ -261,5 +329,33 @@ class _DeckPageState extends State<DeckPage> {
         ],
       ),
     );
+  }
+
+  void showLoadingDialog() {
+    showDialog(
+        // The user CANNOT close this dialog  by pressing outsite it
+        barrierDismissible: false,
+        context: context,
+        builder: (_) {
+          return Dialog(
+            // The background color
+            backgroundColor: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  // The loading indicator
+                  CircularProgressIndicator(),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  // Some text
+                  Text('Loading...')
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

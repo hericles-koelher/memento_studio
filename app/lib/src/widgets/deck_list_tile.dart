@@ -25,6 +25,8 @@ class DeckListTile extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15.0),
                       child: CachedNetworkImage(
+                        fit: BoxFit.cover,
+                        height: double.infinity,
                         imageUrl: deck.cover ?? "",
                         placeholder: (context, url) =>
                             const Center(child: CircularProgressIndicator()),
