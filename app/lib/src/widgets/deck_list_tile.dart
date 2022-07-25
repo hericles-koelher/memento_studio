@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../entities/local/deck/deck_reference.dart';
+import 'package:memento_studio/src/entities.dart';
 
 class DeckListTile extends StatelessWidget {
   final DeckReference deck;

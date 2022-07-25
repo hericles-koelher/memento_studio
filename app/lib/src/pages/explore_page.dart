@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
-import 'package:memento_studio/src/entities/local/result.dart';
-import 'package:memento_studio/src/repositories/interfaces/deck_reference_repository_interface.dart';
+
+import 'package:memento_studio/src/repositories.dart';
+import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/widgets.dart';
 
-import '../entities/local/deck/deck_reference.dart';
-import '../repositories/deck_reference_repository.dart';
 import 'deck_page.dart';
 
 // TODO: utilizar infinite_pagination_scroll
@@ -46,9 +45,9 @@ class _ExplorePageState extends State<ExplorePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-        child: FutureBuilder<DeckListResult>(
+        child: FutureBuilder<DeckListReferencesResult>(
             future: repo.getDecks(1, 10),
-            builder: (_, AsyncSnapshot<DeckListResult> snapshot) {
+            builder: (_, AsyncSnapshot<DeckListReferencesResult> snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
                   return const Center(child: CircularProgressIndicator());

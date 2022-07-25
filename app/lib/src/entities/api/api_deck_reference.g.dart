@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'deck_reference.dart';
+part of 'api_deck_reference.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-DeckReference _$DeckReferenceFromJson(Map<String, dynamic> json) =>
-    DeckReference(
+ApiDeckReference _$ApiDeckReferenceFromJson(Map<String, dynamic> json) =>
+    ApiDeckReference(
       id: json['UUID'] as String,
       description: json['Description'] as String? ?? "",
       cover: json['Cover'] as String? ?? "",
@@ -19,7 +19,7 @@ DeckReference _$DeckReferenceFromJson(Map<String, dynamic> json) =>
       numberOfCards: json['NumberOfCards'] as int? ?? 0,
     );
 
-Map<String, dynamic> _$DeckReferenceToJson(DeckReference instance) =>
+Map<String, dynamic> _$ApiDeckReferenceToJson(ApiDeckReference instance) =>
     <String, dynamic>{
       'UUID': instance.id,
       'Description': instance.description,

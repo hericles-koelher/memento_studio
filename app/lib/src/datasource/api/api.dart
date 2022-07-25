@@ -1,12 +1,8 @@
 import 'package:chopper/chopper.dart';
-import 'package:memento_studio/src/datasource/api/user_api.dart';
-import '../../entities/api/deck_reference.dart';
-import '../../entities/api/user.dart';
+import 'package:memento_studio/src/apis.dart';
 import 'authenticator.dart';
-import 'deck_api.dart';
-import 'deck_reference_api.dart';
 import 'json_converter.dart';
-import 'package:memento_studio/src/entities/api/deck.dart';
+import 'package:memento_studio/src/entities.dart';
 
 class Api {
   static ChopperClient createInstance() {
@@ -20,9 +16,9 @@ class Api {
         authenticator: MSAuthenticator(),
         interceptors: [HttpLoggingInterceptor(), AuthRequestInterceptor()],
         converter: JsonToTypeConverter({
-          Deck: (jsonData) => Deck.fromJson(jsonData),
-          User: (jsonData) => User.fromJson(jsonData),
-          DeckReference: (jsonData) => DeckReference.fromJson(jsonData),
+          ApiDeck: (jsonData) => ApiDeck.fromJson(jsonData),
+          ApiUser: (jsonData) => ApiUser.fromJson(jsonData),
+          ApiDeckReference: (jsonData) => ApiDeckReference.fromJson(jsonData),
           Map<String, dynamic>: (jsonData) => jsonData
         }));
   }

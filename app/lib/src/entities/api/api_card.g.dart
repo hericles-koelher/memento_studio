@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'card.dart';
+part of 'api_card.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Card _$CardFromJson(Map<String, dynamic> json) => Card(
+ApiCard _$ApiCardFromJson(Map<String, dynamic> json) => ApiCard(
       id: json['uuid'] as String?,
       frontText: json['frontText'] as String?,
       frontImage: json['frontImagePath'] as String?,
@@ -14,7 +14,7 @@ Card _$CardFromJson(Map<String, dynamic> json) => Card(
       backImage: json['backImagePath'] as String?,
     );
 
-Map<String, dynamic> _$CardToJson(Card instance) => <String, dynamic>{
+Map<String, dynamic> _$ApiCardToJson(ApiCard instance) => <String, dynamic>{
       'uuid': instance.id,
       'frontText': instance.frontText,
       'frontImagePath': instance.frontImage,

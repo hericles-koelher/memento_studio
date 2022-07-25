@@ -24,7 +24,7 @@ class CardView extends StatelessWidget {
     bool shouldShowImage = imagePath != null && imagePath!.isNotEmpty;
 
     return Container(
-      decoration: BoxDecoration(color: Colors.transparent),
+      decoration: const BoxDecoration(color: Colors.transparent),
       child: Card(
         color: color,
         child: Column(children: [
@@ -34,8 +34,8 @@ class CardView extends StatelessWidget {
                   child: cardImage(),
                 )
               : const Spacer(),
-          shouldShowImage ? Spacer() : Container(),
-          Container(
+          shouldShowImage ? const Spacer() : Container(),
+          SizedBox(
             width: double.infinity,
             child: Center(
               child: Padding(

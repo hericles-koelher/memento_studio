@@ -17,29 +17,28 @@ class _$DeckApi extends DeckApi {
   final definitionType = DeckApi;
 
   @override
-  Future<Response<List<Deck>>> getDecks(Map<String, int> pagination) {
+  Future<Response<List<ApiDeck>>> getDecks(Map<String, int> pagination) {
     final $url = '/decks';
     final $body = pagination;
     final $request = Request('GET', $url, client.baseUrl, body: $body);
-    return client.send<List<Deck>, Deck>($request);
+    return client.send<List<ApiDeck>, ApiDeck>($request);
   }
 
   @override
-  Future<Response<Deck>> postDeck(dynamic deck, dynamic images) {
+  Future<Response<ApiDeck>> postDeck(dynamic deck, dynamic images) {
     final $url = '/decks';
     final $headers = {
       'Content-Type': 'multipart/form-data',
     };
 
     final $parts = <PartValue>[PartValue<dynamic>('deck', deck)];
-    $parts.addAll(images);
     final $request = Request('POST', $url, client.baseUrl,
         parts: $parts, multipart: true, headers: $headers);
-    return client.send<Deck, Deck>($request);
+    return client.send<ApiDeck, ApiDeck>($request);
   }
 
   @override
-  Future<Response<Deck>> putDeck(
+  Future<Response<ApiDeck>> putDeck(
       String deckId, String deckUpdates, dynamic images) {
     final $url = '/decks/${deckId}';
     final $headers = {
@@ -47,10 +46,9 @@ class _$DeckApi extends DeckApi {
     };
 
     final $parts = <PartValue>[PartValue<String>('deck', deckUpdates)];
-    $parts.addAll(images);
     final $request = Request('PUT', $url, client.baseUrl,
         parts: $parts, multipart: true, headers: $headers);
-    return client.send<Deck, Deck>($request);
+    return client.send<ApiDeck, ApiDeck>($request);
   }
 
   @override
@@ -61,9 +59,9 @@ class _$DeckApi extends DeckApi {
   }
 
   @override
-  Future<Response<Deck>> copyDeck(String deckId) {
+  Future<Response<ApiDeck>> copyDeck(String deckId) {
     final $url = '/decks/copy/${deckId}';
     final $request = Request('POST', $url, client.baseUrl);
-    return client.send<Deck, Deck>($request);
+    return client.send<ApiDeck, ApiDeck>($request);
   }
 }

@@ -3,11 +3,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
-import 'package:memento_studio/src/blocs/auth_cubit.dart';
+import 'package:memento_studio/src/state_managers/auth_cubit.dart';
 import 'package:memento_studio/src/entities.dart';
 
-import '../entities/local/result.dart';
-import '../repositories/interfaces/deck_repository_interface.dart';
+import 'package:memento_studio/src/repositories.dart';
 import 'card_page.dart';
 
 class DeckPage extends StatefulWidget {
