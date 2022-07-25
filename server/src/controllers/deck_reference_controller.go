@@ -80,6 +80,7 @@ func GetPublicDeck(ginContext *gin.Context) {
 	// Check if it is public
 	if !deck.IsPublic {
 		ginContext.AbortWithStatusJSON(http.StatusUnauthorized, "Can't get a private deck")
+		return
 	}
 
 	// Return deck

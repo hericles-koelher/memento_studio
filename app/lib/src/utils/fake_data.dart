@@ -11,13 +11,38 @@ abstract class FakeData {
       cover: "assets/images/kazuma.png",
     ),
     Deck(
-      id: "bca",
-      description: "Habilidades de um pássaro para uma guerra.",
-      name: "War birb",
-      lastModification: DateTime.now(),
-      tags: ["matematica", "biologia", "guerra", "passaro"],
-      cover: "assets/images/war-birb-wallpaper.jpeg",
-    ),
+        id: "bca",
+        description: "Habilidades de um pássaro para uma guerra.",
+        name: "War birb",
+        lastModification: DateTime.now(),
+        tags: ["matematica", "biologia", "guerra", "passaro"],
+        cover: "assets/images/war-birb-wallpaper.jpeg",
+        cards: [
+          Card(
+              id: "idcard1",
+              frontText:
+                  "Qual é a primeira pergunta relativamente longa do primeiro card?",
+              frontImage: "assets/images/nhoque-charles.jpg",
+              backText: "É essa mesmo que você acabou de fazer!"),
+          Card(
+            id: "idcard2",
+            frontText: "Quem é você?",
+            backImage: "assets/images/sushiraldo.jpg",
+            backText: "Também não sei, to perdido",
+          ),
+          Card(
+              id: "idcard3",
+              frontText: "Nome do passarinho da mikaella",
+              frontImage: "assets/images/geraldin.jpg",
+              backText: "Geraldo",
+              backImage: "assets/images/sushiraldo.jpg"),
+          Card(
+            id: "idcard4",
+            frontText: "Quem nasceu primeiro, o ovo ou a galinha?",
+            frontImage: "assets/images/nhoque-charles.jpg",
+            backText: "Também não sei",
+          )
+        ]),
     Deck(
       id: "acb",
       description: "xablay",

@@ -1,7 +1,10 @@
 // ignore_for_file: unnecessary_const
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart';
+
+import 'card_page.dart';
 
 class DeckPage extends StatefulWidget {
   final Deck deck;
@@ -19,20 +22,7 @@ class _DeckPageState extends State<DeckPage> {
   Widget build(BuildContext context) {
     var tags = widget.deck.tags.isNotEmpty ? widget.deck.tags : ["Sem Tags"];
 
-    bool shouldShowImage =
-        widget.deck.cover != null && widget.deck.cover!.isNotEmpty;
-
-    // if from ... else fromInternet
-
-    var imageCover = BoxDecoration(
-      image: shouldShowImage
-          ? DecorationImage(
-              image: AssetImage(widget.deck.cover!),
-              fit: BoxFit.cover,
-            )
-          : null,
-      color: shouldShowImage ? null : Colors.amber,
-    );
+    dynamic imageCover = getDeckCover();
 
     var popUpMenu = PopupMenuButton(
         // add icon, by default "3 dot" icon
@@ -45,12 +35,16 @@ class _DeckPageState extends State<DeckPage> {
                 child: Text("Editar"),
               ),
               const PopupMenuItem<int>(
+                value: 3,
+                child: Text("Tornar público"),
+              ),
+              const PopupMenuItem<int>(
                 value: 2,
                 child: Text(
                   "Deletar",
                   style: TextStyle(color: Colors.red),
                 ),
-              )
+              ),
             ]
           : [
               const PopupMenuItem<int>(
@@ -69,8 +63,13 @@ class _DeckPageState extends State<DeckPage> {
           print("Editar baralho");
           break;
         case 2:
-          // TODO: Deletar baralho
+          showDeleteDeckDialog();
           print("Deletar baralho");
+          break;
+        case 3:
+          // TODO: Tornar baralho público
+          showTurnPublicDialog();
+          print("Tornar público");
       }
     });
 
@@ -84,11 +83,7 @@ class _DeckPageState extends State<DeckPage> {
       body: SingleChildScrollView(
         child: Wrap(
           children: [
-            Container(
-              height: 300,
-              width: MediaQuery.of(context).size.width,
-              decoration: imageCover,
-            ),
+            imageCover,
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
               child: Column(
@@ -125,19 +120,145 @@ class _DeckPageState extends State<DeckPage> {
                       style: const TextStyle(fontSize: 16.0),
                     ),
                   ),
-                  const SizedBox(height: 25.0),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
-                    onPressed: () {},
-                    child: const Text('Começar'),
-                  ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+          ),
+          onPressed: () {
+            if (widget.deck.cards.isEmpty) {
+              showNoCardsDialog();
+              return;
+            }
+
+            widget.deck.cards.shuffle();
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CardPage(
+                    deckTitle: widget.deck.name,
+                    deckDescription: widget.deck.description ?? "",
+                    cards: widget.deck.cards,
+                    isPersonalDeck: widget.isPersonalDeck),
+              ),
+            );
+          },
+          child: const Text('Começar'),
+        ),
+      ),
+    );
+  }
+
+  Widget getDeckCover() {
+    bool shouldShowImage =
+        widget.deck.cover != null && widget.deck.cover!.isNotEmpty;
+    var imageHeight = 300.0;
+
+    var placeholderImage = const BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage("assets/images/placeholder.png"),
+        fit: BoxFit.cover,
+      ),
+    );
+
+    if (shouldShowImage && !widget.deck.cover!.contains('http')) {
+      return Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(widget.deck.cover!),
+            fit: BoxFit.cover,
+          ),
+        ),
+        height: imageHeight,
+      );
+    } else if (!shouldShowImage) {
+      return Container(
+        decoration: placeholderImage,
+        height: imageHeight,
+      );
+    }
+
+    return CachedNetworkImage(
+      width: MediaQuery.of(context).size.width,
+      height: imageHeight,
+      imageUrl: widget.deck.cover ?? "",
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator()),
+      errorWidget: (context, url, error) => Container(
+        decoration: placeholderImage,
+      ),
+    );
+  }
+
+  void showNoCardsDialog() {
+    var noCardsDescription =
+        widget.isPersonalDeck ? "Crie cartas para ele!" : "";
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Sem cartas'),
+        content: Text(
+            "Ainda não há cartas disponíveis nesse baralho. $noCardsDescription"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: Text(widget.isPersonalDeck ? "Adicionar" : "Ok"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showTurnPublicDialog() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Tornar baralho público?'),
+        content: const Text(
+            "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas coleções próprias. Tem certeza disso?"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancelar'),
+            child: const Text('Não'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text("Sim"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showDeleteDeckDialog() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Deletar baralho?'),
+        content: const Text(
+            "Ao confirmar, este baralho será removido da sua coleção. Tem certeza disso?"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancelar'),
+            child: const Text('Não'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text("Sim"),
+          ),
+        ],
       ),
     );
   }

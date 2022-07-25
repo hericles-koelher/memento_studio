@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../entities/local/deck/deck_reference.dart';
@@ -21,10 +22,21 @@ class DeckListTile extends StatelessWidget {
               child: Row(
                 children: [
                   Flexible(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.amber,
-                        borderRadius: BorderRadius.circular(15),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15.0),
+                      child: CachedNetworkImage(
+                        imageUrl: deck.cover ?? "",
+                        placeholder: (context, url) =>
+                            const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => Container(
+                          decoration: const BoxDecoration(
+                            image: DecorationImage(
+                              image:
+                                  AssetImage("assets/images/placeholder.png"),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
