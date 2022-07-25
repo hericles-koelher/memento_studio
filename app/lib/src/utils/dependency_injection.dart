@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../firebase_options.dart';
 import '../blocs.dart';
@@ -13,6 +17,8 @@ import '../repositories/deck_reference_repository.dart';
 import '../repositories/deck_repository.dart';
 import '../repositories/interfaces/deck_reference_repository_interface.dart';
 import '../repositories/interfaces/deck_repository_interface.dart';
+import '../state_managers.dart';
+import '../utils.dart';
 
 Future<void> injectDependencies() async {
   var kiwi = KiwiContainer();
@@ -32,6 +38,14 @@ Future<void> injectDependencies() async {
       DeckRepository(chopperClient.getService<DeckApi>()));
 
   kiwi.registerSingleton(
-    (container) => GoogleSignIn(scopes: ["email", "profile"]),
+    (_) => GoogleSignIn(scopes: ["email", "profile"]),
   );
+
+  kiwi.registerInstance(await ObjectBox.create());
+
+  kiwi.registerInstance<Directory>(
+    await getApplicationDocumentsDirectory(),
+  );
+
+  kiwi.registerSingleton((_) => ImagePicker());
 }

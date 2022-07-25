@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jdenticon_dart/jdenticon_dart.dart';
 import 'package:kiwi/kiwi.dart';
-import 'package:memento_studio/src/blocs.dart';
+import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/utils.dart';
 
 class MSDrawer extends StatelessWidget {

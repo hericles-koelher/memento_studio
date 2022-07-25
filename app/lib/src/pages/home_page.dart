@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:memento_studio/src/pages/deck_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:kiwi/kiwi.dart';
+import 'package:logger/logger.dart';
+import 'package:memento_studio/src/utils/ms_router.dart';
 import 'package:memento_studio/src/widgets.dart';
 
 import '../utils.dart';
@@ -70,7 +74,8 @@ class HomePage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () =>
+            GoRouter.of(context).goNamed(MSRouter.deckCreationRouteName),
       ),
     );
   }

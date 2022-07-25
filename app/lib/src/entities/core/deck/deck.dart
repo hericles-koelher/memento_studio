@@ -9,19 +9,19 @@ class Deck {
   final List<Card> cards;
   final String? description;
   final String? cover;
-  final String name;
   final bool isPublic;
-  final List<String> tags;
   final DateTime lastModification;
+  final String name;
+  final List<String> tags;
 
   Deck({
     required this.id,
     this.cards = const [],
     this.description,
     this.cover,
-    required this.name,
     this.isPublic = false,
-    this.tags = const [],
     required this.lastModification,
+    required this.name,
+    this.tags = const [],
   });
 }
