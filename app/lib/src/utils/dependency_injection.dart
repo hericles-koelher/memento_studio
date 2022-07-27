@@ -36,6 +36,7 @@ Future<void> injectDependencies() async {
   );
 
   kiwi.registerInstance(await ObjectBox.create());
+  kiwi.registerInstance<LocalDeckRepository>(ObjectBoxLocalDeckRepository());
 
   kiwi.registerInstance<Directory>(
     await getApplicationDocumentsDirectory(),
