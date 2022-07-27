@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +70,7 @@ class CardView extends StatelessWidget {
         decoration: BoxDecoration(
           image: DecorationImage(
             alignment: Alignment.center,
-            image: AssetImage(imagePath!),
+            image: FileImage(File(imagePath!)),
             fit: BoxFit.cover,
           ),
         ),

@@ -1,5 +1,8 @@
 // ignore_for_file: unnecessary_const
 
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
@@ -21,7 +24,8 @@ class DeckPage extends StatefulWidget {
 }
 
 class _DeckPageState extends State<DeckPage> {
-  final DeckRepositoryInterface repo = KiwiContainer().resolve();
+  final DeckRepositoryInterface apiRepo = KiwiContainer().resolve();
+  final LocalDeckRepository localRepo = KiwiContainer().resolve();
   final AuthCubit auth = KiwiContainer().resolve();
 
   @override
@@ -175,7 +179,7 @@ class _DeckPageState extends State<DeckPage> {
       return Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(widget.deck.cover!),
+            image: FileImage(File(widget.deck.cover!)),
             fit: BoxFit.cover,
           ),
         ),
@@ -212,10 +216,6 @@ class _DeckPageState extends State<DeckPage> {
             "Ainda não há cartas disponíveis nesse baralho. $noCardsDescription"),
         actions: <Widget>[
           TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancel'),
-            child: const Text('Cancelar', style: TextStyle(color: Colors.red)),
-          ),
-          TextButton(
             onPressed: () => Navigator.pop(context, 'OK'),
             child: Text(widget.isPersonalDeck ? "Criar" : "Ok"),
           ),
@@ -227,7 +227,7 @@ class _DeckPageState extends State<DeckPage> {
   void showCopyDeckDialog() {
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (BuildContext copyContext) => AlertDialog(
         title: Text.rich(
           TextSpan(
             text: "Deseja fazer uma cópia de ",
@@ -265,21 +265,54 @@ class _DeckPageState extends State<DeckPage> {
               Navigator.pop(context); // Tira dialog para mostrar loading
               showLoadingDialog();
 
-              // Salva baralho localmente
+              var isThereError = false;
 
-              String newId = "";
+              // Salvar baralho localmente
+              final localAdapter = ObjectBoxDeckAdapter();
+              var localDeck = localAdapter.toLocal(widget.deck);
+              localDeck.id = "";
+              await localRepo.create(localDeck);
+
               if (auth.state is Authenticated) {
-                var result = await repo
+                var result = await apiRepo
                     .copyDeck(widget.deck.id); // Salva baralho no servidor
 
                 if (result is Error) {
-                  // Falha ao salvar baralho no servidor. Sincronize mais tarde.
-                } else {
-                  newId = ((result as Success).value as Deck).id;
+                  isThereError = true; // Tratar melhor esse erro talvez
+                } else if (result is Success) {
+                  var deckCopy = result.value as Deck;
+                  var localDeckCopy = localAdapter.toLocal(deckCopy);
+
+                  // Update local deck
+                  localDeckCopy.storageId = localDeck.storageId;
+                  await localRepo.update(localDeckCopy);
                 }
               }
 
-              Navigator.pop(context, 'ok');
+              Navigator.pop(context); // Retira loading
+              if (isThereError) {
+                showOkWithIconDialog(
+                  "Falha ao salvar baralho no servidor",
+                  "Não foi possível fazer a cópia do baralho no servidor. Tente sincronizar mais tarde.",
+                  icon: const Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 50.0,
+                    semanticLabel: 'Error',
+                  ),
+                );
+              } else {
+                showOkWithIconDialog(
+                  "Cópia feita com sucesso",
+                  "Uma cópia deste baralho foi adicionada a sua coleção.",
+                  icon: const Icon(
+                    Icons.task_alt,
+                    color: Colors.green,
+                    size: 50.0,
+                    semanticLabel: 'Success',
+                  ),
+                );
+              }
             },
             child: const Text("Confirmar"),
           ),
@@ -291,17 +324,55 @@ class _DeckPageState extends State<DeckPage> {
   void showTurnPublicDialog() {
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (BuildContext pcontext) => AlertDialog(
         title: const Text('Tornar baralho público?'),
         content: const Text(
-            "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas próprias coleções. Tem certeza disso?"),
+            "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas próprias coleções. Lembre-se de sincronizar o baralho antes de torná-lo público. Tem certeza disso?"),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.pop(context, 'Cancelar'),
             child: const Text('Não', style: TextStyle(color: Colors.red)),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, 'OK'),
+            onPressed: () async {
+              Navigator.pop(context); // Tira dialog para mostrar loading
+              showLoadingDialog();
+
+              if (auth.state is Authenticated) {
+                var result = await apiRepo.updateDeck(widget.deck.id,
+                    <String, bool>{"isPublic": true}, <String, Uint8List>{});
+
+                Navigator.pop(context);
+
+                if (result is Error) {
+                  showOkWithIconDialog(
+                    "Falha ao tornar baralho público",
+                    "Não foi possível tornar este baralho público. Tente novamente mais tarde.",
+                    icon: const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 50.0,
+                      semanticLabel: 'Error',
+                    ),
+                  );
+                } else if (result is Success) {
+                  showOkWithIconDialog(
+                    "Baralho público com sucesso",
+                    "Agora este baralho é público e outras pessoas poderão utilizá-lo.",
+                    icon: const Icon(
+                      Icons.task_alt,
+                      color: Colors.green,
+                      size: 50.0,
+                      semanticLabel: 'Success',
+                    ),
+                  );
+                }
+              } else {
+                Navigator.pop(context);
+                showOkWithIconDialog("Usuário não logado",
+                    "Você precisa estar logado para tornar este baralho público.");
+              }
+            },
             child: const Text("Sim"),
           ),
         ],
@@ -335,7 +406,7 @@ class _DeckPageState extends State<DeckPage> {
         // The user CANNOT close this dialog  by pressing outsite it
         barrierDismissible: false,
         context: context,
-        builder: (_) {
+        builder: (context) {
           return Dialog(
             // The background color
             backgroundColor: Colors.white,
@@ -356,5 +427,30 @@ class _DeckPageState extends State<DeckPage> {
             ),
           );
         });
+  }
+
+  void showOkWithIconDialog(String title, String subtitle, {Icon? icon}) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(title),
+        content: SizedBox(
+          height: 130,
+          child: Column(
+            children: [
+              icon ?? Container(),
+              const SizedBox(height: 15.0),
+              Text(subtitle),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text("Ok"),
+          ),
+        ],
+      ),
+    );
   }
 }
