@@ -22,14 +22,16 @@ Future<void> injectDependencies() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  kiwi.registerInstance(AuthCubit(FirebaseAuth.instanceFor(app: fbApp)));
-  kiwi.registerInstance(Logger());
-
   final chopperClient = Api.createInstance();
   kiwi.registerInstance<DeckReferenceRepositoryInterface>(
       DeckReferenceRepository(chopperClient.getService<DeckReferenceApi>()));
   kiwi.registerInstance<DeckRepositoryInterface>(
       DeckRepository(chopperClient.getService<DeckApi>()));
+  kiwi.registerInstance<UserRepositoryInterface>(
+      UserRepository(chopperClient.getService<UserApi>()));
+
+  kiwi.registerInstance(AuthCubit(FirebaseAuth.instanceFor(app: fbApp)));
+  kiwi.registerInstance(Logger());
 
   kiwi.registerSingleton(
     (_) => GoogleSignIn(scopes: ["email", "profile"]),

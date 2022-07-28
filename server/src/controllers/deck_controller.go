@@ -1,20 +1,19 @@
 package controllers
 
 import (
-	"net/http"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"regexp"
 	"mime/multipart"
-	"encoding/json"
+	"net/http"
+	"regexp"
 	"strings"
-	
 
+	"server/src/errors"
+	"server/src/models"
 	. "server/src/repositories/interfaces"
 	"server/src/utils"
-	"server/src/models"
-	"server/src/errors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -30,7 +29,7 @@ func DeleteDeck(context *gin.Context) {
 	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
 	deckReferenceRepository, okDeckReference := context.MustGet("deckReferenceRepository").(DeckReferenceRepository)
 	userRepository, okUser := context.MustGet("userRepository").(UserRepository)
-	if !okDeck || !okDeckReference ||!okUser {
+	if !okDeck || !okDeckReference || !okUser {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete deck"})
 		return
 	}
@@ -40,15 +39,17 @@ func DeleteDeck(context *gin.Context) {
 
 	// Get user
 	user := getUser(context, userRepository)
-	if user == nil { return }
+	if user == nil {
+		return
+	}
 
 	// Check if user owns this deck
-	var containsDeck = utils.Contains(user.Decks, id, 
-		func (id1, id2 interface{}) bool {
+	var containsDeck = utils.Contains(user.Decks, id,
+		func(id1, id2 interface{}) bool {
 			return id1.(string) == id2.(string)
 		})
 	if !containsDeck {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "User has no permission to delete this deck"})
+		context.JSON(http.StatusForbidden, gin.H{"message": "User has no permission to delete this deck"})
 		return
 	}
 
@@ -88,26 +89,28 @@ func PostDecks(context *gin.Context) {
 
 	// Get user
 	user := getUser(context, userRepository)
-	if user == nil { return }
-	
+	if user == nil {
+		return
+	}
+
 	// Get deck in requisition
 	reader, err := context.Request.MultipartReader()
 	if err != nil {
-        context.JSON(http.StatusInternalServerError, err.Error())
-        return
-    }
+		context.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	deckBytes, deckCover, cardsFront, cardsBack, err := getDeckWithImages(reader)
 	if err != nil {
-        context.JSON(http.StatusBadRequest, err.Error())
-        return
-    }
+		context.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
 
 	var deck models.Deck
 	err = json.Unmarshal(deckBytes, &deck)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, err.Error())
-        return
+		return
 	}
 
 	// Check if deck is new or if user owns it
@@ -116,11 +119,11 @@ func PostDecks(context *gin.Context) {
 		isNewDeck = true
 		deck.UUID = uuid.New().String()
 	} else {
-		userHasDeck := utils.Contains(user.Decks, deck.UUID, 
-			func (id1, id2 interface{}) bool {
+		userHasDeck := utils.Contains(user.Decks, deck.UUID,
+			func(id1, id2 interface{}) bool {
 				return id1.(string) == id2.(string)
 			})
-		
+
 		if !userHasDeck {
 			context.JSON(http.StatusUnauthorized, "User has no permission to update this deck")
 			return
@@ -139,7 +142,7 @@ func PostDecks(context *gin.Context) {
 		}
 		deck.Cover = filepath
 	}
-	
+
 	// Update cards
 	cardsUpdated := []models.Card{}
 	for _, card := range deck.Cards {
@@ -215,7 +218,9 @@ func GetDecks(context *gin.Context) {
 
 	// Get user
 	user := getUser(context, userRepository)
-	if user == nil { return }
+	if user == nil {
+		return
+	}
 
 	// Get requisition's body
 	var reqBody map[string]interface{}
@@ -234,7 +239,7 @@ func GetDecks(context *gin.Context) {
 	if !okLim {
 		limit = 30
 	}
-	
+
 	if !okPage {
 		page = 1
 	}
@@ -244,7 +249,7 @@ func GetDecks(context *gin.Context) {
 		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
-	
+
 	context.JSON(http.StatusOK, decksResult)
 }
 
@@ -279,7 +284,7 @@ func CopyDeck(context *gin.Context) {
 	deckCopy.IsPublic = false
 
 	var newCards = []models.Card{}
-	for _, card:= range deck.Cards {
+	for _, card := range deck.Cards {
 		card.UUID = uuid.New().String()
 		newCards = append(newCards, card)
 	}
@@ -307,7 +312,7 @@ func CopyDeck(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, deckCopy)
-	return 
+	return
 }
 
 func PutDeck(context *gin.Context) {
@@ -325,7 +330,9 @@ func PutDeck(context *gin.Context) {
 
 	// Get user
 	user := getUser(context, userRepository)
-	if user == nil { return }
+	if user == nil {
+		return
+	}
 
 	// Check if deck exists
 	deckInDB, errRepo := deckRepository.Read(id)
@@ -335,34 +342,34 @@ func PutDeck(context *gin.Context) {
 	}
 
 	// Check if user owns this deck
-	var containsDeck = utils.Contains(user.Decks, id, 
-		func (id1, id2 interface{}) bool {
+	var containsDeck = utils.Contains(user.Decks, id,
+		func(id1, id2 interface{}) bool {
 			return id1.(string) == id2.(string)
 		})
 	if !containsDeck {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "User has no permission to update this deck"})
+		context.JSON(http.StatusForbidden, gin.H{"message": "User has no permission to update this deck"})
 		return
 	}
 
 	// Get deck in requisition
 	reader, err := context.Request.MultipartReader()
 	if err != nil {
-        context.JSON(http.StatusInternalServerError, err.Error())
-        return
-    }
+		context.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	deckBytes, deckCover, cardsFront, cardsBack, err := getDeckWithImages(reader)
 	if err != nil {
-        context.JSON(http.StatusBadRequest, err.Error())
-        return
-    }
+		context.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
 
 	// Parse deck from requisition to map
 	var deck map[string]interface{}
 	err = json.Unmarshal(deckBytes, &deck)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, err.Error())
-        return
+		return
 	}
 
 	if len(deckCover) != 0 { // Save and update deck cover image
@@ -406,7 +413,7 @@ func PutDeck(context *gin.Context) {
 					context.JSON(http.StatusBadRequest, errFront.Error())
 					return
 				}
-				
+
 				card.FrontImagePath = filepathFront
 			}
 		}
@@ -422,7 +429,7 @@ func PutDeck(context *gin.Context) {
 					context.JSON(http.StatusBadRequest, errBack.Error())
 					return
 				}
-				
+
 				card.BackImagePath = filepathBack
 			}
 		}
@@ -449,7 +456,6 @@ func PutDeck(context *gin.Context) {
 	context.JSON(http.StatusOK, deckInDB)
 }
 
-
 // --------------------- Aux functions --------------------- //
 
 func getUser(context *gin.Context, userRepository UserRepository) *models.User {
@@ -467,9 +473,9 @@ func getUser(context *gin.Context, userRepository UserRepository) *models.User {
 
 func getDeckWithImages(reader *multipart.Reader) ([]byte, fileBytes, map[string]fileBytes, map[string]fileBytes, error) {
 	var deck fileBytes
-	var deckCover 	 	fileBytes
-	cardFrontImages := 	map[string]fileBytes{}
-	cardBackImages 	:= 	map[string]fileBytes{}
+	var deckCover fileBytes
+	cardFrontImages := map[string]fileBytes{}
+	cardBackImages := map[string]fileBytes{}
 
 	var regexCardFront = regexp.MustCompile("card-front-(.+)")
 	var regexCardBack = regexp.MustCompile("card-back-(.+)")
@@ -479,7 +485,7 @@ func getDeckWithImages(reader *multipart.Reader) ([]byte, fileBytes, map[string]
 		if err != nil {
 			return nil, nil, nil, nil, err
 		}
-		
+
 		switch name := part.FormName(); {
 		case name == "deck":
 			deck, err = ioutil.ReadAll(part)
