@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memento_studio/src/blocs.dart';
+import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/entities.dart' as ms_entities;
 import 'package:memento_studio/src/exceptions.dart';
 import 'package:mocktail/mocktail.dart';

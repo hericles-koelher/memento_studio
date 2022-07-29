@@ -1,6 +1,5 @@
-import '../datasource/api/user_api.dart';
-import '../entities/api/user.dart';
-import '../entities/local/result.dart';
+import 'package:memento_studio/src/apis.dart';
+import 'package:memento_studio/src/entities.dart';
 import 'interfaces/user_repository_interface.dart';
 
 class UserRepository extends UserRepositoryInterface {
@@ -9,7 +8,7 @@ class UserRepository extends UserRepositoryInterface {
   UserRepository(this.api);
 
   @override
-  Future<Result<User>> getUser() async {
+  Future<Result<ApiUser>> getUser() async {
     final response = await api.getUser();
 
     // Trata resposta
@@ -25,7 +24,7 @@ class UserRepository extends UserRepositoryInterface {
   }
 
   @override
-  Future<Result<User>> createUser() async {
+  Future<Result<ApiUser>> createUser() async {
     final response = await api.postUser();
 
     // Trata resposta

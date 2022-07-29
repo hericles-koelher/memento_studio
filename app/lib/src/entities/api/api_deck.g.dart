@@ -1,15 +1,15 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'deck.dart';
+part of 'api_deck.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Deck _$DeckFromJson(Map<String, dynamic> json) => Deck(
+ApiDeck _$ApiDeckFromJson(Map<String, dynamic> json) => ApiDeck(
       id: json['UUID'] as String?,
       cards: (json['cards'] as List<dynamic>?)
-          ?.map((e) => Card.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => ApiCard.fromJson(e as Map<String, dynamic>))
           .toList(),
       description: json['description'] as String?,
       cover: json['cover'] as String?,
@@ -19,7 +19,7 @@ Deck _$DeckFromJson(Map<String, dynamic> json) => Deck(
       lastModification: json['lastModification'] as int?,
     );
 
-Map<String, dynamic> _$DeckToJson(Deck instance) => <String, dynamic>{
+Map<String, dynamic> _$ApiDeckToJson(ApiDeck instance) => <String, dynamic>{
       'UUID': instance.id,
       'cards': instance.cards,
       'description': instance.description,

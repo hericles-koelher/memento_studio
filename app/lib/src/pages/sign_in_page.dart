@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
-import 'package:memento_studio/src/blocs.dart';
+import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/utils.dart';
 

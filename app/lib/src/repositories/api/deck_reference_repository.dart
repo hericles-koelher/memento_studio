@@ -1,12 +1,7 @@
-import '../datasource/api/deck_reference_api.dart';
-import '../entities/local/result.dart';
-import 'interfaces/deck_reference_repository_interface.dart';
-import 'package:memento_studio/src/entities/local/deck/deck_reference.dart'
-    as local_model;
-import 'package:memento_studio/src/entities/local/deck/deck.dart';
+import 'package:memento_studio/src/apis.dart';
+import 'package:memento_studio/src/entities.dart';
 
-typedef DeckListResult = Result<List<local_model.DeckReference>>;
-typedef DeckResult = Result<Deck>;
+import 'interfaces/deck_reference_repository_interface.dart';
 
 class DeckReferenceRepository extends DeckReferenceRepositoryInterface {
   DeckReferenceApi api;
@@ -14,7 +9,7 @@ class DeckReferenceRepository extends DeckReferenceRepositoryInterface {
   DeckReferenceRepository(this.api);
 
   @override
-  Future<DeckListResult> getDecks(int page, int pageSize,
+  Future<DeckListReferencesResult> getDecks(int page, int pageSize,
       {Map<String, dynamic>? filter}) async {
     final response = await api.getDecks(pageSize, page, filter);
 
@@ -22,9 +17,9 @@ class DeckReferenceRepository extends DeckReferenceRepositoryInterface {
       return Error(Exception(response.error.toString()));
     } else {
       final deckApiList = response.body;
-      List<local_model.DeckReference> decks =
+      List<DeckReference> decks =
           deckApiList?.map((deck) => deck.toDomainModel()).toList() ??
-              <local_model.DeckReference>[];
+              <DeckReference>[];
 
       return Success(decks);
     }

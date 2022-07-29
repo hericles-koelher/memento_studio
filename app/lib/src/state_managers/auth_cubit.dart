@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:kiwi/kiwi.dart';
+import 'package:memento_studio/src/repositories.dart';
 import 'package:meta/meta.dart';
 
 import '../exceptions.dart';
@@ -13,6 +15,7 @@ part 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final FirebaseAuth _auth;
   StreamSubscription? _userStreamSubscription;
+  UserRepositoryInterface userRepo = KiwiContainer().resolve();
 
   AuthCubit(FirebaseAuth auth)
       : _auth = auth,
@@ -102,6 +105,8 @@ class AuthCubit extends Cubit<AuthState> {
             ),
           ),
         );
+
+        await userRepo.createUser(); // TODO: Tratar erro
       } else {
         emit(Unauthenticated());
       }
@@ -151,6 +156,8 @@ class AuthCubit extends Cubit<AuthState> {
         await currentUser.reauthenticateWithCredential(fbCredential);
 
         await _auth.currentUser!.delete();
+
+        await userRepo.deleteUser(); // TODO: Tratar erro
       } on FirebaseAuthException catch (e) {
         emit(
           AccountDeletionError(
@@ -165,7 +172,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signOut() async {
     if (state is Authenticated) {
       emit(LogoutLoading((state as Authenticated).user));
-      
+
       // Inicialmente coloquei esse delay pra testar animação de carregamento
       // mas se eu achar necessário vou manter isso aqui.
       Future.delayed(const Duration(seconds: 1));

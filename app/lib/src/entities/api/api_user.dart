@@ -1,10 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'user.g.dart';
+part 'api_user.g.dart';
 
 @JsonSerializable()
-class User {
-
+class ApiUser {
   @JsonKey(name: 'UUID')
   final String? id;
 
@@ -14,9 +13,10 @@ class User {
   @JsonKey(name: 'lastSynchronization')
   final int? lastSynchronization;
 
-  User({this.id, this.decks, this.lastSynchronization});
+  ApiUser({this.id, this.decks, this.lastSynchronization});
 
-  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  factory ApiUser.fromJson(Map<String, dynamic> json) =>
+      _$ApiUserFromJson(json);
 
-  Map<String, dynamic> toJson() => _$UserToJson(this);
+  Map<String, dynamic> toJson() => _$ApiUserToJson(this);
 }

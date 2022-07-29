@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../entities/local/deck/deck_reference.dart';
+import 'package:memento_studio/src/entities.dart';
 
 class DeckListTile extends StatelessWidget {
   final DeckReference deck;
@@ -25,6 +25,8 @@ class DeckListTile extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15.0),
                       child: CachedNetworkImage(
+                        fit: BoxFit.cover,
+                        height: double.infinity,
                         imageUrl: deck.cover ?? "",
                         placeholder: (context, url) =>
                             const Center(child: CircularProgressIndicator()),

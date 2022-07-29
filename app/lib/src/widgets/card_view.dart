@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +26,7 @@ class CardView extends StatelessWidget {
     bool shouldShowImage = imagePath != null && imagePath!.isNotEmpty;
 
     return Container(
-      decoration: BoxDecoration(color: Colors.transparent),
+      decoration: const BoxDecoration(color: Colors.transparent),
       child: Card(
         color: color,
         child: Column(children: [
@@ -34,8 +36,8 @@ class CardView extends StatelessWidget {
                   child: cardImage(),
                 )
               : const Spacer(),
-          shouldShowImage ? Spacer() : Container(),
-          Container(
+          shouldShowImage ? const Spacer() : Container(),
+          SizedBox(
             width: double.infinity,
             child: Center(
               child: Padding(
@@ -68,7 +70,7 @@ class CardView extends StatelessWidget {
         decoration: BoxDecoration(
           image: DecorationImage(
             alignment: Alignment.center,
-            image: AssetImage(imagePath!),
+            image: FileImage(File(imagePath!)),
             fit: BoxFit.cover,
           ),
         ),

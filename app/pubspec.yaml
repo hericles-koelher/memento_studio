@@ -52,7 +52,7 @@ dependencies:
   font_awesome_flutter: ^10.1.0
   logger: ^1.1.0
   chopper: ^4.0.6
-  json_annotation: ^4.0.0
+  json_annotation: ^4.6.0
   json_serializable: ^6.1.5
   logging: ^1.0.0
   cached_network_image: ^3.2.1
@@ -60,6 +60,12 @@ dependencies:
   carousel_slider: ^4.1.1
   auto_size_text: ^3.0.0
   flip_card: ^0.6.0
+  objectbox: ^1.6.0
+  objectbox_flutter_libs: ^1.6.0
+  image_picker: ^0.8.5+3
+  path: ^1.8.1
+  path_provider: ^2.0.11
+  # permission_handler: ^10.0.0
 
 dev_dependencies:
   flutter_test:
@@ -73,8 +79,9 @@ dev_dependencies:
   flutter_lints: ^1.0.0
   copy_with_extension_gen: ^4.0.2
   mocktail: ^0.3.0
-  chopper_generator: ^4.0.6
+  chopper_generator: ^4.0.5
   test: ^1.21.1
+  objectbox_generator: ^1.6.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

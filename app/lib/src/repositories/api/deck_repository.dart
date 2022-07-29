@@ -2,16 +2,9 @@ import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:chopper/chopper.dart';
-import 'package:memento_studio/src/datasource/api/deck_api.dart';
-import 'package:memento_studio/src/repositories/interfaces/deck_repository_interface.dart';
-import 'package:memento_studio/src/entities/local/result.dart';
-import 'package:memento_studio/src/entities/local/deck/deck.dart'
-    as local_model;
-import 'package:memento_studio/src/entities/api/deck.dart' as api_model;
-import 'package:memento_studio/src/entities/api/card.dart' as api_model_card;
-
-typedef DeckListResult = Result<List<local_model.Deck>>;
-typedef DeckResult = Result<local_model.Deck>;
+import 'package:memento_studio/src/apis.dart';
+import 'package:memento_studio/src/repositories.dart';
+import 'package:memento_studio/src/entities.dart';
 
 class DeckRepository extends DeckRepositoryInterface {
   final DeckApi _api;
@@ -28,9 +21,8 @@ class DeckRepository extends DeckRepositoryInterface {
       return Error(Exception(response.error.toString()));
     } else {
       final deckApiList = response.body;
-      List<local_model.Deck> decks =
-          deckApiList?.map((deck) => deck.toDomainModel()).toList() ??
-              <local_model.Deck>[];
+      List<Deck> decks =
+          deckApiList?.map((deck) => deck.toDomainModel()).toList() ?? <Deck>[];
 
       return Success(decks);
     }
@@ -38,7 +30,7 @@ class DeckRepository extends DeckRepositoryInterface {
 
   @override
   Future<DeckResult> saveDeck(
-      local_model.Deck newDeck, Map<String, Uint8List> images) async {
+      Deck newDeck, Map<String, Uint8List> images) async {
     // Adiciona as imagens em uma part para ser enviada na requisicao
     List<PartValueFile> parts = [];
     images.forEach((key, value) {
@@ -46,13 +38,13 @@ class DeckRepository extends DeckRepositoryInterface {
     });
 
     // Converte o baralho pro modelo da api
-    final cardsApi = <api_model_card.Card>[];
+    final cardsApi = <ApiCard>[];
     for (var c in newDeck.cards) {
-      cardsApi.add(api_model_card.Card(
-          backText: c.backText, frontText: c.frontText, id: c.id));
+      cardsApi
+          .add(ApiCard(backText: c.backText, frontText: c.frontText, id: c.id));
     }
 
-    final newDeckApi = api_model.Deck(
+    final newDeckApi = ApiDeck(
         cards: cardsApi,
         id: newDeck.id,
         description: newDeck.description,

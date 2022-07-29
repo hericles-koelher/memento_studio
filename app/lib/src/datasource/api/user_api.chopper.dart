@@ -17,17 +17,17 @@ class _$UserApi extends UserApi {
   final definitionType = UserApi;
 
   @override
-  Future<Response<User>> getUser() {
+  Future<Response<ApiUser>> getUser() {
     final $url = '/users';
     final $request = Request('GET', $url, client.baseUrl);
-    return client.send<User, User>($request);
+    return client.send<ApiUser, ApiUser>($request);
   }
 
   @override
-  Future<Response<User>> postUser() {
+  Future<Response<ApiUser>> postUser() {
     final $url = '/users';
     final $request = Request('POST', $url, client.baseUrl);
-    return client.send<User, User>($request);
+    return client.send<ApiUser, ApiUser>($request);
   }
 
   @override
