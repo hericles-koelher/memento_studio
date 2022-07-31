@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:memento_studio/src/repositories.dart';
 import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/widgets.dart';
+import 'package:memento_studio/src/widgets/textfield_tags.dart';
 
 import 'deck_page.dart';
 
@@ -18,29 +19,46 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   final DeckReferenceRepositoryInterface repo = KiwiContainer().resolve();
+  List<String> tags = <String>[];
+  double appBarSize = 110;
 
   @override
   Widget build(BuildContext context) {
+    var searchBarWithTags = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child: TextFieldTags(
+        tags: tags,
+        onSearchAction: (_, __) {
+          print("TODO: Fazer pesquisa");
+        },
+        onAddTag: (tag) {
+          tag.replaceAll(' ', ''); // Retira espaços
+
+          if (tag.isEmpty) return;
+
+          setState(() {
+            tags.add(tag);
+            appBarSize = 150;
+          });
+        },
+        onDeleteTag: (tag) {
+          setState(() {
+            tags.remove(tag);
+
+            if (tags.isEmpty) appBarSize = 120;
+          });
+        },
+      ),
+    );
+
     return Scaffold(
       drawer: const MSDrawer(),
       appBar: AppBar(
         title: const Text("Descubra baralhos"),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: "Pesquisar",
-                suffixIcon: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.search),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-          ),
+          preferredSize: Size.fromHeight(appBarSize),
+          child: searchBarWithTags,
         ),
       ),
       body: Padding(

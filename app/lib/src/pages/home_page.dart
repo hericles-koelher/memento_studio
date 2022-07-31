@@ -5,13 +5,45 @@ import 'package:go_router/go_router.dart';
 import 'package:memento_studio/src/widgets.dart';
 
 import '../utils.dart';
+import '../widgets/textfield_tags.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<String> tags = <String>[];
 
   @override
   Widget build(BuildContext context) {
     int crossAxisCount = 2;
+
+    var searchBarWithTags = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child: TextFieldTags(
+        tags: tags,
+        onSearchAction: (_, __) {
+          print("TODO: Fazer pesquisa");
+        },
+        onAddTag: (tag) {
+          tag.replaceAll(' ', ''); // Retira espaços
+
+          if (tag.isEmpty) return;
+
+          setState(() {
+            tags.add(tag);
+          });
+        },
+        onDeleteTag: (tag) {
+          setState(() {
+            tags.remove(tag);
+          });
+        },
+      ),
+    );
 
     return Scaffold(
       drawer: const MSDrawer(),
@@ -19,20 +51,8 @@ class HomePage extends StatelessWidget {
         title: const Text("Memento Studio"),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: "Pesquisar",
-                suffixIcon: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.search),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-          ),
+          preferredSize: const Size.fromHeight(150),
+          child: searchBarWithTags,
         ),
       ),
       body: SafeArea(
