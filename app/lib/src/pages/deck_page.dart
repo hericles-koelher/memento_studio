@@ -215,6 +215,12 @@ class _DeckPageState extends State<DeckPage> {
         content: Text(
             "Ainda não há cartas disponíveis nesse baralho. $noCardsDescription"),
         actions: <Widget>[
+          widget.isPersonalDeck
+              ? TextButton(
+                  onPressed: () => Navigator.pop(context, 'Cancelar'),
+                  child: const Text("Cancelar"),
+                )
+              : Container(),
           TextButton(
             onPressed: () => Navigator.pop(context, 'OK'),
             child: Text(widget.isPersonalDeck ? "Criar" : "Ok"),
