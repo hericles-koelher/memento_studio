@@ -5,8 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 
-import '../exceptions.dart';
-import '../entities.dart' as ms_entities;
+import '../../exceptions.dart';
+import '../../entities.dart' as ms_entities;
 
 part 'auth_state.dart';
 

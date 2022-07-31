@@ -6,7 +6,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
+import 'package:memento_studio/src/repositories.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../firebase_options.dart';
 import '../state_managers.dart';
@@ -21,6 +23,7 @@ Future<void> injectDependencies() async {
   );
 
   kiwi.registerInstance(AuthCubit(FirebaseAuth.instanceFor(app: fbApp)));
+
   kiwi.registerInstance(Logger());
 
   kiwi.registerSingleton(
@@ -34,4 +37,24 @@ Future<void> injectDependencies() async {
   );
 
   kiwi.registerSingleton((_) => ImagePicker());
+
+  kiwi.registerSingleton((_) => const Uuid());
+
+  kiwi.registerInstance<LocalDeckRepository>(
+    ObjectBoxLocalDeckRepository(
+      kiwi.resolve(),
+    ),
+  );
+
+  kiwi.registerInstance<DeckAdapter>(
+    ObjectBoxDeckAdapter(),
+  );
+
+  kiwi.registerInstance(
+    DeckCollectionCubit(
+      kiwi.resolve(),
+      kiwi.resolve(),
+      kiwi.resolve(),
+    ),
+  );
 }
