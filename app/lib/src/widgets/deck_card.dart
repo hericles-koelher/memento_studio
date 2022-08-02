@@ -7,20 +7,14 @@ import 'package:memento_studio/src/utils.dart';
 class DeckCard extends StatelessWidget {
   final ms_entities.Deck deck;
   final double coverDimension;
-  final Color? defaultCoverColor;
   final EdgeInsetsGeometry? margin;
 
-  DeckCard({
+  const DeckCard({
     Key? key,
     required this.deck,
     required this.coverDimension,
     this.margin,
-    this.defaultCoverColor,
-  })  : assert(
-          defaultCoverColor != null ||
-              deck.cover != null && deck.cover!.isNotEmpty,
-        ),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +43,7 @@ class DeckCard extends StatelessWidget {
         width: coverDimension,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
@@ -67,18 +61,9 @@ class DeckCard extends StatelessWidget {
                     deck.name,
                     style: textTheme.bodyMedium,
                   ),
-                  if (deck.description != null)
-                    Text(
-                      deck.description!,
-                      style: textTheme.bodySmall,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "${deck.cards.length} cards",
-                      style: textTheme.caption,
-                    ),
+                  Text(
+                    "${deck.cards.length} cards",
+                    style: textTheme.caption,
                   ),
                 ],
               ),

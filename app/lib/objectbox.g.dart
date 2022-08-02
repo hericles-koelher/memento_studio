@@ -21,7 +21,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(1, 8546753656038972946),
       name: 'LocalDeck',
-      lastPropertyId: const IdUid(10, 6316416877376486012),
+      lastPropertyId: const IdUid(12, 2023820308481034022),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -55,24 +55,19 @@ final _entities = <ModelEntity>[
             type: 1,
             flags: 0),
         ModelProperty(
-            id: const IdUid(7, 5264519296097936001),
-            name: 'tags',
-            type: 30,
-            flags: 0),
-        ModelProperty(
             id: const IdUid(8, 5662658419217043499),
             name: 'lastModification',
             type: 6,
             flags: 0),
         ModelProperty(
-            id: const IdUid(9, 5969993341138785792),
-            name: 'dbCards',
-            type: 9,
+            id: const IdUid(11, 6274551337696428667),
+            name: 'tags',
+            type: 30,
             flags: 0),
         ModelProperty(
-            id: const IdUid(10, 6316416877376486012),
-            name: 'dbTags',
-            type: 9,
+            id: const IdUid(12, 2023820308481034022),
+            name: 'dbCards',
+            type: 30,
             flags: 0)
       ],
       relations: <ModelRelation>[],
@@ -105,7 +100,11 @@ ModelDefinition getObjectBoxModel() {
       lastSequenceId: const IdUid(0, 0),
       retiredEntityUids: const [],
       retiredIndexUids: const [],
-      retiredPropertyUids: const [],
+      retiredPropertyUids: const [
+        5264519296097936001,
+        6316416877376486012,
+        5969993341138785792
+      ],
       retiredRelationUids: const [],
       modelVersion: 5,
       modelVersionParserMinimum: 5,
@@ -132,21 +131,20 @@ ModelDefinition getObjectBoxModel() {
               ? null
               : fbb.writeList(
                   object.tags!.map(fbb.writeString).toList(growable: false));
-          final dbCardsOffset =
-              object.dbCards == null ? null : fbb.writeString(object.dbCards!);
-          final dbTagsOffset =
-              object.dbTags == null ? null : fbb.writeString(object.dbTags!);
-          fbb.startTable(11);
+          final dbCardsOffset = object.dbCards == null
+              ? null
+              : fbb.writeList(
+                  object.dbCards!.map(fbb.writeString).toList(growable: false));
+          fbb.startTable(13);
           fbb.addInt64(0, object.storageId);
           fbb.addOffset(1, coverOffset);
           fbb.addOffset(2, descriptionOffset);
           fbb.addOffset(3, idOffset);
           fbb.addOffset(4, nameOffset);
           fbb.addBool(5, object.isPublic);
-          fbb.addOffset(6, tagsOffset);
           fbb.addInt64(7, object.lastModification);
-          fbb.addOffset(8, dbCardsOffset);
-          fbb.addOffset(9, dbTagsOffset);
+          fbb.addOffset(10, tagsOffset);
+          fbb.addOffset(11, dbCardsOffset);
           fbb.finish(fbb.endTable());
           return object.storageId;
         },
@@ -170,11 +168,9 @@ ModelDefinition getObjectBoxModel() {
               name: const fb.StringReader(asciiOptimization: true)
                   .vTableGet(buffer, rootOffset, 12, ''),
               tags: const fb.ListReader<String>(fb.StringReader(asciiOptimization: true), lazy: false)
-                  .vTableGetNullable(buffer, rootOffset, 16))
-            ..dbCards = const fb.StringReader(asciiOptimization: true)
-                .vTableGetNullable(buffer, rootOffset, 20)
-            ..dbTags = const fb.StringReader(asciiOptimization: true)
-                .vTableGetNullable(buffer, rootOffset, 22);
+                  .vTableGetNullable(buffer, rootOffset, 24))
+            ..dbCards = const fb.ListReader<String>(fb.StringReader(asciiOptimization: true), lazy: false)
+                .vTableGetNullable(buffer, rootOffset, 26);
 
           return object;
         })
@@ -208,19 +204,15 @@ class LocalDeck_ {
   static final isPublic =
       QueryBooleanProperty<LocalDeck>(_entities[0].properties[5]);
 
-  /// see [LocalDeck.tags]
-  static final tags =
-      QueryStringVectorProperty<LocalDeck>(_entities[0].properties[6]);
-
   /// see [LocalDeck.lastModification]
   static final lastModification =
-      QueryIntegerProperty<LocalDeck>(_entities[0].properties[7]);
+      QueryIntegerProperty<LocalDeck>(_entities[0].properties[6]);
+
+  /// see [LocalDeck.tags]
+  static final tags =
+      QueryStringVectorProperty<LocalDeck>(_entities[0].properties[7]);
 
   /// see [LocalDeck.dbCards]
   static final dbCards =
-      QueryStringProperty<LocalDeck>(_entities[0].properties[8]);
-
-  /// see [LocalDeck.dbTags]
-  static final dbTags =
-      QueryStringProperty<LocalDeck>(_entities[0].properties[9]);
+      QueryStringVectorProperty<LocalDeck>(_entities[0].properties[8]);
 }

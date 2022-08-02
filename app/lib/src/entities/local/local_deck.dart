@@ -7,7 +7,7 @@ import 'package:objectbox/objectbox.dart';
 class LocalDeck extends LocalDeckBase {
   @Id()
   late int storageId;
-
+  @Transient()
   List<LocalCard>? cards;
   String? cover;
   String? description;
@@ -17,20 +17,15 @@ class LocalDeck extends LocalDeckBase {
   String name;
   List<String>? tags;
 
-  String? get dbCards => jsonEncode(cards);
+  List<String>? get dbCards =>
+      cards?.map((card) => card.toJson().toString()).toList();
 
-  set dbCards(String? cards) {
-    if (cards != null) {
-      cards = jsonDecode(cards);
-    }
-  }
-
-  String? get dbTags => jsonEncode(tags);
-
-  set dbTags(String? tags) {
-    if (tags != null) {
-      tags = jsonDecode(tags);
-    }
+  set dbCards(List<String>? cards) {
+    this.cards = cards
+        ?.map((card) => LocalCard.fromJson(
+              jsonDecode(card),
+            ))
+        .toList();
   }
 
   LocalDeck({

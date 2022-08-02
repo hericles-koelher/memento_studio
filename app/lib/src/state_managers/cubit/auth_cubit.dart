@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:kiwi/kiwi.dart';
+import 'package:memento_studio/src/repositories.dart';
 import 'package:meta/meta.dart';
 
 import '../../exceptions.dart';
@@ -12,23 +15,22 @@ part 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final FirebaseAuth _auth;
   StreamSubscription? _userStreamSubscription;
+  UserRepositoryInterface userRepo = KiwiContainer().resolve();
 
-  AuthCubit()
-      : _auth = FirebaseAuth.instance,
+  AuthCubit(FirebaseAuth auth)
+      : _auth = auth,
         super(Unknown()) {
     _listenToUserStream();
   }
 
-  ms_entities.CredentialProvider? _getUserProvider() {
-    String? providerId = _auth.currentUser?.providerData.first.providerId;
+  ms_entities.CredentialProvider? _getUserProvider(User user) {
+    String? providerId = user.providerData.first.providerId;
 
-    if (EmailAuthProvider.PROVIDER_ID.compareTo(providerId ?? '') == 0) {
+    if (EmailAuthProvider.PROVIDER_ID.compareTo(providerId) == 0) {
       return ms_entities.CredentialProvider.email;
-    } else if (FacebookAuthProvider.PROVIDER_ID.compareTo(providerId ?? '') ==
-        0) {
+    } else if (FacebookAuthProvider.PROVIDER_ID.compareTo(providerId) == 0) {
       return ms_entities.CredentialProvider.facebook;
-    } else if (GoogleAuthProvider.PROVIDER_ID.compareTo(providerId ?? '') ==
-        0) {
+    } else if (GoogleAuthProvider.PROVIDER_ID.compareTo(providerId) == 0) {
       return ms_entities.CredentialProvider.google;
     } else {
       return null;
@@ -94,17 +96,17 @@ class AuthCubit extends Cubit<AuthState> {
     _userStreamSubscription = _auth.userChanges().listen((User? user) async {
       if (user != null) {
         emit(
-          Autheticated(
+          Authenticated(
             ms_entities.User(
               id: user.uid,
               name: user.displayName,
               token: await user.getIdToken(),
-              provider: _getUserProvider()!,
+              provider: _getUserProvider(user)!,
             ),
           ),
         );
       } else {
-        emit(Unautheticated());
+        emit(Unauthenticated());
       }
     });
   }
@@ -116,148 +118,153 @@ class AuthCubit extends Cubit<AuthState> {
     return super.close();
   }
 
-  Future<void> signOut() async {
-    if (state is Autheticated) {
-      emit(Loading());
-
-      await _auth.signOut();
-    }
-  }
-
-  Future<void> refreshToken() async {
-    if (state is Autheticated) {
-      emit(
-        Autheticated(
-          ms_entities.User(
-            name: _auth.currentUser!.displayName,
-            id: _auth.currentUser!.uid,
-            token: await _auth.currentUser!.getIdToken(),
-            provider: _getUserProvider()!,
-          ),
-        ),
-      );
-    }
-  }
-
-  Future<void> signInWithEmail(
-      {required String email, required String password}) async {
-    if (state is Unautheticated) {
+  Future<void> deleteAccount(ms_entities.Credential credential) async {
+    if (state is Authenticated) {
       try {
-        emit(Loading());
+        emit(AccountDeletionLoading((state as Authenticated).user));
 
-        await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-      } on FirebaseAuthException catch (e) {
-        emit(AuthenticationError(_handleFirebaseAuthException(e)));
-      }
-    }
-  }
-
-  Future<void> signInWithCredential({
-    required ms_entities.CredentialProvider provider,
-    required String accessToken,
-    String? idToken,
-  }) async {
-    if (state is Unautheticated) {
-      try {
-        emit(Loading());
-
-        AuthCredential credential;
-
-        switch (provider) {
-          case ms_entities.CredentialProvider.facebook:
-            credential = FacebookAuthProvider.credential(accessToken);
-            break;
-          case ms_entities.CredentialProvider.google:
-            credential = GoogleAuthProvider.credential(
-              accessToken: accessToken,
-              idToken: idToken,
-            );
-            break;
-          case ms_entities.CredentialProvider.email:
-            emit(
-              AuthenticationError(
-                MSAuthException(
-                  message: "Provedor de credenciais inválido para este método",
-                  code: MSAuthExceptionCode.unknown,
-                ),
-              ),
-            );
-            return;
-        }
-
-        await _auth.signInWithCredential(credential);
-      } on FirebaseAuthException catch (e) {
-        emit(AuthenticationError(_handleFirebaseAuthException(e)));
-      }
-    }
-  }
-
-  Future<void> signUpWithEmail({
-    required String name,
-    required String email,
-    required String password,
-  }) async {
-    if (state is Unautheticated) {
-      try {
-        await _auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-
-        await _auth.currentUser!.updateDisplayName(name);
-      } on FirebaseAuthException catch (e) {
-        emit(AuthenticationError(_handleFirebaseAuthException(e)));
-      }
-    }
-  }
-
-  Future<void> deleteAccount({
-    required ms_entities.CredentialProvider provider,
-    String? email,
-    String? password,
-    String? accessToken,
-    String? idToken,
-  }) async {
-    if (state is Autheticated) {
-      // TODO: Verificar se os dados informados batem com o tipo de provider informado.
-
-      try {
         var currentUser = _auth.currentUser!;
 
-        AuthCredential credential;
+        AuthCredential fbCredential;
 
-        switch (provider) {
-          case ms_entities.CredentialProvider.email:
-            credential = EmailAuthProvider.credential(
-              email: email!,
-              password: password!,
-            );
-            break;
-          case ms_entities.CredentialProvider.facebook:
-            credential = FacebookAuthProvider.credential(accessToken!);
-            break;
-          case ms_entities.CredentialProvider.google:
-            credential = GoogleAuthProvider.credential(
-              accessToken: accessToken,
-              idToken: idToken,
-            );
-            break;
+        if (credential is ms_entities.EmailCredential) {
+          fbCredential = EmailAuthProvider.credential(
+            email: credential.email,
+            password: credential.password,
+          );
+        } else if (credential is ms_entities.FacebookCredential) {
+          fbCredential =
+              FacebookAuthProvider.credential(credential.accessToken);
+        } else if (credential is ms_entities.GoogleCredential) {
+          fbCredential = GoogleAuthProvider.credential(
+            accessToken: credential.accessToken,
+            idToken: credential.idToken,
+          );
+        } else {
+          emit(AuthenticationError(
+            MSAuthException(
+              code: MSAuthExceptionCode.invalidCredentialType,
+              message:
+                  "O tipo de credencial informado não é utilizado no momento",
+            ),
+          ));
+          return;
         }
 
-        await currentUser.reauthenticateWithCredential(credential);
+        await currentUser.reauthenticateWithCredential(fbCredential);
 
         await _auth.currentUser!.delete();
+
+        await userRepo.deleteUser(); // TODO: Tratar erro
       } on FirebaseAuthException catch (e) {
         emit(
           AccountDeletionError(
-            (state as Autheticated).user,
+            (state as Authenticated).user,
             _handleFirebaseAuthException(e),
           ),
         );
       }
     }
   }
+
+  Future<void> signOut() async {
+    if (state is Authenticated) {
+      emit(LogoutLoading((state as Authenticated).user));
+
+      // Inicialmente coloquei esse delay pra testar animação de carregamento
+      // mas se eu achar necessário vou manter isso aqui.
+      Future.delayed(const Duration(seconds: 1));
+
+      await _auth.signOut();
+    }
+  }
+
+  Future<void> refreshToken() async {
+    if (state is Authenticated) {
+      emit(
+        Authenticated(
+          (state as Authenticated).user.copyWith(
+                token: await _auth.currentUser!.getIdToken(),
+              ),
+        ),
+      );
+    }
+  }
+
+  Future<void> signInWithCredential(ms_entities.Credential credential) async {
+    try {
+      emit(AuthenticationLoading());
+
+      AuthCredential fbCredential;
+
+      if (credential is ms_entities.EmailCredential) {
+        fbCredential = EmailAuthProvider.credential(
+          email: credential.email,
+          password: credential.password,
+        );
+      } else if (credential is ms_entities.FacebookCredential) {
+        fbCredential = FacebookAuthProvider.credential(credential.accessToken);
+      } else if (credential is ms_entities.GoogleCredential) {
+        fbCredential = GoogleAuthProvider.credential(
+          accessToken: credential.accessToken,
+          idToken: credential.idToken,
+        );
+      } else {
+        emit(AuthenticationError(
+          MSAuthException(
+            code: MSAuthExceptionCode.invalidCredentialType,
+            message:
+                "O tipo de credencial informado não é utilizado no momento",
+          ),
+        ));
+        return;
+      }
+
+      await _auth.signInWithCredential(fbCredential);
+
+      Future(() {
+        while (state is AuthenticationLoading) {}
+        userRepo.createUser();
+      });
+    } on FirebaseAuthException catch (e) {
+      emit(AuthenticationError(_handleFirebaseAuthException(e)));
+    }
+  }
+
+  Future<void> signUpWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    if (state is Unauthenticated) {
+      try {
+        await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        Future(() {
+          while (state is AuthenticationLoading) {}
+          userRepo.createUser();
+        });
+      } on FirebaseAuthException catch (e) {
+        emit(AuthenticationError(_handleFirebaseAuthException(e)));
+      }
+    }
+  }
+
+  Future<void> updateName(String? name) async {
+    if (state is Authenticated) {
+      await _auth.currentUser!.updateDisplayName(name);
+    }
+  }
+
+  String? getToken() {
+    if (state is Authenticated) {
+      return (state as Authenticated).user.token;
+    }
+
+    return null;
+  }
+
+  // TODO: codificar updateEmail e updatePassword e configurar o firebase para tal...
 }
