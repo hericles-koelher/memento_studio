@@ -105,8 +105,6 @@ class AuthCubit extends Cubit<AuthState> {
             ),
           ),
         );
-
-        await userRepo.createUser(); // TODO: Tratar erro
       } else {
         emit(Unauthenticated());
       }
@@ -223,6 +221,11 @@ class AuthCubit extends Cubit<AuthState> {
       }
 
       await _auth.signInWithCredential(fbCredential);
+
+      Future(() {
+        while (state is AuthenticationLoading) {}
+        userRepo.createUser();
+      });
     } on FirebaseAuthException catch (e) {
       emit(AuthenticationError(_handleFirebaseAuthException(e)));
     }
@@ -238,6 +241,11 @@ class AuthCubit extends Cubit<AuthState> {
           email: email,
           password: password,
         );
+
+        Future(() {
+          while (state is AuthenticationLoading) {}
+          userRepo.createUser();
+        });
       } on FirebaseAuthException catch (e) {
         emit(AuthenticationError(_handleFirebaseAuthException(e)));
       }
