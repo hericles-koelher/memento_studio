@@ -16,6 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<String> tags = <String>[];
+  double appBarSize = 110;
 
   @override
   Widget build(BuildContext context) {
@@ -29,17 +30,20 @@ class _HomePageState extends State<HomePage> {
           print("TODO: Fazer pesquisa");
         },
         onAddTag: (tag) {
-          tag.replaceAll(' ', ''); // Retira espaços
+          tag = tag.replaceAll(" ", "").toLowerCase();
 
-          if (tag.isEmpty) return;
+          if (tag.isEmpty || tags.contains(tag)) return;
 
           setState(() {
             tags.add(tag);
+            appBarSize = 150;
           });
         },
         onDeleteTag: (tag) {
           setState(() {
             tags.remove(tag);
+
+            if (tags.isEmpty) appBarSize = 110;
           });
         },
       ),
@@ -51,7 +55,7 @@ class _HomePageState extends State<HomePage> {
         title: const Text("Memento Studio"),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(150),
+          preferredSize: Size.fromHeight(appBarSize),
           child: searchBarWithTags,
         ),
       ),

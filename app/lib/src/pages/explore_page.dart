@@ -28,13 +28,13 @@ class _ExplorePageState extends State<ExplorePage> {
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       child: TextFieldTags(
         tags: tags,
-        onSearchAction: (_, __) {
-          print("TODO: Fazer pesquisa");
+        onSearchAction: (name, searchTags) async {
+          final result = await searchDecks(name, searchTags);
         },
         onAddTag: (tag) {
-          tag.replaceAll(' ', ''); // Retira espaços
+          tag = tag.replaceAll(" ", "").toLowerCase();
 
-          if (tag.isEmpty) return;
+          if (tag.isEmpty || tags.contains(tag)) return;
 
           setState(() {
             tags.add(tag);
@@ -45,7 +45,7 @@ class _ExplorePageState extends State<ExplorePage> {
           setState(() {
             tags.remove(tag);
 
-            if (tags.isEmpty) appBarSize = 120;
+            if (tags.isEmpty) appBarSize = 110;
           });
         },
       ),
@@ -119,5 +119,21 @@ class _ExplorePageState extends State<ExplorePage> {
         builder: (context) => DeckPage(deck: deck, isPersonalDeck: false),
       ),
     );
+  }
+
+  Future<DeckListReferencesResult> searchDecks(
+      String name, List<String> searchTags) async {
+    var filterByNameAndTag = <String, dynamic>{
+      "name": <String, dynamic>{
+        "\$regex": '.*$name.*', // Contém o nome pesquisado
+        "\$options": 'i', // Case insensitive
+      },
+    };
+
+    if (tags.isNotEmpty) {
+      filterByNameAndTag["tags"] = <String, dynamic>{"\$in": searchTags};
+    }
+
+    return repo.getDecks(1, 10, filter: filterByNameAndTag);
   }
 }
