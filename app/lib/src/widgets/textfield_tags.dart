@@ -35,29 +35,28 @@ class TextFieldTags extends StatelessWidget {
             border: const OutlineInputBorder(),
           ),
         ),
+        TextButton(
+          onPressed: () {
+            if (onAddTag != null) onAddTag!(textFieldController.text);
+          },
+          child: const Text("Add tag"),
+        ),
         tags.isEmpty
             ? Container()
             : SizedBox(
-                height: 50,
+                height: 40,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: tags.length,
                   itemBuilder: (_, index) => Chip(
                     label: Text(tags[index]),
                     onDeleted: () {
-                      print(tags[index]);
                       if (onDeleteTag != null) onDeleteTag!(tags[index]);
                     },
                   ),
                   separatorBuilder: (_, __) => const SizedBox(width: 5),
                 ),
               ),
-        TextButton(
-          onPressed: () {
-            if (onAddTag != null) onAddTag!(textFieldController.text);
-          },
-          child: const Text("Adicionar tag"),
-        )
       ],
     );
   }

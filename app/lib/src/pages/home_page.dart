@@ -72,7 +72,8 @@ class _HomePageState extends State<HomePage> {
     int crossAxisCount = 2;
 
     var searchBarWithTags = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+          horizontal: horizontalPadding, vertical: 10),
       child: TextFieldTags(
         tags: tags,
         onSearchAction: (_, __) {
@@ -101,7 +102,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: const MSDrawer(),
       appBar: AppBar(
-        title: const Text("Memento Studio"),
+        title: const Text("Descubra baralhos"),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(appBarSize),
