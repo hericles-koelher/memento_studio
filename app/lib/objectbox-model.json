@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:8546753656038972946",
-      "lastPropertyId": "10:6316416877376486012",
+      "lastPropertyId": "12:2023820308481034022",
       "name": "LocalDeck",
       "properties": [
         {
@@ -40,24 +40,19 @@
           "type": 1
         },
         {
-          "id": "7:5264519296097936001",
-          "name": "tags",
-          "type": 30
-        },
-        {
           "id": "8:5662658419217043499",
           "name": "lastModification",
           "type": 6
         },
         {
-          "id": "9:5969993341138785792",
-          "name": "dbCards",
-          "type": 9
+          "id": "11:6274551337696428667",
+          "name": "tags",
+          "type": 30
         },
         {
-          "id": "10:6316416877376486012",
-          "name": "dbTags",
-          "type": 9
+          "id": "12:2023820308481034022",
+          "name": "dbCards",
+          "type": 30
         }
       ],
       "relations": []
@@ -71,7 +66,11 @@
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    5264519296097936001,
+    6316416877376486012,
+    5969993341138785792
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

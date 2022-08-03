@@ -1,4 +1,3 @@
-import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/exceptions.dart';
 import 'package:memento_studio/src/repositories/local/local_deck_repository.dart';
@@ -9,8 +8,8 @@ import '../../../objectbox.g.dart';
 class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
   final Box<LocalDeck> _deckBox;
 
-  ObjectBoxLocalDeckRepository()
-      : _deckBox = KiwiContainer().resolve<ObjectBox>().store.box();
+  ObjectBoxLocalDeckRepository(ObjectBox objectBox)
+      : _deckBox = objectBox.store.box<LocalDeck>();
 
   @override
   Future<void> create(covariant LocalDeck deck) async {
@@ -23,6 +22,8 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
       await _deckBox.putAsync(deck);
     }
   }
+
+  Future<int> count() async => _deckBox.count();
 
   @override
   Future<bool> delete(int storageId) async {
@@ -64,9 +65,12 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
 
   @override
   Future<List<LocalDeck>> readAll(int limit, int offset) async {
-    var queryBuilder = _deckBox.query()..order(LocalDeck_.storageId);
-
-    var query = queryBuilder.build()
+    Query<LocalDeck> query = (_deckBox.query()
+          ..order(
+            LocalDeck_.name,
+            flags: Order.caseSensitive,
+          ))
+        .build()
       ..limit = limit
       ..offset = offset;
 

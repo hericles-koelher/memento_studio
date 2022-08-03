@@ -15,7 +15,7 @@ abstract class FakeData {
         name: "War birb",
         lastModification: DateTime.now(),
         tags: ["matematica", "biologia", "guerra", "passaro"],
-        cover: "assets/images/war-birb-wallpaper.jpeg",
+        cover: "",
         cards: [
           Card(
               id: "idcard1",
@@ -26,19 +26,19 @@ abstract class FakeData {
           Card(
             id: "idcard2",
             frontText: "Quem é você?",
-            backImage: "assets/images/sushiraldo.jpg",
+            backImage: "",
             backText: "Também não sei, to perdido",
           ),
           Card(
               id: "idcard3",
               frontText: "Nome do passarinho da mikaella",
-              frontImage: "assets/images/geraldin.jpg",
+              frontImage: "",
               backText: "Geraldo",
-              backImage: "assets/images/sushiraldo.jpg"),
+              backImage: ""),
           Card(
             id: "idcard4",
             frontText: "Quem nasceu primeiro, o ovo ou a galinha?",
-            frontImage: "assets/images/nhoque-charles.jpg",
+            frontImage: "",
             backText: "Também não sei",
           )
         ]),

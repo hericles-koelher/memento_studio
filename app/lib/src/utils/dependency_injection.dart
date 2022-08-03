@@ -6,12 +6,13 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
-
-import '../../firebase_options.dart';
 import 'package:memento_studio/src/apis.dart';
 import 'package:memento_studio/src/repositories.dart';
-import 'package:memento_studio/src/state_managers.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../firebase_options.dart';
+import '../state_managers.dart';
 import '../utils.dart';
 
 Future<void> injectDependencies() async {
@@ -31,6 +32,7 @@ Future<void> injectDependencies() async {
       UserRepository(chopperClient.getService<UserApi>()));
 
   kiwi.registerInstance(AuthCubit(FirebaseAuth.instanceFor(app: fbApp)));
+
   kiwi.registerInstance(Logger());
 
   kiwi.registerSingleton(
@@ -38,11 +40,35 @@ Future<void> injectDependencies() async {
   );
 
   kiwi.registerInstance(await ObjectBox.create());
-  kiwi.registerInstance<LocalDeckRepository>(ObjectBoxLocalDeckRepository());
 
   kiwi.registerInstance<Directory>(
     await getApplicationDocumentsDirectory(),
   );
 
   kiwi.registerSingleton((_) => ImagePicker());
+
+  kiwi.registerSingleton((_) => const Uuid());
+
+  kiwi.registerInstance<LocalDeckRepository>(
+    ObjectBoxLocalDeckRepository(
+      kiwi.resolve(),
+    ),
+  );
+
+  kiwi.registerInstance<DeckAdapter>(
+    ObjectBoxDeckAdapter(),
+  );
+
+  kiwi.registerInstance(
+    DeckCollectionCubit(
+      kiwi.resolve(),
+      kiwi.resolve(),
+      kiwi.resolve(),
+    ),
+  );
+
+  kiwi.registerInstance(DeckReferencesCubit(
+    kiwi.resolve(),
+    kiwi.resolve(),
+  ));
 }
