@@ -66,4 +66,9 @@ Future<void> injectDependencies() async {
       kiwi.resolve(),
     ),
   );
+
+  kiwi.registerInstance(DeckReferencesCubit(
+    kiwi.resolve(),
+    kiwi.resolve(),
+  ));
 }
