@@ -10,7 +10,7 @@ abstract class DeckRepositoryInterface {
   dynamic updateDeck(String id, Map<String, dynamic> deckUpdates,
       Map<String, Uint8List> images);
 
-  dynamic deleteDeck(String id);
+  dynamic deleteDeck(List<String> ids);
 
   dynamic copyDeck(String id);
 }

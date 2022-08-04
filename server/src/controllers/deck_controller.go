@@ -22,20 +22,27 @@ import (
 
 type fileBytes []byte
 
-// TODO: Melhorar erros pra retornar uma mensagem e código apropriados
-
+// Deleta baralhos a partir de uma lista recebida
 func DeleteDeck(context *gin.Context) {
 	// Get repositories
 	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
 	deckReferenceRepository, okDeckReference := context.MustGet("deckReferenceRepository").(DeckReferenceRepository)
 	userRepository, okUser := context.MustGet("userRepository").(UserRepository)
 	if !okDeck || !okDeckReference || !okUser {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete deck"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete decks"})
 		return
 	}
 
-	// Get param
-	id := context.Param("id")
+	// Get list of decks
+	var ids []string
+	bodyBytes, _ := ioutil.ReadAll(context.Request.Body)
+	defer context.Request.Body.Close()
+
+	err := json.Unmarshal(bodyBytes, &ids)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
 
 	// Get user
 	user := getUser(context, userRepository)
@@ -43,38 +50,40 @@ func DeleteDeck(context *gin.Context) {
 		return
 	}
 
-	// Check if user owns this deck
-	var containsDeck = utils.Contains(user.Decks, id,
-		func(id1, id2 interface{}) bool {
-			return id1.(string) == id2.(string)
-		})
-	if !containsDeck {
-		context.JSON(http.StatusForbidden, gin.H{"message": "User has no permission to delete this deck"})
-		return
+	for _, id := range ids {
+		// Check if user owns this deck
+		var containsDeck = utils.Contains(user.Decks, id,
+			func(id1, id2 interface{}) bool {
+				return id1.(string) == id2.(string)
+			})
+		if !containsDeck {
+			context.JSON(http.StatusForbidden, gin.H{"message": "User has no permission to delete this deck"})
+			return
+		}
+
+		// Delete deck reference if it is public
+		deckReferenceRepository.Delete(id)
+
+		// Delete files of deck
+		utils.RemoveFolder(id)
+
+		// Delete deck
+		err := deckRepository.Delete(id)
+		if err != nil {
+			context.JSON(utils.HandleRepositoryError(err), err.Error())
+			return
+		}
+
+		// Remove deck id from user decks
+		user.Decks = utils.Remove(user.Decks, id)
+		errRepo := userRepository.UpdateDecks(user.UUID, user.Decks)
+		if errRepo != nil {
+			context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
+			return
+		}
 	}
 
-	// Remove deck id from user decks
-	user.Decks = utils.Remove(user.Decks, id)
-	errRepo := userRepository.UpdateDecks(user.UUID, user.Decks)
-	if errRepo != nil {
-		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
-		return
-	}
-
-	// Delete deck
-	err := deckRepository.Delete(id)
-	if err != nil {
-		context.JSON(utils.HandleRepositoryError(err), err.Error())
-		return
-	}
-
-	// Delete deck reference if it is public
-	deckReferenceRepository.Delete(id)
-
-	// Delete files of deck
-	utils.RemoveFolder(id)
-
-	context.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Deck with id %s has been deleted", id)})
+	context.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Decks with ids %s have been deleted", ids)})
 }
 
 func PostDecks(context *gin.Context) {

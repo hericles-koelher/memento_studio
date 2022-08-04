@@ -52,9 +52,10 @@ class _$DeckApi extends DeckApi {
   }
 
   @override
-  Future<Response<Map<String, dynamic>>> deleteDeck(String deckId) {
-    final $url = '/decks/${deckId}';
-    final $request = Request('DELETE', $url, client.baseUrl);
+  Future<Response<Map<String, dynamic>>> deleteDeck(List<String> decksId) {
+    final $url = '/decks';
+    final $body = decksId;
+    final $request = Request('DELETE', $url, client.baseUrl, body: $body);
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
 

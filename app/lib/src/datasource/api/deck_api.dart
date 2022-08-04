@@ -22,8 +22,9 @@ abstract class DeckApi extends ChopperService {
     @PartFileMap() var images,
   );
 
-  @Delete(path: "/{id}")
-  Future<Response<Map<String, dynamic>>> deleteDeck(@Path("id") String deckId);
+  @Delete(path: "")
+  Future<Response<Map<String, dynamic>>> deleteDeck(
+      @Body() List<String> decksId);
 
   @Post(path: "/copy/{id}")
   Future<Response<ApiDeck>> copyDeck(@Path("id") String deckId);

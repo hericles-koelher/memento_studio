@@ -98,8 +98,8 @@ class DeckRepository extends DeckRepositoryInterface {
   }
 
   @override
-  Future<Result> deleteDeck(String id) async {
-    final response = await _api.deleteDeck(id);
+  Future<Result> deleteDeck(List<String> ids) async {
+    final response = await _api.deleteDeck(ids);
 
     // Trata resposta
     if (!response.isSuccessful) {
