@@ -7,7 +7,7 @@ import 'package:memento_studio/src/exceptions.dart';
 import 'package:path/path.dart' as p;
 
 final RegExp _msImageNameRegex = RegExp(
-  r"^(?:(?:Front)|(?:Back)|(?:Cover))_.*\.(?:(?:bmp)|(?:gif)|(?:jpeg)|(?:jpg)|(?:png)|(?:webp)|(?:heif)|(?:heic))$",
+  r"^.*(?:(?:Front)|(?:Back)|(?:Cover))_.*\.(?:(?:bmp)|(?:gif)|(?:jpeg)|(?:jpg)|(?:png)|(?:webp)|(?:heif)|(?:heic))$",
 );
 
 String _createCardFileName({
