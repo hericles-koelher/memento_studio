@@ -12,11 +12,9 @@ import '../state_managers.dart';
 import '../utils.dart' as utils;
 
 class DeckEditPage extends StatefulWidget {
-  final Deck _deck;
+  final int deckIndex;
 
-  const DeckEditPage({Key? key, required Deck deck})
-      : _deck = deck,
-        super(key: key);
+  const DeckEditPage({Key? key, required this.deckIndex}) : super(key: key);
 
   @override
   State<DeckEditPage> createState() => _DeckEditPageState();
@@ -48,9 +46,10 @@ class _DeckEditPageState extends State<DeckEditPage> {
   void initState() {
     super.initState();
 
-    _deck = widget._deck;
+    _deck = _collectionCubit.state.decks[widget.deckIndex];
     _nameController.text = _deck.name;
     _descriptionController.text = _deck.description ?? "";
+
     _tagList.addAll(_deck.tags);
   }
 

@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/entities.dart';
+import 'package:memento_studio/src/pages/deck_page.dart';
+import 'package:memento_studio/src/pages/study_page.dart';
 import 'package:memento_studio/src/state_managers.dart';
 
 import '../pages.dart';
@@ -17,8 +19,10 @@ class MSRouter {
   static const homeRouteName = "home";
   static const exploreRouteName = "explore";
   static const cardListRouteName = "cardList";
+  static const deckRouteName = "deck";
   static const deckCreationRouteName = "deck_creation";
   static const deckEditRouteName = "deck_edit";
+  static const studyRouteName = "study";
   static const signInRouteName = "sign_in";
   static const signUpRouteName = "sign_up";
   static const myAccountRouteName = "my_account";
@@ -55,15 +59,38 @@ class MSRouter {
               builder: (_, __) => const DeckCreationPage(),
             ),
             GoRoute(
-              path: "deck_edit",
-              name: cardListRouteName,
-              builder: (_, state) => CardPage(deck: (state.extra as Deck?)!),
-            ),
-            GoRoute(
-              path: "card_list",
-              name: deckEditRouteName,
-              builder: (_, state) =>
-                  DeckEditPage(deck: (state.extra as Deck?)!),
+              path: "deck/:deckIndex",
+              name: deckRouteName,
+              builder: (_, state) => DeckPage(
+                deckIndex: int.parse(state.params["deckIndex"] ?? ""),
+              ),
+              routes: [
+                GoRoute(
+                  path: "card_list",
+                  name: cardListRouteName,
+                  builder: (_, state) {
+                    var args = state.extra as Map<String, Object>;
+
+                    return CardListPage(deck: args["deck"] as Deck);
+                  },
+                ),
+                GoRoute(
+                  path: "deck_edit",
+                  name: deckEditRouteName,
+                  builder: (_, state) => DeckEditPage(
+                    deckIndex: int.parse(state.params["deckIndex"] ?? ""),
+                  ),
+                ),
+                GoRoute(
+                  path: "study",
+                  name: studyRouteName,
+                  builder: (_, state) {
+                    var args = state.extra as Map<String, Object>;
+
+                    return StudyPage(deck: args["deck"] as Deck);
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: 'explore',

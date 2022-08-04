@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
@@ -146,11 +147,12 @@ class _ExplorePageState extends State<ExplorePage> {
 
     final deck = (deckResult as Success).value;
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DeckPage(deck: deck, isPersonalDeck: false),
-      ),
+    GoRouter.of(context).goNamed(
+      MSRouter.deckRouteName,
+      extra: {
+        "deck": deck,
+        "isPersonalDeck": false,
+      },
     );
   }
 

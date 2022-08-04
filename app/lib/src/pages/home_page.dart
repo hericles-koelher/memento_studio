@@ -130,8 +130,8 @@ class _HomePageState extends State<HomePage> {
                           GestureDetector(
                         onTap: () {
                           GoRouter.of(context).goNamed(
-                            MSRouter.cardListRouteName,
-                            extra: deck,
+                            MSRouter.deckRouteName,
+                            params: {"deckIndex": index.toString()},
                           );
                         },
                         child: DeckCard(
@@ -149,8 +149,9 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () =>
-            GoRouter.of(context).goNamed(MSRouter.deckCreationRouteName),
+        onPressed: () => GoRouter.of(context).goNamed(
+          MSRouter.deckCreationRouteName,
+        ),
       ),
     );
   }
@@ -159,7 +160,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _pagingController.dispose();
     _subscription?.cancel();
-    _collectionCubit.close();
+
     super.dispose();
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_const
+
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -13,19 +15,25 @@ import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/utils.dart';
 import 'package:uuid/uuid.dart';
 
-class DeckPage extends StatefulWidget {
-  final int deckIndex;
+class DeckRefPage extends StatefulWidget {
+  final int? deckIndex;
+  final bool isPersonalDeck;
+  final Deck? deck;
 
-  const DeckPage({
+  const DeckRefPage({
     Key? key,
-    required this.deckIndex,
-  }) : super(key: key);
+    this.deckIndex,
+    required this.isPersonalDeck,
+    this.deck,
+  })  : assert((deckIndex != null && isPersonalDeck) ||
+            (deck != null && !isPersonalDeck)),
+        super(key: key);
 
   @override
-  State<DeckPage> createState() => _DeckPageState();
+  State<DeckRefPage> createState() => _DeckRefPageState();
 }
 
-class _DeckPageState extends State<DeckPage> {
+class _DeckRefPageState extends State<DeckRefPage> {
   final DeckRepositoryInterface apiRepo = KiwiContainer().resolve();
   final DeckCollectionCubit collectionCubit = KiwiContainer().resolve();
   final AuthCubit auth = KiwiContainer().resolve();
@@ -34,7 +42,11 @@ class _DeckPageState extends State<DeckPage> {
 
   @override
   void initState() {
-    deck = collectionCubit.state.decks[widget.deckIndex];
+    if (widget.isPersonalDeck) {
+      deck = collectionCubit.state.decks[widget.deckIndex!];
+    } else {
+      deck = widget.deck!;
+    }
 
     super.initState();
   }
@@ -46,32 +58,43 @@ class _DeckPageState extends State<DeckPage> {
     dynamic imageCover = getDeckCover();
 
     var popUpMenu = PopupMenuButton(itemBuilder: (context) {
-      return [
-        const PopupMenuItem<int>(
-          value: 1,
-          child: Text("Editar"),
-        ),
-        const PopupMenuItem<int>(
-          value: 3,
-          child: Text("Tornar público"),
-        ),
-        const PopupMenuItem<int>(
-          value: 2,
-          child: Text(
-            "Deletar",
-            style: TextStyle(color: Colors.red),
-          ),
-        ),
-      ];
+      return widget.isPersonalDeck
+          ? [
+              const PopupMenuItem<int>(
+                value: 1,
+                child: Text("Editar"),
+              ),
+              const PopupMenuItem<int>(
+                value: 3,
+                child: Text("Tornar público"),
+              ),
+              const PopupMenuItem<int>(
+                value: 2,
+                child: Text(
+                  "Deletar",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ]
+          : [
+              const PopupMenuItem<int>(
+                value: 0,
+                child: Text("Fazer uma cópia"),
+              )
+            ];
     }, onSelected: (value) {
       switch (value) {
         case 0:
           showCopyDeckDialog();
           break;
         case 1:
-          GoRouter.of(context).pushNamed(MSRouter.deckEditRouteName, params: {
-            "deckIndex": widget.deckIndex.toString(),
-          });
+          GoRouter.of(context).goNamed(
+            MSRouter.deckEditRouteName,
+            queryParams: {
+              "deckIndex": widget.deckIndex.toString(),
+              "isPersonalDeck": widget.isPersonalDeck.toString(),
+            },
+          );
           break;
         case 2:
           showDeleteDeckDialog();
@@ -91,7 +114,11 @@ class _DeckPageState extends State<DeckPage> {
       body: BlocBuilder<DeckCollectionCubit, DeckCollectionState>(
           bloc: collectionCubit,
           builder: (context, state) {
-            deck = state.decks[widget.deckIndex];
+            if (widget.isPersonalDeck) {
+              deck = state.decks[widget.deckIndex!];
+            } else {
+              deck = widget.deck!;
+            }
 
             return SingleChildScrollView(
               child: Wrap(
@@ -125,7 +152,7 @@ class _DeckPageState extends State<DeckPage> {
                           alignment: Alignment.centerRight,
                           child: Text(
                             "Por Fulano de tal",
-                            style: TextStyle(fontSize: 16.0),
+                            style: const TextStyle(fontSize: 16.0),
                           ),
                         ),
                         const SizedBox(height: 10.0),
@@ -159,7 +186,7 @@ class _DeckPageState extends State<DeckPage> {
 
             GoRouter.of(context).goNamed(
               MSRouter.studyRouteName,
-              extra: deck,
+              extra: widget.deck,
             );
           },
           child: const Text('Começar'),
@@ -210,8 +237,8 @@ class _DeckPageState extends State<DeckPage> {
   }
 
   void showNoCardsDialog() {
-    var noCardsDescription = "Crie cartas para ele!";
-
+    var noCardsDescription =
+        widget.isPersonalDeck ? "Crie cartas para ele!" : "";
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -219,13 +246,15 @@ class _DeckPageState extends State<DeckPage> {
         content: Text(
             "Ainda não há cartas disponíveis nesse baralho. $noCardsDescription"),
         actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancelar'),
-            child: const Text("Cancelar"),
-          ),
+          widget.isPersonalDeck
+              ? TextButton(
+                  onPressed: () => Navigator.pop(context, 'Cancelar'),
+                  child: const Text("Cancelar"),
+                )
+              : Container(),
           TextButton(
             onPressed: () => Navigator.pop(context, 'OK'),
-            child: const Text("Criar"),
+            child: Text(widget.isPersonalDeck ? "Criar" : "Ok"),
           ),
         ],
       ),
