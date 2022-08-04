@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 import 'package:memento_studio/src/state_managers/cubit/deck_collection_cubit.dart';
 import 'package:uuid/uuid.dart';
 
+import '../entities.dart';
 import '../utils.dart' as utils;
 
 // https://stackoverflow.com/questions/50736571/when-i-select-a-textfield-the-keyboard-moves-over-it
@@ -298,13 +299,15 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                               );
                             }
 
-                            var deck = await _collectionCubit.createDeck(
+                            var deck = Deck(
+                              id: deckId,
+                              lastModification: DateTime.now(),
                               name: _nameController.text,
                               description: _descriptionController.text,
-                              deckId: deckId,
-                              coverPath: coverPath,
                               tags: _tagList,
                             );
+
+                            await _collectionCubit.createDeck(deck);
 
                             _logger.i(
                               "Baralho $deckId, de Nome ${deck.name} foi salvo localmente.",

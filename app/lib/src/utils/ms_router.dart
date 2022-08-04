@@ -16,6 +16,7 @@ class MSRouter {
 
   static const homeRouteName = "home";
   static const exploreRouteName = "explore";
+  static const cardListRouteName = "cardList";
   static const deckCreationRouteName = "deck_creation";
   static const deckEditRouteName = "deck_edit";
   static const signInRouteName = "sign_in";
@@ -55,6 +56,11 @@ class MSRouter {
             ),
             GoRoute(
               path: "deck_edit",
+              name: cardListRouteName,
+              builder: (_, state) => CardPage(deck: (state.extra as Deck?)!),
+            ),
+            GoRoute(
+              path: "card_list",
               name: deckEditRouteName,
               builder: (_, state) =>
                   DeckEditPage(deck: (state.extra as Deck?)!),

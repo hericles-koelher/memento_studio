@@ -106,9 +106,18 @@ class _HomePageState extends State<HomePage> {
                       crossAxisCount: 2,
                     ),
                     builderDelegate: PagedChildBuilderDelegate(
-                      itemBuilder: (context, Deck deck, int index) => DeckCard(
-                        deck: deck,
-                        coverDimension: constraints.maxWidth / crossAxisCount,
+                      itemBuilder: (context, Deck deck, int index) =>
+                          GestureDetector(
+                        onTap: () {
+                          GoRouter.of(context).goNamed(
+                            MSRouter.cardListRouteName,
+                            extra: deck,
+                          );
+                        },
+                        child: DeckCard(
+                          deck: deck,
+                          coverDimension: constraints.maxWidth / crossAxisCount,
+                        ),
                       ),
                     ),
                   ),

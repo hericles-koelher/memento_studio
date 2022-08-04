@@ -17,7 +17,7 @@ String _createCardFileName({
 }) =>
     "${isFront ? "Front_" : "Back_"}$cardId.$extension";
 
-String _getFileExtension(String name) => name.split(".").last;
+String getFileExtension(String name) => name.split(".").last;
 
 class MemoryImage {
   final String extension;
@@ -48,7 +48,7 @@ Future<MemoryImage?> getImageFromDevice({required bool fromGallery}) async {
 
   if (xfile != null) {
     return MemoryImage(
-      extension: _getFileExtension(xfile.name),
+      extension: getFileExtension(xfile.name),
       bytes: await xfile.readAsBytes(),
     );
   }

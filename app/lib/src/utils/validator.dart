@@ -9,6 +9,7 @@ abstract class Validator {
 
   static const int deckNameMaxLength = 32;
   static const int deckDescriptionMaxLength = 128;
+  static const int cardQuestionOrAnswerMaxLength = 128;
 
   static bool isEmail(String email) => _emailRegex.hasMatch(email);
 
