@@ -61,4 +61,15 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
 
     return deck;
   }
+
+  Future<void> deleteDeck(Deck deck) async {
+    int id = await _repository.findStorageId(deck.id);
+    await _repository.delete(id);
+
+    var localDeckList = await _repository.readAll(state.count, 0);
+
+    var coreDeckList = localDeckList.map((e) => _adapter.toCore(e)).toList();
+
+    emit(ExpansiveDeckCollection(coreDeckList));
+  }
 }

@@ -28,6 +28,12 @@ class _DeckPageState extends State<DeckPage> {
   final LocalDeckRepository localRepo = KiwiContainer().resolve();
   final AuthCubit auth = KiwiContainer().resolve();
 
+  late final DeckCollectionCubit _collectionCubit;
+
+  _DeckPageState() {
+    _collectionCubit = KiwiContainer().resolve();
+  }
+
   @override
   Widget build(BuildContext context) {
     var tags = widget.deck.tags.isNotEmpty ? widget.deck.tags : ["Sem Tags"];
@@ -276,7 +282,6 @@ class _DeckPageState extends State<DeckPage> {
               // Salvar baralho localmente
               final localAdapter = ObjectBoxDeckAdapter();
               var localDeck = localAdapter.toLocal(widget.deck);
-              localDeck.id = "";
               await localRepo.create(localDeck);
 
               if (auth.state is Authenticated) {
@@ -389,7 +394,7 @@ class _DeckPageState extends State<DeckPage> {
   void showDeleteDeckDialog() {
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (BuildContext deleteContext) => AlertDialog(
         title: const Text('Deletar baralho?'),
         content: const Text(
             "Ao confirmar, este baralho será removido da sua coleção. Tem certeza disso?"),
@@ -399,7 +404,31 @@ class _DeckPageState extends State<DeckPage> {
             child: const Text('Não', style: TextStyle(color: Colors.red)),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, 'OK'),
+            onPressed: () async {
+              Navigator.pop(context); // Tira dialog para mostrar loading
+              showLoadingDialog();
+
+              try {
+                await _collectionCubit.deleteDeck(widget.deck);
+
+                Navigator.pop(context); // Retira loading
+                Navigator.pop(context); // Vai pra home
+
+              } catch (e) {
+                Navigator.pop(context); // Retira loading
+
+                showOkWithIconDialog(
+                  "Falha ao deletar baralho",
+                  "Não foi possível remover esse baralho da sua coleção.",
+                  icon: const Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 50.0,
+                    semanticLabel: 'Error',
+                  ),
+                );
+              }
+            },
             child: const Text("Sim"),
           ),
         ],

@@ -4,12 +4,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
+import 'package:memento_studio/src/state_managers/cubit/deck_collection_cubit.dart';
+import 'package:uuid/uuid.dart';
 
-import '../entities.dart';
 import '../utils.dart' as utils;
 
-// TODO: adicionar tags nessa página...
-
+// https://stackoverflow.com/questions/50736571/when-i-select-a-textfield-the-keyboard-moves-over-it
+// TODO: arrumar problema com teclado na frente do textfield
 class DeckCreationPage extends StatefulWidget {
   const DeckCreationPage({Key? key}) : super(key: key);
 
@@ -18,39 +19,203 @@ class DeckCreationPage extends StatefulWidget {
 }
 
 class _DeckCreationPageState extends State<DeckCreationPage> {
-  final Logger _logger = KiwiContainer().resolve();
+  late final DeckCollectionCubit _collectionCubit;
+  late final Logger _logger;
+  late final Uuid _uuid;
+
+  final _descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  final _tagController = TextEditingController();
+  final _tagList = <String>[];
+
   utils.MemoryImage? _cover;
+
+  _DeckCreationPageState() {
+    var kiwi = KiwiContainer();
+
+    _collectionCubit = kiwi.resolve();
+    _logger = kiwi.resolve();
+    _uuid = kiwi.resolve();
+  }
 
   @override
   Widget build(BuildContext context) {
+    var appBar = AppBar(
+      title: const Text("Criação de Baralho"),
+      centerTitle: true,
+    );
+
+    var bottomPadding = MediaQuery.of(context).viewInsets.bottom -
+        appBar.preferredSize.height / 2;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: const Text("Criação de Baralho"),
-        centerTitle: true,
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          reverse: true,
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom / 2,
+      appBar: appBar,
+      body: Scrollbar(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: utils.horizontalPadding,
           ),
-          child: Form(
-            key: _formKey,
-            child: ConstrainedBox(
-              constraints: constraints,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
+          child: LayoutBuilder(
+            builder: (context, constraints) => Form(
+              key: _formKey,
+              child: ListView(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                padding: EdgeInsets.only(
+                  top: utils.verticalScrollPadding,
+                  bottom: utils.verticalScrollPadding +
+                      (bottomPadding > 0 ? bottomPadding : 0),
+                ),
                 children: [
-                  const Spacer(flex: 2),
-                  Expanded(
-                    flex: 4,
-                    child: GestureDetector(
-                      onTap: () {
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(utils.borderRadius),
+                            ),
+                            contentPadding: const EdgeInsets.all(5),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  title: const Text("Galeria"),
+                                  onTap: () async {
+                                    var memImg = await utils.getImageFromDevice(
+                                        fromGallery: true);
+
+                                    if (memImg != null) {
+                                      setState(() {
+                                        _cover = memImg;
+                                      });
+                                    }
+
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                ListTile(
+                                  title: const Text("Câmera"),
+                                  onTap: () async {
+                                    var memImg = await utils.getImageFromDevice(
+                                        fromGallery: false);
+
+                                    if (memImg != null) {
+                                      setState(() {
+                                        _cover = memImg;
+                                      });
+                                    }
+
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                if (_cover != null)
+                                  ListTile(
+                                    title: const Text("Remover imagem"),
+                                    onTap: () async {
+                                      setState(() {
+                                        _cover = null;
+                                      });
+
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: Container(
+                      width: constraints.biggest.width,
+                      height: constraints.biggest.width / 3 * 2,
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: (_cover != null
+                                  ? Image.memory(_cover!.bytes)
+                                  : Image.asset(
+                                      utils.AssetManager.noImagePath,
+                                    ))
+                              .image,
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(utils.borderRadius),
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            color: Colors.black.withOpacity(0.25),
+                          ),
+                          const Center(
+                            child: FaIcon(
+                              FontAwesomeIcons.camera,
+                              color: Colors.white,
+                              size: utils.iconButtonSize,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: utils.verticalSpace * 3),
+                  TextFormField(
+                    maxLength: utils.Validator.deckNameMaxLength,
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      labelText: "Nome",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (name) {
+                      if (name == null || name.isEmpty) {
+                        return "Nome inválido";
+                      }
+
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: utils.verticalSpace / 2),
+                  TextFormField(
+                    maxLines: null,
+                    maxLength: utils.Validator.deckDescriptionMaxLength,
+                    controller: _descriptionController,
+                    decoration: const InputDecoration(
+                      labelText: "Descrição",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  if (_tagList.isNotEmpty) ...[
+                    const SizedBox(height: utils.verticalSpace),
+                    Wrap(
+                      spacing: 10,
+                      children: _tagList
+                          .map(
+                            (e) => Chip(
+                              label: Text(e),
+                              onDeleted: () {
+                                setState(() {
+                                  _tagList
+                                      .removeWhere((element) => element == e);
+                                });
+                              },
+                              deleteIcon: const FaIcon(
+                                FontAwesomeIcons.x,
+                                size: 12,
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                  TextButton.icon(
+                      onPressed: () {
                         showDialog(
                           context: context,
                           builder: (_) {
@@ -59,138 +224,53 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                                 borderRadius:
                                     BorderRadius.circular(utils.borderRadius),
                               ),
-                              contentPadding: const EdgeInsets.all(5),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  ListTile(
-                                    title: const Text("Galeria"),
-                                    onTap: () async {
-                                      var memImg =
-                                          await utils.getImageFromDevice(
-                                              fromGallery: true);
-
-                                      if (memImg != null) {
-                                        setState(() {
-                                          _cover = memImg;
-                                        });
-                                      }
-
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ListTile(
-                                    title: const Text("Câmera"),
-                                    onTap: () async {
-                                      var memImg =
-                                          await utils.getImageFromDevice(
-                                              fromGallery: false);
-
-                                      if (memImg != null) {
-                                        setState(() {
-                                          _cover = memImg;
-                                        });
-                                      }
-
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  if (_cover != null)
-                                    ListTile(
-                                      title: const Text("Remover imagem"),
-                                      onTap: () async {
-                                        setState(() {
-                                          _cover = null;
-                                        });
-
-                                        Navigator.pop(context);
-                                      },
+                                  TextField(
+                                    controller: _tagController,
+                                    decoration: const InputDecoration(
+                                      labelText: "Descrição",
+                                      border: OutlineInputBorder(),
                                     ),
+                                    maxLength: 32,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter(
+                                        " ",
+                                        allow: false,
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text("Cancelar"),
+                                      ),
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _tagList.add(_tagController.text);
+                                              _tagController.clear();
+                                            });
+
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text("Adicionar")),
+                                    ],
+                                  ),
                                 ],
                               ),
                             );
                           },
                         );
                       },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: utils.horizontalPadding,
-                        ),
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: (_cover != null
-                                    ? Image.memory(_cover!.bytes)
-                                    : Image.asset(
-                                        utils.AssetManager.noImagePath,
-                                      ))
-                                .image,
-                            fit: BoxFit.cover,
-                          ),
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(utils.borderRadius),
-                          ),
-                        ),
-                        child: Stack(
-                          children: [
-                            Container(
-                              color: Colors.black.withOpacity(0.25),
-                            ),
-                            const Center(
-                              child: FaIcon(
-                                FontAwesomeIcons.camera,
-                                color: Colors.white,
-                                size: utils.iconButtonSize,
-                              ),
-                            ),
-                          ],
-                        ),
+                      icon: const FaIcon(
+                        FontAwesomeIcons.plus,
+                        size: 16,
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: utils.verticalSpace * 2),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: utils.horizontalPadding,
-                    ),
-                    child: TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: "Nome",
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (name) {
-                        if (name == null || name.isEmpty) {
-                          return "Nome inválido";
-                        }
-
-                        return null;
-                      },
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(
-                          utils.Validator.deckNameMaxLength,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: utils.verticalSpace),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: utils.horizontalPadding,
-                    ),
-                    child: TextFormField(
-                      controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: "Descrição",
-                        border: OutlineInputBorder(),
-                      ),
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(
-                          utils.Validator.deckDescriptionMaxLength,
-                        )
-                      ],
-                    ),
-                  ),
+                      label: const Text("Adicionar Tag")),
                   const SizedBox(height: utils.verticalSpace),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -200,24 +280,39 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                         child: const Text("Cancelar"),
                       ),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             _logger.i(
                               "Formulário de criação de usuário válido.",
                             );
 
-                            // TODO: Criar o bendito deck e redirecionar para página de edição...
+                            String deckId = _uuid.v4();
 
-                            // TODO: salvar baralho
+                            String? coverPath;
+
+                            if (_cover != null) {
+                              coverPath =
+                                  await utils.storeDeckCoverImageIntoAppFolder(
+                                image: _cover!,
+                                deckId: deckId,
+                              );
+                            }
+
+                            var deck = await _collectionCubit.createDeck(
+                              name: _nameController.text,
+                              description: _descriptionController.text,
+                              deckId: deckId,
+                              coverPath: coverPath,
+                              tags: _tagList,
+                            );
+
+                            _logger.i(
+                              "Baralho $deckId, de Nome ${deck.name} foi salvo localmente.",
+                            );
 
                             GoRouter.of(context).goNamed(
                               utils.MSRouter.deckEditRouteName,
-                              extra: Deck(
-                                name: _nameController.text,
-                                description: _descriptionController.text,
-                                lastModification: DateTime.now(),
-                                id: "abl",
-                              ),
+                              extra: deck,
                             );
                           } else {
                             _logger.i("Formulário não foi aceito");
@@ -227,7 +322,6 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                       ),
                     ],
                   ),
-                  const Spacer(),
                 ],
               ),
             ),
