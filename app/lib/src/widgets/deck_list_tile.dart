@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
 import 'package:memento_studio/src/entities.dart';
 
 class DeckListTile extends StatelessWidget {
-  final Deck deck;
+  final DeckReference deck;
   const DeckListTile({Key? key, required this.deck}) : super(key: key);
 
   @override
@@ -20,10 +22,23 @@ class DeckListTile extends StatelessWidget {
               child: Row(
                 children: [
                   Flexible(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.amber,
-                        borderRadius: BorderRadius.circular(15),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15.0),
+                      child: CachedNetworkImage(
+                        fit: BoxFit.cover,
+                        height: double.infinity,
+                        imageUrl: deck.cover ?? "",
+                        placeholder: (context, url) =>
+                            const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => Container(
+                          decoration: const BoxDecoration(
+                            image: DecorationImage(
+                              image:
+                                  AssetImage("assets/images/placeholder.png"),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -44,8 +59,8 @@ class DeckListTile extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Por fulano de tal"),
-                              Text("${deck.cards.length} cards")
+                              Text("Por ${deck.author} de tal"),
+                              Text("${deck.numberOfCards} cards")
                             ],
                           ),
                         ),

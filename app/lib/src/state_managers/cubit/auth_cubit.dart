@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:kiwi/kiwi.dart';
+import 'package:memento_studio/src/repositories.dart';
 import 'package:meta/meta.dart';
 
 import '../../exceptions.dart';
@@ -13,6 +15,7 @@ part 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final FirebaseAuth _auth;
   StreamSubscription? _userStreamSubscription;
+  UserRepositoryInterface userRepo = KiwiContainer().resolve();
 
   AuthCubit(FirebaseAuth auth)
       : _auth = auth,
@@ -151,6 +154,8 @@ class AuthCubit extends Cubit<AuthState> {
         await currentUser.reauthenticateWithCredential(fbCredential);
 
         await _auth.currentUser!.delete();
+
+        await userRepo.deleteUser(); // TODO: Tratar erro
       } on FirebaseAuthException catch (e) {
         emit(
           AccountDeletionError(
@@ -216,6 +221,11 @@ class AuthCubit extends Cubit<AuthState> {
       }
 
       await _auth.signInWithCredential(fbCredential);
+
+      Future(() {
+        while (state is AuthenticationLoading) {}
+        userRepo.createUser();
+      });
     } on FirebaseAuthException catch (e) {
       emit(AuthenticationError(_handleFirebaseAuthException(e)));
     }
@@ -231,6 +241,11 @@ class AuthCubit extends Cubit<AuthState> {
           email: email,
           password: password,
         );
+
+        Future(() {
+          while (state is AuthenticationLoading) {}
+          userRepo.createUser();
+        });
       } on FirebaseAuthException catch (e) {
         emit(AuthenticationError(_handleFirebaseAuthException(e)));
       }
@@ -241,6 +256,14 @@ class AuthCubit extends Cubit<AuthState> {
     if (state is Authenticated) {
       await _auth.currentUser!.updateDisplayName(name);
     }
+  }
+
+  String? getToken() {
+    if (state is Authenticated) {
+      return (state as Authenticated).user.token;
+    }
+
+    return null;
   }
 
   // TODO: codificar updateEmail e updatePassword e configurar o firebase para tal...

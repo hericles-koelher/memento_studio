@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
+import 'package:memento_studio/src/apis.dart';
 import 'package:memento_studio/src/repositories.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -21,6 +22,14 @@ Future<void> injectDependencies() async {
     name: "Memento Studio",
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  final chopperClient = Api.createInstance();
+  kiwi.registerInstance<DeckReferenceRepositoryInterface>(
+      DeckReferenceRepository(chopperClient.getService<DeckReferenceApi>()));
+  kiwi.registerInstance<DeckRepositoryInterface>(
+      DeckRepository(chopperClient.getService<DeckApi>()));
+  kiwi.registerInstance<UserRepositoryInterface>(
+      UserRepository(chopperClient.getService<UserApi>()));
 
   kiwi.registerInstance(AuthCubit(FirebaseAuth.instanceFor(app: fbApp)));
 
@@ -57,4 +66,9 @@ Future<void> injectDependencies() async {
       kiwi.resolve(),
     ),
   );
+
+  kiwi.registerInstance(DeckReferencesCubit(
+    kiwi.resolve(),
+    kiwi.resolve(),
+  ));
 }

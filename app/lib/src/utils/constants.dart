@@ -1,4 +1,4 @@
-const double horizontalPadding = 35.0;
+const double horizontalPadding = 20.0;
 
 const double verticalPadding = 45.0;
 

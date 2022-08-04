@@ -81,7 +81,7 @@ class MSDrawer extends StatelessWidget {
                     GoRouter.of(context).goNamed(MSRouter.myAccountRouteName);
                   },
                 ),
-              ListTile(
+              const ListTile(
                 title: Text("Informações"),
                 leading: Icon(Icons.info_outline),
               ),

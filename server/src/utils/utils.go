@@ -3,8 +3,11 @@ package utils
 import (
 	"os"
 	"io"
+	"net/http"
 	"io/ioutil"
 	"encoding/json"
+
+	"server/src/errors"
 )
 type compareFunc func(interface{}, interface{}) bool
 
@@ -34,7 +37,32 @@ func GetRequestBody(bodyBuffer io.ReadCloser, result *map[string]interface{}) er
 	bodyBytes, _ := ioutil.ReadAll(bodyBuffer)
 	defer bodyBuffer.Close()
 
+	if len(bodyBytes) == 0 {
+		return nil
+	}
+
 	err := json.Unmarshal(bodyBytes, result)
 
 	return err
+}
+
+func Remove(arr []string, value string) []string {
+	for i, v := range arr {
+		if v == value {
+			return append(arr[:i], arr[i+1:]...)
+		}
+	}
+
+	return arr
+}
+
+func HandleRepositoryError(err *errors.RepositoryError) int {
+	switch err.Code {
+	case errors.DuplicateKey:
+		return http.StatusForbidden
+	case errors.Timeout:
+		return http.StatusRequestTimeout
+	default:
+		return http.StatusInternalServerError
+	}
 }

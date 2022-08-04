@@ -60,3 +60,29 @@ func ReadAllDeckReference(ginContext *gin.Context) {
 		ginContext.JSON(http.StatusOK, decksReference)
 	}
 }
+
+func GetPublicDeck(ginContext *gin.Context) {
+	deckRepository, ok := ginContext.MustGet("deckRepository").(interfaces.DeckRepository)
+	if !ok {
+		ginContext.AbortWithStatusJSON(http.StatusInternalServerError, "error when getting repository")
+		return
+	}
+
+	// Get deck
+	id := ginContext.Param("id")
+
+	deck, errRepo := deckRepository.Read(id)
+	if errRepo != nil {
+		ginContext.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
+		return
+	}
+
+	// Check if it is public
+	if !deck.IsPublic {
+		ginContext.AbortWithStatusJSON(http.StatusUnauthorized, "Can't get a private deck")
+		return
+	}
+
+	// Return deck
+	ginContext.JSON(http.StatusOK, deck)
+}

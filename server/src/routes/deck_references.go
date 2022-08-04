@@ -7,6 +7,8 @@ import (
 )
 
 func DeckReferenceRoutes(routerGroup *gin.RouterGroup) {
-	userGroup := routerGroup.Group("/decksReference")
-	userGroup.GET("", controllers.ReadAllDeckReference)
+	deckReferenceGroup := routerGroup.Group("/decksReference")
+
+	deckReferenceGroup.GET("", controllers.ReadAllDeckReference)
+	deckReferenceGroup.GET("/:id", controllers.GetPublicDeck)
 }

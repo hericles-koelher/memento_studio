@@ -8,9 +8,11 @@ import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/widgets.dart';
+import 'package:memento_studio/src/widgets/textfield_tags.dart';
 
 import '../entities.dart';
 import '../utils.dart';
+import 'deck_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -21,6 +23,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   static const _pageSize = 10;
+  List<String> tags = <String>[];
+  double appBarSize = 110;
 
   late final Logger _logger;
   late final DeckCollectionCubit _collectionCubit;
@@ -67,26 +71,42 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     int crossAxisCount = 2;
 
+    var searchBarWithTags = Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: horizontalPadding, vertical: 10),
+      child: TextFieldTags(
+        tags: tags,
+        onSearchAction: (_, __) {
+          print("TODO: Fazer pesquisa");
+        },
+        onAddTag: (tag) {
+          tag = tag.replaceAll(" ", "").toLowerCase();
+
+          if (tag.isEmpty || tags.contains(tag)) return;
+
+          setState(() {
+            tags.add(tag);
+            appBarSize = 150;
+          });
+        },
+        onDeleteTag: (tag) {
+          setState(() {
+            tags.remove(tag);
+
+            if (tags.isEmpty) appBarSize = 110;
+          });
+        },
+      ),
+    );
+
     return Scaffold(
       drawer: const MSDrawer(),
       appBar: AppBar(
-        title: const Text("Memento Studio"),
+        title: const Text("Descubra baralhos"),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: "Pesquisar",
-                suffixIcon: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.search),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-          ),
+          preferredSize: Size.fromHeight(appBarSize),
+          child: searchBarWithTags,
         ),
       ),
       body: SafeArea(

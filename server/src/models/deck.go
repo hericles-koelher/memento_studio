@@ -8,5 +8,5 @@ type Deck struct {
 	LastModification int64    `json:"lastModification" bson:"lastModification,omitempty"`
 	Name             string   `json:"name" bson:"name,omitempty"`
 	Tags             []string `json:"tags" bson:"tags, omitempty"`
-	UUID             string   `bson:"_id"`
+	UUID             string   `json:"UUID" bson:"_id"`
 }

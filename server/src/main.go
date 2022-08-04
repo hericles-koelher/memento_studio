@@ -21,7 +21,7 @@ func main() {
 
 	database := client.Database(databaseName)
 
-	server.StaticFS("/image", http.Dir("public"))
+	server.StaticFS("/image", gin.Dir("public", false))
 
 	// Estruturas que serão utilizadas por todas as rotas
 	server.Use(func(context *gin.Context) {
