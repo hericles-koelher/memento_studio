@@ -280,9 +280,7 @@ class _DeckPageState extends State<DeckPage> {
               var isThereError = false;
 
               // Salvar baralho localmente
-              final localAdapter = ObjectBoxDeckAdapter();
-              var localDeck = localAdapter.toLocal(widget.deck);
-              await localRepo.create(localDeck);
+              int storageId = await _collectionCubit.copyDeck(widget.deck);
 
               if (auth.state is Authenticated) {
                 var result = await apiRepo
@@ -292,11 +290,9 @@ class _DeckPageState extends State<DeckPage> {
                   isThereError = true; // Tratar melhor esse erro talvez
                 } else if (result is Success) {
                   var deckCopy = result.value as Deck;
-                  var localDeckCopy = localAdapter.toLocal(deckCopy);
 
                   // Update local deck
-                  localDeckCopy.storageId = localDeck.storageId;
-                  await localRepo.update(localDeckCopy);
+                  await _collectionCubit.updateDeck(deckCopy, storageId);
                 }
               }
 

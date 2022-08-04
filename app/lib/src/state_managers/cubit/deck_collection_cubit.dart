@@ -72,4 +72,28 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
 
     emit(ExpansiveDeckCollection(coreDeckList));
   }
+
+  Future<int> copyDeck(Deck deck) async {
+    var localDeck = _adapter.toLocal(deck) as LocalDeck;
+    await _repository.create(localDeck);
+
+    var localDeckList = await _repository.readAll(state.count, 0);
+
+    var coreDeckList = localDeckList.map((e) => _adapter.toCore(e)).toList();
+    emit(ExpansiveDeckCollection(coreDeckList));
+
+    return localDeck.storageId;
+  }
+
+  Future<void> updateDeck(Deck deck, int storageId) async {
+    var updatedDeck = _adapter.toLocal(deck) as LocalDeck;
+    updatedDeck.storageId = storageId;
+
+    await _repository.update(updatedDeck);
+
+    var localDeckList = await _repository.readAll(state.count, 0);
+
+    var coreDeckList = localDeckList.map((e) => _adapter.toCore(e)).toList();
+    emit(ExpansiveDeckCollection(coreDeckList));
+  }
 }

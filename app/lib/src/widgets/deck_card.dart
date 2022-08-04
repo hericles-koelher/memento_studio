@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart' as ms_entities;
 import 'package:memento_studio/src/utils.dart';
@@ -19,6 +20,8 @@ class DeckCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
+
+    dynamic imageCover = getDeckCover();
 
     bool shouldShowImage = deck.cover != null && deck.cover!.isNotEmpty;
 
@@ -46,11 +49,7 @@ class DeckCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              height: coverDimension,
-              width: coverDimension,
-              decoration: coverDecoration,
-            ),
+            imageCover,
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Column(
@@ -60,6 +59,7 @@ class DeckCard extends StatelessWidget {
                   Text(
                     deck.name,
                     style: textTheme.bodyMedium,
+                    maxLines: 2,
                   ),
                   Text(
                     "${deck.cards.length} cards",
@@ -70,6 +70,49 @@ class DeckCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget getDeckCover() {
+    bool shouldShowImage = deck.cover != null && deck.cover!.isNotEmpty;
+    var imageHeight = coverDimension * 0.89;
+
+    var placeholderImage = const BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage("assets/images/placeholder.png"),
+        fit: BoxFit.cover,
+      ),
+    );
+
+    if (shouldShowImage && !deck.cover!.contains('http')) {
+      return Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: FileImage(File(deck.cover!)),
+            fit: BoxFit.cover,
+          ),
+        ),
+        height: imageHeight,
+        width: coverDimension,
+      );
+    } else if (!shouldShowImage) {
+      return Container(
+        decoration: placeholderImage,
+        height: imageHeight,
+        width: coverDimension,
+      );
+    }
+
+    return CachedNetworkImage(
+      fit: BoxFit.cover,
+      height: imageHeight,
+      width: coverDimension,
+      imageUrl: deck.cover ?? "",
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator()),
+      errorWidget: (context, url, error) => Container(
+        decoration: placeholderImage,
       ),
     );
   }
