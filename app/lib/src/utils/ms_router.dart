@@ -6,6 +6,7 @@ import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/pages/deck_page.dart';
+import 'package:memento_studio/src/pages/deck_ref_page.dart';
 import 'package:memento_studio/src/pages/study_page.dart';
 import 'package:memento_studio/src/state_managers.dart';
 
@@ -18,6 +19,7 @@ class MSRouter {
 
   static const homeRouteName = "home";
   static const exploreRouteName = "explore";
+  static const deckRefRouteName = "deck_ref";
   static const cardListRouteName = "cardList";
   static const deckRouteName = "deck";
   static const deckCreationRouteName = "deck_creation";
@@ -92,6 +94,15 @@ class MSRouter {
               path: 'explore',
               name: exploreRouteName,
               builder: (_, __) => const ExplorePage(),
+              routes: [
+                GoRoute(
+                  path: "deck_ref",
+                  name: deckRefRouteName,
+                  builder: (_, state) => DeckRefPage(
+                    deck: state.extra as Deck,
+                  ),
+                ),
+              ],
             ),
             GoRoute(
               path: 'my_account',

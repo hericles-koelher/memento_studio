@@ -20,8 +20,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   static const _pageSize = 10;
-  List<String> tags = <String>[];
-  double appBarSize = 110;
 
   late final Logger _logger;
   late final DeckCollectionCubit _collectionCubit;
@@ -95,28 +93,37 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: LayoutBuilder(
               builder: (context, constraints) => CustomScrollView(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
                 slivers: [
-                  PagedSliverGrid<int, Deck>(
-                    pagingController: _pagingController,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      childAspectRatio: 0.68,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      crossAxisCount: 2,
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: verticalScrollPadding,
                     ),
-                    builderDelegate: PagedChildBuilderDelegate(
-                      itemBuilder: (context, Deck deck, int index) =>
-                          GestureDetector(
-                        onTap: () {
-                          GoRouter.of(context).goNamed(
-                            MSRouter.deckRouteName,
-                            params: {"deckId": deck.id},
-                          );
-                        },
-                        child: DeckCard(
-                          deck: deck,
-                          coverDimension: constraints.maxWidth / crossAxisCount,
+                    sliver: PagedSliverGrid<int, Deck>(
+                      pagingController: _pagingController,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        childAspectRatio: 0.68,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        crossAxisCount: 2,
+                      ),
+                      builderDelegate: PagedChildBuilderDelegate(
+                        itemBuilder: (context, Deck deck, int index) =>
+                            GestureDetector(
+                          onTap: () {
+                            GoRouter.of(context).goNamed(
+                              MSRouter.deckRouteName,
+                              params: {"deckId": deck.id},
+                            );
+                          },
+                          child: DeckCard(
+                            deck: deck,
+                            coverDimension:
+                                constraints.maxWidth / crossAxisCount,
+                          ),
                         ),
                       ),
                     ),

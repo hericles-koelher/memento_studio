@@ -13,6 +13,7 @@ import 'package:objectbox/internal.dart'; // generated code can access "internal
 import 'package:objectbox/objectbox.dart';
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
+import 'src/entities/local/deleted_deck_list.dart';
 import 'src/entities/local/local_deck.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
@@ -71,6 +72,25 @@ final _entities = <ModelEntity>[
             flags: 0)
       ],
       relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(2, 6833267490388252936),
+      name: 'DeletedDeckList',
+      lastPropertyId: const IdUid(2, 7685396987884993804),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 7498905827203218270),
+            name: 'storageId',
+            type: 6,
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(2, 7685396987884993804),
+            name: 'idList',
+            type: 30,
+            flags: 0)
+      ],
+      relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[])
 ];
 
@@ -94,7 +114,7 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(1, 8546753656038972946),
+      lastEntityId: const IdUid(2, 6833267490388252936),
       lastIndexId: const IdUid(0, 0),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
@@ -173,6 +193,37 @@ ModelDefinition getObjectBoxModel() {
                 .vTableGetNullable(buffer, rootOffset, 26);
 
           return object;
+        }),
+    DeletedDeckList: EntityDefinition<DeletedDeckList>(
+        model: _entities[1],
+        toOneRelations: (DeletedDeckList object) => [],
+        toManyRelations: (DeletedDeckList object) => {},
+        getId: (DeletedDeckList object) => object.storageId,
+        setId: (DeletedDeckList object, int id) {
+          object.storageId = id;
+        },
+        objectToFB: (DeletedDeckList object, fb.Builder fbb) {
+          final idListOffset = fbb.writeList(
+              object.idList.map(fbb.writeString).toList(growable: false));
+          fbb.startTable(3);
+          fbb.addInt64(0, object.storageId);
+          fbb.addOffset(1, idListOffset);
+          fbb.finish(fbb.endTable());
+          return object.storageId;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+
+          final object = DeletedDeckList(
+              idList: const fb.ListReader<String>(
+                      fb.StringReader(asciiOptimization: true),
+                      lazy: false)
+                  .vTableGet(buffer, rootOffset, 6, []),
+              storageId:
+                  const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0));
+
+          return object;
         })
   };
 
@@ -215,4 +266,15 @@ class LocalDeck_ {
   /// see [LocalDeck.dbCards]
   static final dbCards =
       QueryStringVectorProperty<LocalDeck>(_entities[0].properties[8]);
+}
+
+/// [DeletedDeckList] entity fields to define ObjectBox queries.
+class DeletedDeckList_ {
+  /// see [DeletedDeckList.storageId]
+  static final storageId =
+      QueryIntegerProperty<DeletedDeckList>(_entities[1].properties[0]);
+
+  /// see [DeletedDeckList.idList]
+  static final idList =
+      QueryStringVectorProperty<DeletedDeckList>(_entities[1].properties[1]);
 }

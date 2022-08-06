@@ -27,6 +27,8 @@ class DeckPage extends StatefulWidget {
 
 class _DeckPageState extends State<DeckPage> {
   final DeckRepositoryInterface apiRepo = KiwiContainer().resolve();
+  final DeletedDeckListRepository deletedDeckListRepository =
+      KiwiContainer().resolve();
   final DeckCollectionCubit collectionCubit = KiwiContainer().resolve();
   final AuthCubit auth = KiwiContainer().resolve();
 
@@ -67,9 +69,6 @@ class _DeckPageState extends State<DeckPage> {
       ];
     }, onSelected: (value) {
       switch (value) {
-        case 0:
-          showCopyDeckDialog();
-          break;
         case 1:
           GoRouter.of(context).pushNamed(
             MSRouter.deckEditRouteName,
@@ -86,6 +85,7 @@ class _DeckPageState extends State<DeckPage> {
             },
           );
           break;
+
         case 3:
           showTurnPublicDialog();
           break;
@@ -401,6 +401,10 @@ class _DeckPageState extends State<DeckPage> {
             onPressed: () async {
               await collectionCubit.deleteDeck(deck.id);
               DeckCollectionCubit.idDeletedDecks.add(deck.id);
+
+              if (auth.state is Authenticated) {
+                await deletedDeckListRepository.addId(deck.id);
+              }
 
               GoRouter.of(context).pop();
             },
