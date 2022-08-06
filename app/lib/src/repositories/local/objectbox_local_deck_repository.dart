@@ -23,6 +23,7 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
     }
   }
 
+  @override
   Future<int> count() async => _deckBox.count();
 
   @override

@@ -1,4 +1,4 @@
-import 'package:memento_studio/objectbox.g.dart';
+import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class DeletedDeckList {
