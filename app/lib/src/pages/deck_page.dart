@@ -289,7 +289,7 @@ class _DeckPageState extends State<DeckPage> {
                 if (result is Error) {
                   isThereError = true; // Tratar melhor esse erro talvez
                 } else if (result is Success) {
-                  var deckCopy = result.value as Deck;
+                  var deckCopy = (result as Success).value as Deck;
 
                   // Update local deck
                   await _collectionCubit.updateDeck(deckCopy, storageId);
@@ -346,12 +346,17 @@ class _DeckPageState extends State<DeckPage> {
               showLoadingDialog();
 
               if (auth.state is Authenticated) {
-                var result = await apiRepo.updateDeck(widget.deck.id,
-                    <String, bool>{"isPublic": true}, <String, Uint8List>{});
+                var result =
+                    await apiRepo.updateDeck(widget.deck.id, <String, dynamic>{
+                  "isPublic": true,
+                  // "lastModification":
+                  //     DateTime.now().millisecondsSinceEpoch.toDouble(),
+                }, <String, Uint8List>{});
 
                 Navigator.pop(context);
 
                 if (result is Error) {
+                  print((result as Error).exception.toString());
                   showOkWithIconDialog(
                     "Falha ao tornar baralho público",
                     "Não foi possível tornar este baralho público. Tente novamente mais tarde.",
@@ -406,6 +411,8 @@ class _DeckPageState extends State<DeckPage> {
 
               try {
                 await _collectionCubit.deleteDeck(widget.deck);
+                DeckCollectionCubit.idDeletedDecks
+                    .add(widget.deck.id); // TODO: PERSISTIR
 
                 Navigator.pop(context); // Retira loading
                 Navigator.pop(context); // Vai pra home

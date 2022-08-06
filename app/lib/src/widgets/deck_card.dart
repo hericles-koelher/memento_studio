@@ -23,22 +23,6 @@ class DeckCard extends StatelessWidget {
 
     dynamic imageCover = getDeckCover();
 
-    bool shouldShowImage = deck.cover != null && deck.cover!.isNotEmpty;
-
-    var coverDecoration = BoxDecoration(
-      image: DecorationImage(
-        image: (shouldShowImage
-                ? Image.file(File(deck.cover!))
-                : Image.asset(AssetManager.noImagePath))
-            .image,
-        fit: BoxFit.cover,
-      ),
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(borderRadius),
-        bottomRight: Radius.circular(borderRadius),
-      ),
-    );
-
     return Card(
       clipBehavior: Clip.hardEdge,
       margin: margin,

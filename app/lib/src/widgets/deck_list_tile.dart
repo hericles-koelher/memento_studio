@@ -27,6 +27,7 @@ class DeckListTile extends StatelessWidget {
                       child: CachedNetworkImage(
                         fit: BoxFit.cover,
                         height: double.infinity,
+                        width: double.infinity,
                         imageUrl: deck.cover ?? "",
                         placeholder: (context, url) =>
                             const Center(child: CircularProgressIndicator()),
@@ -48,7 +49,10 @@ class DeckListTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(deck.name),
+                        Text(
+                          deck.name,
+                          maxLines: 2,
+                        ),
                         if (deck.description != null)
                           Text(
                             deck.description!,
