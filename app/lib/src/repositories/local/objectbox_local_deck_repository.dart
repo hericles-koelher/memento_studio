@@ -83,6 +83,8 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
 
   @override
   Future<void> update(covariant LocalDeck deck) async {
+    deck.storageId = await findStorageId(deck.id);
+
     if (deck.storageId <= 0) {
       throw MSStorageException(
         message: "O deck.storageId deve ser maior que 0",

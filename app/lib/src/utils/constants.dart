@@ -1,5 +1,7 @@
 const double horizontalPadding = 20.0;
 
+const double verticalPadding = 45.0;
+
 const double verticalScrollPadding = 80.0;
 
 const double iconButtonSize = 30.0;

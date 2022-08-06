@@ -64,7 +64,7 @@ class DeckCard extends StatelessWidget {
 
     var placeholderImage = const BoxDecoration(
       image: DecorationImage(
-        image: AssetImage("assets/images/placeholder.png"),
+        image: AssetImage(AssetManager.noImagePath),
         fit: BoxFit.cover,
       ),
     );

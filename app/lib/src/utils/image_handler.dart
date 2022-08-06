@@ -7,7 +7,7 @@ import 'package:memento_studio/src/exceptions.dart';
 import 'package:path/path.dart' as p;
 
 final RegExp _msImageNameRegex = RegExp(
-  r"^(?:(?:Front)|(?:Back)|(?:Cover))_.*\.(?:(?:bmp)|(?:gif)|(?:jpeg)|(?:jpg)|(?:png)|(?:webp)|(?:heif)|(?:heic))$",
+  r"^.*(?:(?:Front)|(?:Back)|(?:Cover))_.*\.(?:(?:bmp)|(?:gif)|(?:jpeg)|(?:jpg)|(?:png)|(?:webp)|(?:heif)|(?:heic))$",
 );
 
 String _createCardFileName({
@@ -17,7 +17,7 @@ String _createCardFileName({
 }) =>
     "${isFront ? "Front_" : "Back_"}$cardId.$extension";
 
-String _getFileExtension(String name) => name.split(".").last;
+String getFileExtension(String name) => name.split(".").last;
 
 class MemoryImage {
   final String extension;
@@ -48,7 +48,7 @@ Future<MemoryImage?> getImageFromDevice({required bool fromGallery}) async {
 
   if (xfile != null) {
     return MemoryImage(
-      extension: _getFileExtension(xfile.name),
+      extension: getFileExtension(xfile.name),
       bytes: await xfile.readAsBytes(),
     );
   }

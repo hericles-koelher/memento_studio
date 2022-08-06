@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/entities.dart';
+import 'package:memento_studio/src/pages/deck_page.dart';
+import 'package:memento_studio/src/pages/study_page.dart';
 import 'package:memento_studio/src/state_managers.dart';
 
 import '../pages.dart';
@@ -16,8 +18,11 @@ class MSRouter {
 
   static const homeRouteName = "home";
   static const exploreRouteName = "explore";
+  static const cardListRouteName = "cardList";
+  static const deckRouteName = "deck";
   static const deckCreationRouteName = "deck_creation";
   static const deckEditRouteName = "deck_edit";
+  static const studyRouteName = "study";
   static const signInRouteName = "sign_in";
   static const signUpRouteName = "sign_up";
   static const myAccountRouteName = "my_account";
@@ -54,10 +59,34 @@ class MSRouter {
               builder: (_, __) => const DeckCreationPage(),
             ),
             GoRoute(
-              path: "deck_edit",
-              name: deckEditRouteName,
-              builder: (_, state) =>
-                  DeckEditPage(deck: (state.extra as Deck?)!),
+              path: "deck/:deckId",
+              name: deckRouteName,
+              builder: (_, state) => DeckPage(
+                deckId: state.params["deckId"]!,
+              ),
+              routes: [
+                GoRoute(
+                  path: "card_list",
+                  name: cardListRouteName,
+                  builder: (_, state) => CardListPage(
+                    deckId: state.params["deckId"]!,
+                  ),
+                ),
+                GoRoute(
+                  path: "deck_edit",
+                  name: deckEditRouteName,
+                  builder: (_, state) => DeckEditPage(
+                    deckId: state.params["deckId"]!,
+                  ),
+                ),
+                GoRoute(
+                  path: "study",
+                  name: studyRouteName,
+                  builder: (_, state) => StudyPage(
+                    deckId: state.params["deckId"]!,
+                  ),
+                ),
+              ],
             ),
             GoRoute(
               path: 'explore',

@@ -65,6 +65,7 @@ dependencies:
   image_picker: ^0.8.5+3
   path: ^1.8.1
   path_provider: ^2.0.11
+  uuid: ^3.0.6
   # permission_handler: ^10.0.0
 
 dev_dependencies:
@@ -79,7 +80,7 @@ dev_dependencies:
   flutter_lints: ^1.0.0
   copy_with_extension_gen: ^4.0.2
   mocktail: ^0.3.0
-  chopper_generator: ^4.0.6
+  chopper_generator: ^4.0.5
   test: ^1.21.1
   objectbox_generator: ^1.6.0
 

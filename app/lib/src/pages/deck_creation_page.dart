@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
+import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/state_managers/cubit/deck_collection_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -298,21 +299,26 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                               );
                             }
 
-                            var deck = await _collectionCubit.createDeck(
+                            var deck = Deck(
+                              id: deckId,
+                              lastModification: DateTime.now(),
                               name: _nameController.text,
                               description: _descriptionController.text,
-                              deckId: deckId,
-                              coverPath: coverPath,
+                              cover: coverPath,
                               tags: _tagList,
                             );
+
+                            await _collectionCubit.createDeck(deck);
 
                             _logger.i(
                               "Baralho $deckId, de Nome ${deck.name} foi salvo localmente.",
                             );
 
                             GoRouter.of(context).goNamed(
-                              utils.MSRouter.deckEditRouteName,
-                              extra: deck,
+                              utils.MSRouter.deckRouteName,
+                              params: {
+                                "deckId": deckId,
+                              },
                             );
                           } else {
                             _logger.i("Formulário não foi aceito");

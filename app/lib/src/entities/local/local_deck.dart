@@ -18,7 +18,7 @@ class LocalDeck extends LocalDeckBase {
   List<String>? tags;
 
   List<String>? get dbCards =>
-      cards?.map((card) => card.toJson().toString()).toList();
+      cards?.map((card) => jsonEncode(card.toJson())).toList();
 
   set dbCards(List<String>? cards) {
     this.cards = cards

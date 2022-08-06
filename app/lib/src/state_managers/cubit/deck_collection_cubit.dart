@@ -46,42 +46,34 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     }
   }
 
-  Future<Deck> createDeck({
-    required String name,
-    String? description,
-    required String deckId,
-    String? coverPath,
-    List<String> tags = const <String>[],
-  }) async {
-    var deck = Deck(
-      name: name,
-      description: description,
-      lastModification: DateTime.now(),
-      id: deckId,
-      cover: coverPath,
-      tags: tags,
-    );
-
+  Future<void> createDeck(Deck deck) async {
     await _repository.create(_adapter.toLocal(deck));
 
-    var localDeckList = await _repository.readAll(state.count, 0);
-
-    var coreDeckList = localDeckList.map((e) => _adapter.toCore(e)).toList();
-
-    emit(ExpansiveDeckCollection(coreDeckList));
-
-    return deck;
+    _reloadCollection();
   }
 
-  Future<void> deleteDeck(Deck deck) async {
-    int id = await _repository.findStorageId(deck.id);
-    await _repository.delete(id);
-
+  Future<void> _reloadCollection() async {
     var localDeckList = await _repository.readAll(state.count, 0);
 
     var coreDeckList = localDeckList.map((e) => _adapter.toCore(e)).toList();
 
     emit(ExpansiveDeckCollection(coreDeckList));
+  }
+
+  Future<void> updateDeck(Deck deck) async {
+    await _repository.update(_adapter.toLocal(deck));
+
+    await _reloadCollection();
+  }
+
+  Future<void> deleteDeck(String id) async {
+    int deckStorageId = await _repository.findStorageId(id);
+
+    var result = await _repository.delete(deckStorageId);
+
+    if (result == true) {
+      await _reloadCollection();
+    }
   }
 
   Future<int> copyDeck(Deck deck) async {
@@ -94,18 +86,6 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     emit(ExpansiveDeckCollection(coreDeckList));
 
     return localDeck.storageId;
-  }
-
-  Future<void> updateDeck(Deck deck, int storageId) async {
-    var updatedDeck = _adapter.toLocal(deck) as LocalDeck;
-    updatedDeck.storageId = storageId;
-
-    await _repository.update(updatedDeck);
-
-    var localDeckList = await _repository.readAll(state.count, 0);
-
-    var coreDeckList = localDeckList.map((e) => _adapter.toCore(e)).toList();
-    emit(ExpansiveDeckCollection(coreDeckList));
   }
 
   Future<void> syncDecks() async {

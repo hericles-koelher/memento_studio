@@ -1,18 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/widgets.dart';
-import 'package:memento_studio/src/widgets/textfield_tags.dart';
 
 import '../entities.dart';
 import '../utils.dart';
-import 'deck_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -73,56 +70,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     int crossAxisCount = 2;
 
-    var searchBarWithTags = Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: horizontalPadding, vertical: 10),
-      child: TextFieldTags(
-        tags: tags,
-        onSearchAction: (_, __) {
-          print("TODO: Fazer pesquisa");
-        },
-        onAddTag: (tag) {
-          tag = tag.replaceAll(" ", "").toLowerCase();
-
-          if (tag.isEmpty || tags.contains(tag)) return;
-
-          setState(() {
-            tags.add(tag);
-            appBarSize = 150;
-          });
-        },
-        onDeleteTag: (tag) {
-          setState(() {
-            tags.remove(tag);
-
-            if (tags.isEmpty) appBarSize = 110;
-          });
-        },
-      ),
-    );
-
     return Scaffold(
       drawer: const MSDrawer(),
       appBar: AppBar(
         title: const Text("Descubra baralhos"),
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(appBarSize),
-          child: searchBarWithTags,
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              if (auth.state is Unauthenticated) {
-                GoRouter.of(context).goNamed(MSRouter.signInRouteName);
-                return;
-              }
-
-              showSyncDialog();
-            },
-            icon: const Icon(Icons.sync),
-          )
-        ],
       ),
       body: SafeArea(
         child: Scrollbar(
@@ -141,24 +93,20 @@ class _HomePageState extends State<HomePage> {
                       crossAxisCount: 2,
                     ),
                     builderDelegate: PagedChildBuilderDelegate(
-                        itemBuilder: (context, Deck deck, int index) =>
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => DeckPage(
-                                            deck: deck,
-                                            isPersonalDeck: true,
-                                          )),
-                                );
-                              },
-                              child: DeckCard(
-                                deck: deck,
-                                coverDimension:
-                                    constraints.maxWidth / crossAxisCount,
-                              ),
-                            )),
+                      itemBuilder: (context, Deck deck, int index) =>
+                          GestureDetector(
+                        onTap: () {
+                          GoRouter.of(context).goNamed(
+                            MSRouter.deckRouteName,
+                            params: {"deckId": deck.id},
+                          );
+                        },
+                        child: DeckCard(
+                          deck: deck,
+                          coverDimension: constraints.maxWidth / crossAxisCount,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -168,8 +116,9 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () =>
-            GoRouter.of(context).goNamed(MSRouter.deckCreationRouteName),
+        onPressed: () => GoRouter.of(context).goNamed(
+          MSRouter.deckCreationRouteName,
+        ),
       ),
     );
   }
@@ -178,7 +127,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _pagingController.dispose();
     _subscription?.cancel();
-    _collectionCubit.close();
+
     super.dispose();
   }
 
