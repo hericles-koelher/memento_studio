@@ -1,11 +1,13 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
+import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/entities.dart' as ms_entities;
+import 'package:memento_studio/src/state_managers/cubit/deck_collection_cubit.dart';
 import 'package:memento_studio/src/widgets/card_view.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-class CardPage extends StatefulWidget {
+class StudyPage extends StatefulWidget {
   static final cardsColors = <Color>[
     Colors.red,
     Colors.blue,
@@ -14,31 +16,37 @@ class CardPage extends StatefulWidget {
     Colors.deepPurple
   ]; // TODO: Trocar para paleta de cores em outro lugar
 
-  final List<ms_entities.Card> cards;
-  final String deckTitle;
-  final String deckDescription;
-  final bool isPersonalDeck;
+  final String deckId;
+  final DeckCollectionCubit collectionCubit;
 
-  const CardPage(
-      {Key? key,
-      required this.cards,
-      required this.deckTitle,
-      required this.deckDescription,
-      required this.isPersonalDeck})
-      : super(key: key);
+  StudyPage({Key? key, required this.deckId})
+      : collectionCubit = KiwiContainer().resolve(),
+        super(key: key);
 
   @override
-  State<CardPage> createState() => _CardPageState();
+  State<StudyPage> createState() => _StudyPageState();
 }
 
-class _CardPageState extends State<CardPage> {
+class _StudyPageState extends State<StudyPage> {
   var _currentCard = 0;
+
+  late ms_entities.Deck deck;
+
+  @override
+  void initState() {
+    super.initState();
+
+    deck = widget.collectionCubit.state.decks.firstWhere(
+      (element) => element.id == widget.deckId,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cardSize = 0.70 * MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.deckTitle),
+        title: Text(deck.name),
         backgroundColor: Colors.transparent,
       ),
       body: Column(
@@ -56,7 +64,7 @@ class _CardPageState extends State<CardPage> {
                     _currentCard = index;
                   });
                 }),
-            items: widget.cards.asMap().entries.map((card) {
+            items: deck.cards.asMap().entries.map((card) {
               return Builder(
                 builder: (BuildContext context) {
                   return SizedBox(
@@ -69,15 +77,15 @@ class _CardPageState extends State<CardPage> {
                         text: card.value.frontText ?? "",
                         imagePath: card.value.frontImage ?? "",
                         height: cardSize,
-                        color: CardPage.cardsColors[
-                            card.key % CardPage.cardsColors.length],
+                        color: StudyPage.cardsColors[
+                            card.key % StudyPage.cardsColors.length],
                       ),
                       back: CardView(
                         text: card.value.backText ?? "",
                         imagePath: card.value.backImage ?? "",
                         height: cardSize,
-                        color: CardPage.cardsColors[
-                            card.key % CardPage.cardsColors.length],
+                        color: StudyPage.cardsColors[
+                            card.key % StudyPage.cardsColors.length],
                       ),
                     ),
                   );
@@ -93,7 +101,7 @@ class _CardPageState extends State<CardPage> {
 
   Widget header() {
     var horizontalPadding = 25.0;
-    var currentPercent = _currentCard / (widget.cards.length - 1);
+    var currentPercent = _currentCard / (deck.cards.length - 1);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
@@ -101,7 +109,7 @@ class _CardPageState extends State<CardPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.deckDescription,
+            deck.description ?? "",
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -113,7 +121,7 @@ class _CardPageState extends State<CardPage> {
             backgroundColor: Colors.grey,
             progressColor: Colors.greenAccent,
             barRadius: const Radius.circular(5.0),
-            leading: Text("${_currentCard + 1}/${widget.cards.length}"),
+            leading: Text("${_currentCard + 1}/${deck.cards.length}"),
           ),
           const SizedBox(height: 10.0),
         ],

@@ -7,8 +7,9 @@ abstract class Validator {
     r"(([A-Z]\.?\s?)*([A-Za-z]+\.?'?\s?)+([A-Z]\.?\s?[a-z]*)*)",
   );
 
-  static const int deckNameMaxLength = 64;
-  static const int deckDescriptionMaxLength = 256;
+  static const int deckNameMaxLength = 32;
+  static const int deckDescriptionMaxLength = 128;
+  static const int cardQuestionOrAnswerMaxLength = 128;
 
   static bool isEmail(String email) => _emailRegex.hasMatch(email);
 

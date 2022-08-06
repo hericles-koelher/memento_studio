@@ -35,30 +35,33 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     }
   }
 
-  Future<Deck> createDeck({
-    required String name,
-    String? description,
-    required String deckId,
-    String? coverPath,
-    List<String> tags = const <String>[],
-  }) async {
-    var deck = Deck(
-      name: name,
-      description: description,
-      lastModification: DateTime.now(),
-      id: deckId,
-      cover: coverPath,
-      tags: tags,
-    );
-
+  Future<void> createDeck(Deck deck) async {
     await _repository.create(_adapter.toLocal(deck));
 
+    _reloadCollection();
+  }
+
+  Future<void> _reloadCollection() async {
     var localDeckList = await _repository.readAll(state.count, 0);
 
     var coreDeckList = localDeckList.map((e) => _adapter.toCore(e)).toList();
 
     emit(ExpansiveDeckCollection(coreDeckList));
+  }
 
-    return deck;
+  Future<void> updateDeck(Deck deck) async {
+    await _repository.update(_adapter.toLocal(deck));
+
+    await _reloadCollection();
+  }
+
+  Future<void> deleteDeck(String id) async {
+    int deckStorageId = await _repository.findStorageId(id);
+
+    var result = await _repository.delete(deckStorageId);
+
+    if (result == true) {
+      await _reloadCollection();
+    }
   }
 }

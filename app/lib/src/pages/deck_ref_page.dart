@@ -1,11 +1,13 @@
+// ignore_for_file: unnecessary_const
+
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
-import 'package:logger/logger.dart';
 import 'package:memento_studio/src/entities.dart';
 
 import 'package:memento_studio/src/repositories.dart';
@@ -13,19 +15,25 @@ import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/utils.dart';
 import 'package:uuid/uuid.dart';
 
-class DeckPage extends StatefulWidget {
-  final String deckId;
+class DeckRefPage extends StatefulWidget {
+  final int? deckIndex;
+  final bool isPersonalDeck;
+  final Deck? deck;
 
-  const DeckPage({
+  const DeckRefPage({
     Key? key,
-    required this.deckId,
-  }) : super(key: key);
+    this.deckIndex,
+    required this.isPersonalDeck,
+    this.deck,
+  })  : assert((deckIndex != null && isPersonalDeck) ||
+            (deck != null && !isPersonalDeck)),
+        super(key: key);
 
   @override
-  State<DeckPage> createState() => _DeckPageState();
+  State<DeckRefPage> createState() => _DeckRefPageState();
 }
 
-class _DeckPageState extends State<DeckPage> {
+class _DeckRefPageState extends State<DeckRefPage> {
   final DeckRepositoryInterface apiRepo = KiwiContainer().resolve();
   final DeckCollectionCubit collectionCubit = KiwiContainer().resolve();
   final AuthCubit auth = KiwiContainer().resolve();
@@ -34,62 +42,64 @@ class _DeckPageState extends State<DeckPage> {
 
   @override
   void initState() {
-    deck = collectionCubit.state.decks.firstWhere(
-      (element) => element.id == widget.deckId,
-    );
+    if (widget.isPersonalDeck) {
+      deck = collectionCubit.state.decks[widget.deckIndex!];
+    } else {
+      deck = widget.deck!;
+    }
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    var tags = deck.tags.isNotEmpty ? deck.tags : ["Sem Tags"];
+
+    dynamic imageCover = getDeckCover();
+
     var popUpMenu = PopupMenuButton(itemBuilder: (context) {
-      return [
-        const PopupMenuItem<int>(
-          value: 1,
-          child: Text("Editar"),
-        ),
-        const PopupMenuItem<int>(
-          value: 2,
-          child: Text("Ver cartas"),
-        ),
-        const PopupMenuItem<int>(
-          value: 3,
-          child: Text("Tornar público"),
-        ),
-        const PopupMenuItem<int>(
-          value: 4,
-          child: Text(
-            "Deletar",
-            style: TextStyle(color: Colors.red),
-          ),
-        ),
-      ];
+      return widget.isPersonalDeck
+          ? [
+              const PopupMenuItem<int>(
+                value: 1,
+                child: Text("Editar"),
+              ),
+              const PopupMenuItem<int>(
+                value: 3,
+                child: Text("Tornar público"),
+              ),
+              const PopupMenuItem<int>(
+                value: 2,
+                child: Text(
+                  "Deletar",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ]
+          : [
+              const PopupMenuItem<int>(
+                value: 0,
+                child: Text("Fazer uma cópia"),
+              )
+            ];
     }, onSelected: (value) {
       switch (value) {
         case 0:
           showCopyDeckDialog();
           break;
         case 1:
-          GoRouter.of(context).pushNamed(
+          GoRouter.of(context).goNamed(
             MSRouter.deckEditRouteName,
-            params: {
-              "deckId": widget.deckId,
+            queryParams: {
+              "deckIndex": widget.deckIndex.toString(),
+              "isPersonalDeck": widget.isPersonalDeck.toString(),
             },
           );
           break;
         case 2:
-          GoRouter.of(context).pushNamed(
-            MSRouter.cardListRouteName,
-            params: {
-              "deckId": widget.deckId,
-            },
-          );
-          break;
-        case 3:
           showDeleteDeckDialog();
           break;
-        case 4:
+        case 3:
           showTurnPublicDialog();
       }
     });
@@ -104,35 +114,19 @@ class _DeckPageState extends State<DeckPage> {
       body: BlocBuilder<DeckCollectionCubit, DeckCollectionState>(
           bloc: collectionCubit,
           builder: (context, state) {
-            deck = state.decks.firstWhere(
-              (element) => element.id == widget.deckId,
-            );
-
-            Logger().d("DECK COVER: ${deck.cover}");
+            if (widget.isPersonalDeck) {
+              deck = state.decks[widget.deckIndex!];
+            } else {
+              deck = widget.deck!;
+            }
 
             return SingleChildScrollView(
-              child: Column(
+              child: Wrap(
                 children: [
-                  Container(
-                    // TODO: Adicionar nas constantes
-                    height: 300,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: (deck.cover != null
-                                ? Image.memory(
-                                    File(deck.cover!).readAsBytesSync(),
-                                  )
-                                : Image.asset(AssetManager.noImagePath))
-                            .image,
-                      ),
-                    ),
-                  ),
+                  imageCover,
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 25,
-                      vertical: 20,
-                    ),
+                        horizontal: 25, vertical: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -149,17 +143,16 @@ class _DeckPageState extends State<DeckPage> {
                         Wrap(
                           spacing: 4.0,
                           runSpacing: -10.0,
-                          children:
-                              (deck.tags.isNotEmpty ? deck.tags : ["Sem Tags"])
-                                  .map((e) => Chip(label: Text(e)))
-                                  .toList(),
+                          children: [
+                            for (var tag in tags) Chip(label: Text(tag))
+                          ],
                         ),
                         const SizedBox(height: 5.0),
                         const Align(
                           alignment: Alignment.centerRight,
                           child: Text(
                             "Por Fulano de tal",
-                            style: TextStyle(fontSize: 16.0),
+                            style: const TextStyle(fontSize: 16.0),
                           ),
                         ),
                         const SizedBox(height: 10.0),
@@ -193,9 +186,7 @@ class _DeckPageState extends State<DeckPage> {
 
             GoRouter.of(context).goNamed(
               MSRouter.studyRouteName,
-              params: {
-                "deckId": deck.id,
-              },
+              extra: widget.deck,
             );
           },
           child: const Text('Começar'),
@@ -204,9 +195,50 @@ class _DeckPageState extends State<DeckPage> {
     );
   }
 
-  void showNoCardsDialog() {
-    var noCardsDescription = "Crie cartas para ele!";
+  Widget getDeckCover() {
+    bool shouldShowImage = deck.cover != null && deck.cover!.isNotEmpty;
+    var imageHeight = 300.0;
 
+    var placeholderImage = const BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage("assets/images/placeholder.png"),
+        fit: BoxFit.cover,
+      ),
+    );
+
+    if (shouldShowImage && !deck.cover!.contains('http')) {
+      return Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: FileImage(File(deck.cover!)),
+            fit: BoxFit.cover,
+          ),
+        ),
+        height: imageHeight,
+      );
+    } else if (!shouldShowImage) {
+      return Container(
+        decoration: placeholderImage,
+        height: imageHeight,
+      );
+    }
+
+    return CachedNetworkImage(
+      fit: BoxFit.cover,
+      width: MediaQuery.of(context).size.width,
+      height: imageHeight,
+      imageUrl: deck.cover ?? "",
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator()),
+      errorWidget: (context, url, error) => Container(
+        decoration: placeholderImage,
+      ),
+    );
+  }
+
+  void showNoCardsDialog() {
+    var noCardsDescription =
+        widget.isPersonalDeck ? "Crie cartas para ele!" : "";
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -214,13 +246,15 @@ class _DeckPageState extends State<DeckPage> {
         content: Text(
             "Ainda não há cartas disponíveis nesse baralho. $noCardsDescription"),
         actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancelar'),
-            child: const Text("Cancelar"),
-          ),
+          widget.isPersonalDeck
+              ? TextButton(
+                  onPressed: () => Navigator.pop(context, 'Cancelar'),
+                  child: const Text("Cancelar"),
+                )
+              : Container(),
           TextButton(
             onPressed: () => Navigator.pop(context, 'OK'),
-            child: const Text("Criar"),
+            child: Text(widget.isPersonalDeck ? "Criar" : "Ok"),
           ),
         ],
       ),
@@ -396,11 +430,7 @@ class _DeckPageState extends State<DeckPage> {
             child: const Text('Não', style: TextStyle(color: Colors.red)),
           ),
           TextButton(
-            onPressed: () async {
-              await collectionCubit.deleteDeck(deck.id);
-
-              GoRouter.of(context).pop();
-            },
+            onPressed: () => Navigator.pop(context, 'OK'),
             child: const Text("Sim"),
           ),
         ],
