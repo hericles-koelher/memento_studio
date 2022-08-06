@@ -87,10 +87,10 @@ class _DeckPageState extends State<DeckPage> {
           );
           break;
         case 3:
-          showDeleteDeckDialog();
+          showTurnPublicDialog();
           break;
         case 4:
-          showTurnPublicDialog();
+          showDeleteDeckDialog();
       }
     });
 
@@ -400,6 +400,7 @@ class _DeckPageState extends State<DeckPage> {
           TextButton(
             onPressed: () async {
               await collectionCubit.deleteDeck(deck.id);
+              DeckCollectionCubit.idDeletedDecks.add(deck.id);
 
               GoRouter.of(context).pop();
             },

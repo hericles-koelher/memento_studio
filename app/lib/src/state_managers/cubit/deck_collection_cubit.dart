@@ -112,10 +112,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     // Limpa lista de baralhos deletados
     idDeletedDecks = List.empty(growable: true);
 
-    var localDeckList = await _repository.readAll(mergedDecks.length, 0);
-
-    var coreDeckList = localDeckList.map((e) => _adapter.toCore(e)).toList();
-    emit(ExpansiveDeckCollection(coreDeckList));
+    _reloadCollection();
   }
 
   // Aux
@@ -146,17 +143,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
       _logger.i("Há ${lDeck.id} no servidor");
 
       // Compara data das versões
-      if (serverVersion.lastModification.isAfter(lDeck.lastModification)) {
-        _logger.i("Versão do servidor é mais nova");
-        // Versão do servidor é mais nova, atualiza local
-        int id = await _repository.findStorageId(lDeck.id);
-        var updatedDeck = _adapter.toLocal(lDeck) as LocalDeck;
-        updatedDeck.storageId = id;
-
-        _repository.update(updatedDeck);
-
-        mergedDecks.add(serverVersion);
-      } else {
+      if (lDeck.lastModification.isAfter(serverVersion.lastModification)) {
         _logger.i("Versão local é mais nova");
         // Versão local é mais nova, atualiza no servidor
         var images = await getMapOfImages(lDeck);
@@ -164,12 +151,28 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
             lDeck.id, _apiAdapter.toApi(lDeck).toJson(), images);
 
         mergedDecks.add(lDeck);
+      } else {
+        _logger.i("Versão do servidor é mais nova");
+        // Versão do servidor é mais nova, atualiza local
+
+        // Remove imagens antigas e baixa imagens do server
+        var newLocalDeck =
+            await updateLocalDeckGivenRemote(serverVersion, localDeck: lDeck);
+
+        // Salva localmente
+        var updatedDeck = _adapter.toLocal(newLocalDeck) as LocalDeck;
+        _repository.update(updatedDeck);
+
+        mergedDecks.add(serverVersion);
       }
     }
 
     // Salva resto dos baralhos do servidor
     for (Deck rDeck in serverDecks) {
-      _repository.create(_adapter.toLocal(rDeck));
+      var newLocalDeck = await updateLocalDeckGivenRemote(rDeck);
+
+      // Salva localmente
+      _repository.create(_adapter.toLocal(newLocalDeck));
     }
 
     mergedDecks.addAll(serverDecks);

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart' as ms_entities;
 import 'package:memento_studio/src/utils.dart';
@@ -21,7 +20,23 @@ class DeckCard extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
 
-    dynamic imageCover = getDeckCover();
+    bool shouldShowImage = deck.cover != null && deck.cover!.isNotEmpty;
+
+    var coverDecoration = BoxDecoration(
+      image: DecorationImage(
+        image: (shouldShowImage
+                ? Image.memory(
+                    File(deck.cover!).readAsBytesSync(),
+                  )
+                : Image.asset(AssetManager.noImagePath))
+            .image,
+        fit: BoxFit.cover,
+      ),
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(borderRadius),
+        bottomRight: Radius.circular(borderRadius),
+      ),
+    );
 
     return Card(
       clipBehavior: Clip.hardEdge,
@@ -30,10 +45,13 @@ class DeckCard extends StatelessWidget {
         width: coverDimension,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            imageCover,
+            Container(
+              height: coverDimension * 0.85,
+              width: coverDimension,
+              decoration: coverDecoration,
+            ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Column(
@@ -54,49 +72,6 @@ class DeckCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget getDeckCover() {
-    bool shouldShowImage = deck.cover != null && deck.cover!.isNotEmpty;
-    var imageHeight = coverDimension * 0.89;
-
-    var placeholderImage = const BoxDecoration(
-      image: DecorationImage(
-        image: AssetImage(AssetManager.noImagePath),
-        fit: BoxFit.cover,
-      ),
-    );
-
-    if (shouldShowImage && !deck.cover!.contains('http')) {
-      return Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: FileImage(File(deck.cover!)),
-            fit: BoxFit.cover,
-          ),
-        ),
-        height: imageHeight,
-        width: coverDimension,
-      );
-    } else if (!shouldShowImage) {
-      return Container(
-        decoration: placeholderImage,
-        height: imageHeight,
-        width: coverDimension,
-      );
-    }
-
-    return CachedNetworkImage(
-      fit: BoxFit.cover,
-      height: imageHeight,
-      width: coverDimension,
-      imageUrl: deck.cover ?? "",
-      placeholder: (context, url) =>
-          const Center(child: CircularProgressIndicator()),
-      errorWidget: (context, url, error) => Container(
-        decoration: placeholderImage,
       ),
     );
   }

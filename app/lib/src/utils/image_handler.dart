@@ -109,3 +109,15 @@ Future<String> storeDeckCoverImageIntoAppFolder({
 
   return path;
 }
+
+Future<void> deleteLocalImage(String? path) async {
+  if (path == null) return;
+  try {
+    File file = File(path);
+    if (await file.exists()) {
+      await file.delete();
+    }
+  } catch (e) {
+    // Error in getting access to the file.
+  }
+}

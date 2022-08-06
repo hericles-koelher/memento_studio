@@ -73,8 +73,21 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: const MSDrawer(),
       appBar: AppBar(
-        title: const Text("Descubra baralhos"),
+        title: const Text("Memento Studio"),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              if (auth.state is Unauthenticated) {
+                GoRouter.of(context).goNamed(MSRouter.signInRouteName);
+                return;
+              }
+
+              showSyncDialog();
+            },
+            icon: const Icon(Icons.sync),
+          )
+        ],
       ),
       body: SafeArea(
         child: Scrollbar(
