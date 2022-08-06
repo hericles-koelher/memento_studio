@@ -13,9 +13,6 @@ import 'package:memento_studio/src/utils.dart';
 import 'package:memento_studio/src/widgets.dart';
 import 'package:memento_studio/src/widgets/textfield_tags.dart';
 
-import 'deck_page.dart';
-
-// TODO: utilizar infinite_pagination_scroll
 class ExplorePage extends StatefulWidget {
   const ExplorePage({Key? key}) : super(key: key);
 
@@ -148,11 +145,8 @@ class _ExplorePageState extends State<ExplorePage> {
     final deck = (deckResult as Success).value;
 
     GoRouter.of(context).goNamed(
-      MSRouter.deckRouteName,
-      extra: {
-        "deck": deck,
-        "isPersonalDeck": false,
-      },
+      MSRouter.deckRefRouteName,
+      extra: deck,
     );
   }
 
