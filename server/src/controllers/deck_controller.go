@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"server/src/errors"
 	"server/src/models"
@@ -57,8 +58,7 @@ func DeleteDeck(context *gin.Context) {
 				return id1.(string) == id2.(string)
 			})
 		if !containsDeck {
-			context.JSON(http.StatusForbidden, gin.H{"message": "User has no permission to delete this deck"})
-			return
+			continue
 		}
 
 		// Delete deck reference if it is public
@@ -122,25 +122,6 @@ func PostDecks(context *gin.Context) {
 		return
 	}
 
-	// Check if deck is new or if user owns it
-	var isNewDeck bool
-	if deck.UUID == "" {
-		isNewDeck = true
-		deck.UUID = uuid.New().String()
-	} else {
-		userHasDeck := utils.Contains(user.Decks, deck.UUID,
-			func(id1, id2 interface{}) bool {
-				return id1.(string) == id2.(string)
-			})
-
-		if !userHasDeck {
-			context.JSON(http.StatusUnauthorized, "User has no permission to update this deck")
-			return
-		}
-
-		isNewDeck = false
-	}
-
 	// Fill deck
 	if len(deckCover) > 0 {
 		deckImgName := "deck-" + deck.UUID + ".jpeg"
@@ -201,9 +182,14 @@ func PostDecks(context *gin.Context) {
 		return
 	}
 
-	// Update user's decks ids if is a new deck
+	// Update user's decks ids if it is a new deck
 	deckIds := user.Decks
-	if isNewDeck {
+	userHasDeck := utils.Contains(user.Decks, deck.UUID,
+		func(id1, id2 interface{}) bool {
+			return id1.(string) == id2.(string)
+		})
+
+	if !userHasDeck {
 		deckIds = append(deckIds, deck.UUID)
 	}
 
@@ -291,6 +277,7 @@ func CopyDeck(context *gin.Context) {
 	deckCopy := *deck
 	deckCopy.UUID = uuid.New().String()
 	deckCopy.IsPublic = false
+	deckCopy.LastModification = time.Now().UnixMilli()
 
 	var newCards = []models.Card{}
 	for _, card := range deck.Cards {
