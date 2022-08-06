@@ -59,36 +59,32 @@ class MSRouter {
               builder: (_, __) => const DeckCreationPage(),
             ),
             GoRoute(
-              path: "deck/:deckIndex",
+              path: "deck/:deckId",
               name: deckRouteName,
               builder: (_, state) => DeckPage(
-                deckIndex: int.parse(state.params["deckIndex"] ?? ""),
+                deckId: state.params["deckId"]!,
               ),
               routes: [
                 GoRoute(
                   path: "card_list",
                   name: cardListRouteName,
-                  builder: (_, state) {
-                    var args = state.extra as Map<String, Object>;
-
-                    return CardListPage(deck: args["deck"] as Deck);
-                  },
+                  builder: (_, state) => CardListPage(
+                    deckId: state.params["deckId"]!,
+                  ),
                 ),
                 GoRoute(
                   path: "deck_edit",
                   name: deckEditRouteName,
                   builder: (_, state) => DeckEditPage(
-                    deckIndex: int.parse(state.params["deckIndex"] ?? ""),
+                    deckId: state.params["deckId"]!,
                   ),
                 ),
                 GoRoute(
                   path: "study",
                   name: studyRouteName,
-                  builder: (_, state) {
-                    var args = state.extra as Map<String, Object>;
-
-                    return StudyPage(deck: args["deck"] as Deck);
-                  },
+                  builder: (_, state) => StudyPage(
+                    deckId: state.params["deckId"]!,
+                  ),
                 ),
               ],
             ),

@@ -304,6 +304,7 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                               lastModification: DateTime.now(),
                               name: _nameController.text,
                               description: _descriptionController.text,
+                              cover: coverPath,
                               tags: _tagList,
                             );
 
@@ -314,8 +315,10 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                             );
 
                             GoRouter.of(context).goNamed(
-                              utils.MSRouter.deckEditRouteName,
-                              extra: deck,
+                              utils.MSRouter.deckRouteName,
+                              params: {
+                                "deckId": deckId,
+                              },
                             );
                           } else {
                             _logger.i("Formulário não foi aceito");

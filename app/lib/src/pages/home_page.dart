@@ -71,43 +71,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     int crossAxisCount = 2;
 
-    var searchBarWithTags = Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: horizontalPadding, vertical: 10),
-      child: TextFieldTags(
-        tags: tags,
-        onSearchAction: (_, __) {
-          print("TODO: Fazer pesquisa");
-        },
-        onAddTag: (tag) {
-          tag = tag.replaceAll(" ", "").toLowerCase();
-
-          if (tag.isEmpty || tags.contains(tag)) return;
-
-          setState(() {
-            tags.add(tag);
-            appBarSize = 150;
-          });
-        },
-        onDeleteTag: (tag) {
-          setState(() {
-            tags.remove(tag);
-
-            if (tags.isEmpty) appBarSize = 110;
-          });
-        },
-      ),
-    );
-
     return Scaffold(
       drawer: const MSDrawer(),
       appBar: AppBar(
         title: const Text("Descubra baralhos"),
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(appBarSize),
-          child: searchBarWithTags,
-        ),
       ),
       body: SafeArea(
         child: Scrollbar(
@@ -131,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                         onTap: () {
                           GoRouter.of(context).goNamed(
                             MSRouter.deckRouteName,
-                            params: {"deckIndex": index.toString()},
+                            params: {"deckId": deck.id},
                           );
                         },
                         child: DeckCard(

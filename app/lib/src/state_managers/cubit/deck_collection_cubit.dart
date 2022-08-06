@@ -52,6 +52,16 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
   Future<void> updateDeck(Deck deck) async {
     await _repository.update(_adapter.toLocal(deck));
 
-    _reloadCollection();
+    await _reloadCollection();
+  }
+
+  Future<void> deleteDeck(String id) async {
+    int deckStorageId = await _repository.findStorageId(id);
+
+    var result = await _repository.delete(deckStorageId);
+
+    if (result == true) {
+      await _reloadCollection();
+    }
   }
 }

@@ -12,9 +12,12 @@ import '../state_managers.dart';
 import '../utils.dart' as utils;
 
 class DeckEditPage extends StatefulWidget {
-  final int deckIndex;
+  final String deckId;
 
-  const DeckEditPage({Key? key, required this.deckIndex}) : super(key: key);
+  const DeckEditPage({
+    Key? key,
+    required this.deckId,
+  }) : super(key: key);
 
   @override
   State<DeckEditPage> createState() => _DeckEditPageState();
@@ -33,7 +36,6 @@ class _DeckEditPageState extends State<DeckEditPage> {
   final _tagList = <String>[];
 
   utils.MemoryImage? _cover;
-  bool _imageWasRemoved = false;
 
   _DeckEditPageState() {
     var kiwi = KiwiContainer();
@@ -46,7 +48,9 @@ class _DeckEditPageState extends State<DeckEditPage> {
   void initState() {
     super.initState();
 
-    _deck = _collectionCubit.state.decks[widget.deckIndex];
+    _deck = _collectionCubit.state.decks.firstWhere(
+      (element) => element.id == widget.deckId,
+    );
     _nameController.text = _deck.name;
     _descriptionController.text = _deck.description ?? "";
 
@@ -66,7 +70,7 @@ class _DeckEditPageState extends State<DeckEditPage> {
                 "Formulário de criação de usuário válido.",
               );
 
-              String? coverPath;
+              String? coverPath = _deck.cover;
 
               if (_cover != null) {
                 if (_deck.cover != null) {
@@ -79,17 +83,16 @@ class _DeckEditPageState extends State<DeckEditPage> {
                   image: _cover!,
                   deckId: _deck.id,
                 );
-
-                _deck = _deck.copyWith(cover: coverPath);
               }
 
               _deck = _deck.copyWith(
                 tags: _tagList,
                 name: _nameController.text,
                 description: _descriptionController.text,
+                cover: coverPath,
               );
 
-              _collectionCubit.updateDeck(_deck);
+              await _collectionCubit.updateDeck(_deck);
 
               _logger.i(
                 "Baralho ${_deck.id}, de Nome ${_deck.name} foi atualizado.",
@@ -114,7 +117,7 @@ class _DeckEditPageState extends State<DeckEditPage> {
 
     if (_cover != null) {
       image = Image.memory(_cover!.bytes);
-    } else if (_deck.cover != null && !_imageWasRemoved) {
+    } else if (_deck.cover != null) {
       image = Image.file(File(_deck.cover!));
     } else {
       image = Image.asset(utils.AssetManager.noImagePath);
@@ -185,14 +188,13 @@ class _DeckEditPageState extends State<DeckEditPage> {
                                     Navigator.pop(context);
                                   },
                                 ),
-                                if ((_deck.cover != null || _cover != null) &&
-                                    !_imageWasRemoved)
+                                if (_deck.cover != null || _cover != null)
                                   ListTile(
                                     title: const Text("Remover imagem"),
                                     onTap: () async {
                                       setState(() {
+                                        _deck = _deck.copyWith(cover: null);
                                         _cover = null;
-                                        _imageWasRemoved = true;
                                       });
 
                                       Navigator.pop(context);

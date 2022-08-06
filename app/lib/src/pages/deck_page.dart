@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
+import 'package:logger/logger.dart';
 import 'package:memento_studio/src/entities.dart';
 
 import 'package:memento_studio/src/repositories.dart';
@@ -14,11 +14,11 @@ import 'package:memento_studio/src/utils.dart';
 import 'package:uuid/uuid.dart';
 
 class DeckPage extends StatefulWidget {
-  final int deckIndex;
+  final String deckId;
 
   const DeckPage({
     Key? key,
-    required this.deckIndex,
+    required this.deckId,
   }) : super(key: key);
 
   @override
@@ -34,17 +34,15 @@ class _DeckPageState extends State<DeckPage> {
 
   @override
   void initState() {
-    deck = collectionCubit.state.decks[widget.deckIndex];
+    deck = collectionCubit.state.decks.firstWhere(
+      (element) => element.id == widget.deckId,
+    );
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var tags = deck.tags.isNotEmpty ? deck.tags : ["Sem Tags"];
-
-    dynamic imageCover = getDeckCover();
-
     var popUpMenu = PopupMenuButton(itemBuilder: (context) {
       return [
         const PopupMenuItem<int>(
@@ -52,11 +50,15 @@ class _DeckPageState extends State<DeckPage> {
           child: Text("Editar"),
         ),
         const PopupMenuItem<int>(
+          value: 2,
+          child: Text("Ver cartas"),
+        ),
+        const PopupMenuItem<int>(
           value: 3,
           child: Text("Tornar público"),
         ),
         const PopupMenuItem<int>(
-          value: 2,
+          value: 4,
           child: Text(
             "Deletar",
             style: TextStyle(color: Colors.red),
@@ -69,14 +71,25 @@ class _DeckPageState extends State<DeckPage> {
           showCopyDeckDialog();
           break;
         case 1:
-          GoRouter.of(context).pushNamed(MSRouter.deckEditRouteName, params: {
-            "deckIndex": widget.deckIndex.toString(),
-          });
+          GoRouter.of(context).pushNamed(
+            MSRouter.deckEditRouteName,
+            params: {
+              "deckId": widget.deckId,
+            },
+          );
           break;
         case 2:
-          showDeleteDeckDialog();
+          GoRouter.of(context).pushNamed(
+            MSRouter.cardListRouteName,
+            params: {
+              "deckId": widget.deckId,
+            },
+          );
           break;
         case 3:
+          showDeleteDeckDialog();
+          break;
+        case 4:
           showTurnPublicDialog();
       }
     });
@@ -91,15 +104,35 @@ class _DeckPageState extends State<DeckPage> {
       body: BlocBuilder<DeckCollectionCubit, DeckCollectionState>(
           bloc: collectionCubit,
           builder: (context, state) {
-            deck = state.decks[widget.deckIndex];
+            deck = state.decks.firstWhere(
+              (element) => element.id == widget.deckId,
+            );
+
+            Logger().d("DECK COVER: ${deck.cover}");
 
             return SingleChildScrollView(
-              child: Wrap(
+              child: Column(
                 children: [
-                  imageCover,
+                  Container(
+                    // TODO: Adicionar nas constantes
+                    height: 300,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: (deck.cover != null
+                                ? Image.memory(
+                                    File(deck.cover!).readAsBytesSync(),
+                                  )
+                                : Image.asset(AssetManager.noImagePath))
+                            .image,
+                      ),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 25, vertical: 20),
+                      horizontal: 25,
+                      vertical: 20,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -116,9 +149,10 @@ class _DeckPageState extends State<DeckPage> {
                         Wrap(
                           spacing: 4.0,
                           runSpacing: -10.0,
-                          children: [
-                            for (var tag in tags) Chip(label: Text(tag))
-                          ],
+                          children:
+                              (deck.tags.isNotEmpty ? deck.tags : ["Sem Tags"])
+                                  .map((e) => Chip(label: Text(e)))
+                                  .toList(),
                         ),
                         const SizedBox(height: 5.0),
                         const Align(
@@ -159,52 +193,13 @@ class _DeckPageState extends State<DeckPage> {
 
             GoRouter.of(context).goNamed(
               MSRouter.studyRouteName,
-              extra: deck,
+              params: {
+                "deckId": deck.id,
+              },
             );
           },
           child: const Text('Começar'),
         ),
-      ),
-    );
-  }
-
-  Widget getDeckCover() {
-    bool shouldShowImage = deck.cover != null && deck.cover!.isNotEmpty;
-    var imageHeight = 300.0;
-
-    var placeholderImage = const BoxDecoration(
-      image: DecorationImage(
-        image: AssetImage("assets/images/placeholder.png"),
-        fit: BoxFit.cover,
-      ),
-    );
-
-    if (shouldShowImage && !deck.cover!.contains('http')) {
-      return Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: FileImage(File(deck.cover!)),
-            fit: BoxFit.cover,
-          ),
-        ),
-        height: imageHeight,
-      );
-    } else if (!shouldShowImage) {
-      return Container(
-        decoration: placeholderImage,
-        height: imageHeight,
-      );
-    }
-
-    return CachedNetworkImage(
-      fit: BoxFit.cover,
-      width: MediaQuery.of(context).size.width,
-      height: imageHeight,
-      imageUrl: deck.cover ?? "",
-      placeholder: (context, url) =>
-          const Center(child: CircularProgressIndicator()),
-      errorWidget: (context, url, error) => Container(
-        decoration: placeholderImage,
       ),
     );
   }
@@ -401,7 +396,11 @@ class _DeckPageState extends State<DeckPage> {
             child: const Text('Não', style: TextStyle(color: Colors.red)),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, 'OK'),
+            onPressed: () async {
+              await collectionCubit.deleteDeck(deck.id);
+
+              GoRouter.of(context).pop();
+            },
             child: const Text("Sim"),
           ),
         ],

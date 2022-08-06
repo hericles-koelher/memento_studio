@@ -25,7 +25,9 @@ class DeckCard extends StatelessWidget {
     var coverDecoration = BoxDecoration(
       image: DecorationImage(
         image: (shouldShowImage
-                ? Image.file(File(deck.cover!))
+                ? Image.memory(
+                    File(deck.cover!).readAsBytesSync(),
+                  )
                 : Image.asset(AssetManager.noImagePath))
             .image,
         fit: BoxFit.cover,
