@@ -10,5 +10,6 @@ export 'entities/api/api_user.dart';
 export 'entities/local/local_card.dart';
 export 'entities/local/local_deck.dart';
 export 'entities/local/local_deck_base.dart';
+export 'entities/local/deleted_deck_list.dart';
 export 'entities/core/deck/deck_reference.dart';
 export 'entities/core/result.dart';

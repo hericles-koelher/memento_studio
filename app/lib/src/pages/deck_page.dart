@@ -27,6 +27,8 @@ class DeckPage extends StatefulWidget {
 
 class _DeckPageState extends State<DeckPage> {
   final DeckRepositoryInterface apiRepo = KiwiContainer().resolve();
+  final DeletedDeckListRepository deletedDeckListRepository =
+      KiwiContainer().resolve();
   final DeckCollectionCubit collectionCubit = KiwiContainer().resolve();
   final AuthCubit auth = KiwiContainer().resolve();
 
@@ -398,6 +400,8 @@ class _DeckPageState extends State<DeckPage> {
           TextButton(
             onPressed: () async {
               await collectionCubit.deleteDeck(deck.id);
+
+              await deletedDeckListRepository.addId(deck.id);
 
               GoRouter.of(context).pop();
             },

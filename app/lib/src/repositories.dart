@@ -1,5 +1,7 @@
 export 'repositories/local/local_deck_repository.dart';
 export 'repositories/local/objectbox_local_deck_repository.dart';
+export 'repositories/local/deleted_deck_list_repository.dart';
+export 'repositories/local/objectbox_deleted_deck_list.dart';
 export 'repositories/local/adapters/deck_adapter.dart';
 export 'repositories/local/adapters/objectbox_deck_adapter.dart';
 
