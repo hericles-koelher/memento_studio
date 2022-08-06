@@ -69,9 +69,6 @@ class _DeckPageState extends State<DeckPage> {
       ];
     }, onSelected: (value) {
       switch (value) {
-        case 0:
-          showCopyDeckDialog();
-          break;
         case 1:
           GoRouter.of(context).pushNamed(
             MSRouter.deckEditRouteName,
@@ -88,11 +85,12 @@ class _DeckPageState extends State<DeckPage> {
             },
           );
           break;
+
         case 3:
-          showDeleteDeckDialog();
+          showTurnPublicDialog();
           break;
         case 4:
-          showTurnPublicDialog();
+          showDeleteDeckDialog();
       }
     });
 
@@ -401,7 +399,9 @@ class _DeckPageState extends State<DeckPage> {
             onPressed: () async {
               await collectionCubit.deleteDeck(deck.id);
 
-              await deletedDeckListRepository.addId(deck.id);
+              if (auth.state is Authenticated) {
+                await deletedDeckListRepository.addId(deck.id);
+              }
 
               GoRouter.of(context).pop();
             },
