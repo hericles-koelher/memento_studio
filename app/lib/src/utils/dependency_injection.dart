@@ -8,6 +8,7 @@ import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/apis.dart';
 import 'package:memento_studio/src/repositories.dart';
+import 'package:memento_studio/src/repositories/api/adapters/api_deck_adapter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -22,6 +23,8 @@ Future<void> injectDependencies() async {
     name: "Memento Studio",
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  kiwi.registerInstance(ApiDeckAdapter());
 
   final chopperClient = Api.createInstance();
   kiwi.registerInstance<DeckReferenceRepositoryInterface>(
@@ -61,6 +64,8 @@ Future<void> injectDependencies() async {
 
   kiwi.registerInstance(
     DeckCollectionCubit(
+      kiwi.resolve(),
+      kiwi.resolve(),
       kiwi.resolve(),
       kiwi.resolve(),
       kiwi.resolve(),

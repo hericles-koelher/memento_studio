@@ -2,14 +2,18 @@ import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:chopper/chopper.dart';
+import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/apis.dart';
 import 'package:memento_studio/src/repositories.dart';
 import 'package:memento_studio/src/entities.dart';
 
+import 'adapters/api_deck_adapter.dart';
+
 class DeckRepository extends DeckRepositoryInterface {
   final DeckApi _api;
+  final ApiDeckAdapter apiAdapter;
 
-  DeckRepository(this._api);
+  DeckRepository(this._api) : apiAdapter = KiwiContainer().resolve();
 
   @override
   Future<DeckListResult> getDecks(int page, int pageSize) async {
@@ -22,7 +26,8 @@ class DeckRepository extends DeckRepositoryInterface {
     } else {
       final deckApiList = response.body;
       List<Deck> decks =
-          deckApiList?.map((deck) => deck.toDomainModel()).toList() ?? <Deck>[];
+          deckApiList?.map((deck) => apiAdapter.toCore(deck)).toList() ??
+              <Deck>[];
 
       return Success(decks);
     }
@@ -61,12 +66,11 @@ class DeckRepository extends DeckRepositoryInterface {
     if (!response.isSuccessful) {
       return Error(Exception(response.error.toString()));
     } else {
-      final deck = response.body?.toDomainModel();
-
-      if (deck == null) {
+      if (response.body == null) {
         return Error(Exception("Could not parse response body to deck model"));
       }
 
+      var deck = apiAdapter.toCore(response.body!);
       return Success(deck);
     }
   }
@@ -87,12 +91,11 @@ class DeckRepository extends DeckRepositoryInterface {
     if (!response.isSuccessful) {
       return Error(Exception(response.error.toString()));
     } else {
-      final deck = response.body?.toDomainModel();
-
-      if (deck == null) {
+      if (response.body == null) {
         return Error(Exception("Could not parse response body to deck model"));
       }
 
+      var deck = apiAdapter.toCore(response.body!);
       return Success(deck);
     }
   }
@@ -117,12 +120,11 @@ class DeckRepository extends DeckRepositoryInterface {
     if (!response.isSuccessful) {
       return Error(Exception(response.error.toString()));
     } else {
-      final deck = response.body?.toDomainModel();
-
-      if (deck == null) {
+      if (response.body == null) {
         return Error(Exception("Could not parse response body to deck model"));
       }
 
+      var deck = apiAdapter.toCore(response.body!);
       return Success(deck);
     }
   }
