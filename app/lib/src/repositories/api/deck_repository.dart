@@ -35,7 +35,7 @@ class DeckRepository extends DeckRepositoryInterface {
 
   @override
   Future<DeckResult> saveDeck(
-      Deck newDeck, Map<String, Uint8List> images) async {
+      Deck newDeck, Map<String, Uint8List?> images) async {
     // Adiciona as imagens em uma part para ser enviada na requisicao
     List<PartValueFile> parts = [];
     images.forEach((key, value) {
@@ -61,31 +61,6 @@ class DeckRepository extends DeckRepositoryInterface {
     // Envia requisição POST
     final response =
         await _api.postDeck(json.encode(newDeckApi.toJson()), parts);
-
-    // Trata resposta
-    if (!response.isSuccessful) {
-      return Error(Exception(response.error.toString()));
-    } else {
-      if (response.body == null) {
-        return Error(Exception("Could not parse response body to deck model"));
-      }
-
-      var deck = apiAdapter.toCore(response.body!);
-      return Success(deck);
-    }
-  }
-
-  @override
-  Future<DeckResult> updateDeck(String id, Map<String, dynamic> deckUpdates,
-      Map<String, Uint8List> images) async {
-    // Adiciona as imagens em uma part para ser enviada na requisicao
-    List<PartValueFile> parts = [];
-    images.forEach((key, value) {
-      parts.add(PartValueFile(key, value));
-    });
-
-    // Envia requisição PUT
-    final response = await _api.putDeck(id, json.encode(deckUpdates), parts);
 
     // Trata resposta
     if (!response.isSuccessful) {
