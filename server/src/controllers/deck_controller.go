@@ -18,7 +18,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/oleiade/reflections"
 )
 
 type fileBytes []byte
@@ -123,54 +122,68 @@ func PostDecks(context *gin.Context) {
 	}
 
 	// Fill deck
+	deckImgName := "deck-" + deck.UUID + ".jpeg"
 	if len(deckCover) > 0 {
-		deckImgName := "deck-" + deck.UUID + ".jpeg"
 		filepath, err := utils.UploadFile(deckCover, deck.UUID, deckImgName)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 		deck.Cover = filepath
+	} else {
+		utils.RemoveFile(deckImgName, deck.UUID)
+		deck.Cover = ""
 	}
 
 	// Update cards
 	cardsUpdated := []models.Card{}
 	for _, card := range deck.Cards {
+		var newCard = new(models.Card)
+		newCard.FrontText = card.FrontText
+		newCard.BackText = card.BackText
+		newCard.UUID = card.UUID
+
 		if card.UUID == "" {
-			card.UUID = uuid.New().String()
+			newCard.UUID = uuid.New().String()
 		}
 
 		// Save images and set the filepath for its images
-		if cardsFront[card.UUID] != nil {
-			frontName := "card-front" + deck.UUID + "-" + card.UUID + ".jpeg"
+		frontName := "card-front" + deck.UUID + "-" + card.UUID + ".jpeg"
+		if cardsFront[card.UUID] != nil && len(cardsFront[card.UUID]) > 0 {
 			filepathFront, errFront := utils.UploadFile(cardsFront[card.UUID], deck.UUID, frontName)
 
 			if errFront != nil {
-				context.JSON(http.StatusInternalServerError, err.Error())
+				context.JSON(http.StatusInternalServerError, errFront.Error())
 				return
 			}
 
-			card.FrontImagePath = filepathFront
+			newCard.FrontImagePath = filepathFront
+		} else {
+			utils.RemoveFile(frontName, deck.UUID)
+			newCard.FrontImagePath = ""
 		}
 
-		if cardsBack[card.UUID] != nil {
-			backName := "card-back" + deck.UUID + "-" + card.UUID + ".jpeg"
+		backName := "card-back" + deck.UUID + "-" + card.UUID + ".jpeg"
+		if cardsBack[card.UUID] != nil && len(cardsFront[card.UUID]) > 0 {
 			filepathBack, errBack := utils.UploadFile(cardsBack[card.UUID], deck.UUID, backName)
 
 			if errBack != nil {
-				context.JSON(http.StatusInternalServerError, err.Error())
+				context.JSON(http.StatusInternalServerError, errBack.Error())
 				return
 			}
 
-			card.BackImagePath = filepathBack
+			newCard.BackImagePath = filepathBack
+		} else {
+			utils.RemoveFile(backName, deck.UUID)
+			newCard.BackImagePath = ""
 		}
 
-		cardsUpdated = append(cardsUpdated, card)
+		cardsUpdated = append(cardsUpdated, *newCard)
 	}
 
 	deck.Cards = cardsUpdated
 	_, _, errRepo := deckRepository.InsertOrUpdate(&deck)
-	if err != nil {
+	if errRepo != nil {
 		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
 		return
 	}
@@ -309,147 +322,6 @@ func CopyDeck(context *gin.Context) {
 
 	context.JSON(http.StatusOK, deckCopy)
 	return
-}
-
-func PutDeck(context *gin.Context) {
-	// Get repositories
-	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
-	deckReferenceRepository, okDeckReference := context.MustGet("deckReferenceRepository").(DeckReferenceRepository)
-	userRepository, okUser := context.MustGet("userRepository").(UserRepository)
-	if !okDeck || !okDeckReference || !okUser {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update deck"})
-		return
-	}
-
-	// Get param
-	id := context.Param("id")
-
-	// Get user
-	user := getUser(context, userRepository)
-	if user == nil {
-		return
-	}
-
-	// Check if deck exists
-	deckInDB, errRepo := deckRepository.Read(id)
-	if errRepo != nil {
-		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
-		return
-	}
-
-	// Check if user owns this deck
-	var containsDeck = utils.Contains(user.Decks, id,
-		func(id1, id2 interface{}) bool {
-			return id1.(string) == id2.(string)
-		})
-	if !containsDeck {
-		context.JSON(http.StatusForbidden, gin.H{"message": "User has no permission to update this deck"})
-		return
-	}
-
-	// Get deck in requisition
-	reader, err := context.Request.MultipartReader()
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	deckBytes, deckCover, cardsFront, cardsBack, err := getDeckWithImages(reader)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	// Parse deck from requisition to map
-	var deck map[string]interface{}
-	err = json.Unmarshal(deckBytes, &deck)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if len(deckCover) != 0 { // Save and update deck cover image
-		deckImgName := "deck-" + id + ".jpeg"
-		filepath, err := utils.UploadFile(deckCover, id, deckImgName)
-		if err != nil {
-			context.JSON(http.StatusInternalServerError, err.Error())
-			return
-		}
-		deckInDB.Cover = filepath
-	}
-
-	// Update fields
-	for key, value := range deck {
-		if key == "cover" && deck[key] == nil {
-			utils.RemoveFile(deckInDB.Cover, deckInDB.UUID)
-			deckInDB.Cover = ""
-			continue
-		}
-
-		err := reflections.SetField(deckInDB, strings.Title(key), value)
-
-		if err != nil {
-			context.JSON(http.StatusBadRequest, err.Error())
-			return
-		}
-	}
-
-	// Update cards images
-	var updatedCards []models.Card
-	for _, card := range deckInDB.Cards {
-		// Check if there's a image update for this card
-		if imgFrontBytes, ok := cardsFront[card.UUID]; ok {
-			if len(imgFrontBytes) == 0 { // remove card image from server
-				utils.RemoveFile(card.FrontImagePath, id)
-				card.FrontImagePath = ""
-			} else { // Save new image and update path
-				frontName := "card-front" + id + "-" + card.UUID + ".jpeg"
-				filepathFront, errFront := utils.UploadFile(cardsFront[card.UUID], id, frontName)
-				if errFront != nil {
-					context.JSON(http.StatusBadRequest, errFront.Error())
-					return
-				}
-
-				card.FrontImagePath = filepathFront
-			}
-		}
-
-		if imgBackBytes, ok := cardsBack[card.UUID]; ok {
-			if len(imgBackBytes) == 0 { // remove card image from server
-				utils.RemoveFile(card.BackImagePath, id)
-				card.BackImagePath = ""
-			} else { // Save new image and update path
-				backName := "card-back" + id + "-" + card.UUID + ".jpeg"
-				filepathBack, errBack := utils.UploadFile(cardsBack[card.UUID], id, backName)
-				if errBack != nil {
-					context.JSON(http.StatusBadRequest, errBack.Error())
-					return
-				}
-
-				card.BackImagePath = filepathBack
-			}
-		}
-
-		updatedCards = append(updatedCards, card)
-	}
-
-	deckInDB.Cards = updatedCards
-
-	// Insert or update deckReference
-	errRepo = updateIsPublicStatus(*deckInDB, deckReferenceRepository)
-	if errRepo != nil {
-		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
-		return
-	}
-
-	// Save updated deck in DB
-	_, _, errRepo = deckRepository.InsertOrUpdate(deckInDB)
-	if errRepo != nil {
-		context.JSON(utils.HandleRepositoryError(errRepo), errRepo.Error())
-		return
-	}
-
-	context.JSON(http.StatusOK, deckInDB)
 }
 
 // --------------------- Aux functions --------------------- //
