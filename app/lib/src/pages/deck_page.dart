@@ -119,7 +119,7 @@ class _DeckPageState extends State<DeckPage> {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: (deck.cover != null
+                        image: ((deck.cover != null && deck.cover!.isNotEmpty)
                                 ? Image.memory(
                                     File(deck.cover!).readAsBytesSync(),
                                   )
@@ -277,7 +277,7 @@ class _DeckPageState extends State<DeckPage> {
                 if (result is Error) {
                   isThereError = true; // Tratar melhor esse erro talvez
                 } else if (result is Success) {
-                  var copy = result.value as Deck;
+                  var copy = (result as Success).value as Deck;
 
                   await collectionCubit.createDeck(copy);
                 }
@@ -339,10 +339,13 @@ class _DeckPageState extends State<DeckPage> {
               showLoadingDialog();
 
               if (auth.state is Authenticated) {
-                var result = await apiRepo.updateDeck(
-                  deck.id,
-                  <String, bool>{"isPublic": true},
-                  <String, Uint8List>{},
+                var pDeck = deck.copyWith(
+                    isPublic: true, lastModification: DateTime.now());
+                var images = await getMapOfImages(deck);
+
+                var result = await apiRepo.saveDeck(
+                  pDeck,
+                  images,
                 );
 
                 Navigator.pop(context);
@@ -386,7 +389,7 @@ class _DeckPageState extends State<DeckPage> {
   void showDeleteDeckDialog() {
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (BuildContext deleteContext) => AlertDialog(
         title: const Text('Deletar baralho?'),
         content: const Text(
             "Ao confirmar, este baralho será removido da sua coleção. Tem certeza disso?"),

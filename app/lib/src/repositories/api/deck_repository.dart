@@ -2,14 +2,18 @@ import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:chopper/chopper.dart';
+import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/apis.dart';
 import 'package:memento_studio/src/repositories.dart';
 import 'package:memento_studio/src/entities.dart';
 
+import 'adapters/api_deck_adapter.dart';
+
 class DeckRepository extends DeckRepositoryInterface {
   final DeckApi _api;
+  final ApiDeckAdapter apiAdapter;
 
-  DeckRepository(this._api);
+  DeckRepository(this._api) : apiAdapter = KiwiContainer().resolve();
 
   @override
   Future<DeckListResult> getDecks(int page, int pageSize) async {
@@ -22,7 +26,8 @@ class DeckRepository extends DeckRepositoryInterface {
     } else {
       final deckApiList = response.body;
       List<Deck> decks =
-          deckApiList?.map((deck) => deck.toDomainModel()).toList() ?? <Deck>[];
+          deckApiList?.map((deck) => apiAdapter.toCore(deck)).toList() ??
+              <Deck>[];
 
       return Success(decks);
     }
@@ -30,7 +35,7 @@ class DeckRepository extends DeckRepositoryInterface {
 
   @override
   Future<DeckResult> saveDeck(
-      Deck newDeck, Map<String, Uint8List> images) async {
+      Deck newDeck, Map<String, Uint8List?> images) async {
     // Adiciona as imagens em uma part para ser enviada na requisicao
     List<PartValueFile> parts = [];
     images.forEach((key, value) {
@@ -61,45 +66,18 @@ class DeckRepository extends DeckRepositoryInterface {
     if (!response.isSuccessful) {
       return Error(Exception(response.error.toString()));
     } else {
-      final deck = response.body?.toDomainModel();
-
-      if (deck == null) {
+      if (response.body == null) {
         return Error(Exception("Could not parse response body to deck model"));
       }
 
+      var deck = apiAdapter.toCore(response.body!);
       return Success(deck);
     }
   }
 
   @override
-  Future<DeckResult> updateDeck(String id, Map<String, dynamic> deckUpdates,
-      Map<String, Uint8List> images) async {
-    // Adiciona as imagens em uma part para ser enviada na requisicao
-    List<PartValueFile> parts = [];
-    images.forEach((key, value) {
-      parts.add(PartValueFile(key, value));
-    });
-
-    // Envia requisição PUT
-    final response = await _api.putDeck(id, json.encode(deckUpdates), parts);
-
-    // Trata resposta
-    if (!response.isSuccessful) {
-      return Error(Exception(response.error.toString()));
-    } else {
-      final deck = response.body?.toDomainModel();
-
-      if (deck == null) {
-        return Error(Exception("Could not parse response body to deck model"));
-      }
-
-      return Success(deck);
-    }
-  }
-
-  @override
-  Future<Result> deleteDeck(String id) async {
-    final response = await _api.deleteDeck(id);
+  Future<Result> deleteDeck(List<String> ids) async {
+    final response = await _api.deleteDeck(ids);
 
     // Trata resposta
     if (!response.isSuccessful) {
@@ -117,12 +95,11 @@ class DeckRepository extends DeckRepositoryInterface {
     if (!response.isSuccessful) {
       return Error(Exception(response.error.toString()));
     } else {
-      final deck = response.body?.toDomainModel();
-
-      if (deck == null) {
+      if (response.body == null) {
         return Error(Exception("Could not parse response body to deck model"));
       }
 
+      var deck = apiAdapter.toCore(response.body!);
       return Success(deck);
     }
   }

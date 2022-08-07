@@ -1,12 +1,15 @@
+import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/apis.dart';
 import 'package:memento_studio/src/entities.dart';
 
+import 'adapters/api_deck_adapter.dart';
 import 'interfaces/deck_reference_repository_interface.dart';
 
 class DeckReferenceRepository extends DeckReferenceRepositoryInterface {
   DeckReferenceApi api;
+  final ApiDeckAdapter apiAdapter;
 
-  DeckReferenceRepository(this.api);
+  DeckReferenceRepository(this.api) : apiAdapter = KiwiContainer().resolve();
 
   @override
   Future<DeckListReferencesResult> getDecks(int page, int pageSize,
@@ -32,12 +35,11 @@ class DeckReferenceRepository extends DeckReferenceRepositoryInterface {
     if (!response.isSuccessful) {
       return Error(Exception(response.error.toString()));
     } else {
-      final deck = response.body?.toDomainModel();
-
-      if (deck == null) {
+      if (response.body == null) {
         return Error(Exception("Could not parse response body to deck model"));
       }
 
+      var deck = apiAdapter.toCore(response.body!);
       return Success(deck);
     }
   }

@@ -73,7 +73,9 @@ class _CardListPageState extends State<CardListPage> {
                           setState(() {
                             deck.cards[index] = card;
 
-                            _collectionCubit.updateDeck(deck);
+                            _collectionCubit.updateDeck(
+                              deck.copyWith(lastModification: DateTime.now()),
+                            );
                           });
                         },
                       ),
@@ -105,7 +107,9 @@ class _CardListPageState extends State<CardListPage> {
                       setState(() {
                         deck.cards.add(card);
 
-                        _collectionCubit.updateDeck(deck);
+                        _collectionCubit.updateDeck(
+                          deck.copyWith(lastModification: DateTime.now()),
+                        );
                       });
                     },
                     deck: deck,

@@ -24,7 +24,7 @@ class CardListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     Image img;
 
-    if (_card.frontImage != null) {
+    if (_card.frontImage != null && _card.frontImage!.isNotEmpty) {
       img = Image.file(File(_card.frontImage!));
     } else {
       img = Image.asset(AssetManager.noImagePath);

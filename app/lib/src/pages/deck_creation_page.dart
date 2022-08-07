@@ -4,10 +4,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
+import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/state_managers/cubit/deck_collection_cubit.dart';
 import 'package:uuid/uuid.dart';
 
-import '../entities.dart';
 import '../utils.dart' as utils;
 
 // https://stackoverflow.com/questions/50736571/when-i-select-a-textfield-the-keyboard-moves-over-it

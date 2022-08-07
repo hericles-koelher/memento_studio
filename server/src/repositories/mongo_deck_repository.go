@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"server/src/models"
-	"server/src/repositories/mongoutils"
-	"server/src/repositories/interfaces"
 	ms_errors "server/src/errors"
+	"server/src/models"
+	"server/src/repositories/interfaces"
+	"server/src/repositories/mongoutils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -34,7 +34,7 @@ func NewMongoDeckRepository(collection *mongo.Collection) interfaces.DeckReposit
 func (repository *MongoDeckRepository) Delete(uuid string) *ms_errors.RepositoryError {
 	_, err := repository.coll.DeleteOne(
 		context.TODO(),
-		bson.M{"UUID": uuid},
+		bson.M{"_id": uuid},
 	)
 
 	return mongoutils.HandleError(err)
@@ -72,7 +72,7 @@ func (repository MongoDeckRepository) ReadAll(uuids []string, limit, page int) (
 	cursor, err := repository.coll.Find(
 		context.TODO(),
 		filter,
-		mongoutils.NewMongoPaginate(limit,page).GetPaginatedOpts())
+		mongoutils.NewMongoPaginate(limit, page).GetPaginatedOpts())
 
 	if err != nil {
 		return result, mongoutils.HandleError(err)
@@ -87,7 +87,7 @@ func (repository MongoDeckRepository) ReadAll(uuids []string, limit, page int) (
 		}
 
 		result = append(result, deck)
-	 }
+	}
 
 	return result, nil
 }

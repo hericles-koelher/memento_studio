@@ -43,17 +43,4 @@ class ApiDeck {
       _$ApiDeckFromJson(json);
 
   Map<String, dynamic> toJson() => _$ApiDeckToJson(this);
-
-  Deck toDomainModel() {
-    return Deck(
-        id: id!,
-        description: description ?? "",
-        cover: cover,
-        name: name ?? "",
-        isPublic: isPublic ?? false,
-        tags: tags ?? [],
-        lastModification:
-            DateTime.fromMicrosecondsSinceEpoch(lastModification ?? 0),
-        cards: cards?.map((card) => card.toDomainModel()).toList() ?? <Card>[]);
-  }
 }

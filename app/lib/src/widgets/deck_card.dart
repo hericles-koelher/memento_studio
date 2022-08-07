@@ -45,11 +45,10 @@ class DeckCard extends StatelessWidget {
         width: coverDimension,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              height: coverDimension,
+              height: coverDimension * 0.85,
               width: coverDimension,
               decoration: coverDecoration,
             ),
@@ -62,6 +61,7 @@ class DeckCard extends StatelessWidget {
                   Text(
                     deck.name,
                     style: textTheme.bodyMedium,
+                    maxLines: 2,
                   ),
                   Text(
                     "${deck.cards.length} cards",

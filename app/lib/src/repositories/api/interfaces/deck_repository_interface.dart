@@ -3,14 +3,11 @@ import 'dart:typed_data';
 import 'package:memento_studio/src/entities.dart';
 
 abstract class DeckRepositoryInterface {
-  dynamic getDecks(int page, int pageSize);
+  Future<DeckListResult> getDecks(int page, int pageSize);
 
-  dynamic saveDeck(Deck newDeck, Map<String, Uint8List> images);
+  Future<DeckResult> saveDeck(Deck newDeck, Map<String, Uint8List?> images);
 
-  dynamic updateDeck(String id, Map<String, dynamic> deckUpdates,
-      Map<String, Uint8List> images);
+  Future<Result> deleteDeck(List<String> ids);
 
-  dynamic deleteDeck(String id);
-
-  dynamic copyDeck(String id);
+  Future<DeckResult> copyDeck(String id);
 }

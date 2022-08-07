@@ -73,7 +73,7 @@ class _DeckEditPageState extends State<DeckEditPage> {
               String? coverPath = _deck.cover;
 
               if (_cover != null) {
-                if (_deck.cover != null) {
+                if (_deck.cover != null && _deck.cover!.isNotEmpty) {
                   var imageFile = File(_deck.cover!);
 
                   await imageFile.delete();
@@ -90,6 +90,7 @@ class _DeckEditPageState extends State<DeckEditPage> {
                 name: _nameController.text,
                 description: _descriptionController.text,
                 cover: coverPath,
+                lastModification: DateTime.now(),
               );
 
               await _collectionCubit.updateDeck(_deck);

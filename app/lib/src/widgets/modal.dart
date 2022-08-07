@@ -42,7 +42,7 @@ class _ModalState extends State<Modal> {
       _frontText.text = c.frontText ?? "";
       _backText.text = c.backText ?? "";
 
-      if (c.frontImage != null) {
+      if (c.frontImage != null && c.frontImage!.isNotEmpty) {
         utils.getImageBytes(c.frontImage!).then((value) {
           setState(() {
             _front = utils.MemoryImage(
@@ -53,7 +53,7 @@ class _ModalState extends State<Modal> {
         });
       }
 
-      if (c.backImage != null) {
+      if (c.backImage != null && c.backImage!.isNotEmpty) {
         utils.getImageBytes(c.backImage!).then((value) {
           setState(() {
             _back = utils.MemoryImage(
@@ -334,7 +334,8 @@ class _ModalState extends State<Modal> {
                   const SizedBox(width: 15),
                   ElevatedButton(
                     onPressed: () async {
-                      var cardId = const Uuid().v4().toString();
+                      var cardId =
+                          widget.card?.id ?? const Uuid().v4().toString();
 
                       String? frontPath;
                       String? backPath;

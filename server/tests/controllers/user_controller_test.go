@@ -1,14 +1,14 @@
 package controllers_tests
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
-	"testing"
 	"net/http"
-	"encoding/json"
-	
+	"testing"
+
 	"server/src/models"
-	
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,10 +19,10 @@ func TestCreateUser(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
-	
+
 	router.ServeHTTP(responseRecorder, request)
 
-	assert.Equal(t, http.StatusCreated, responseRecorder.Code)
+	assert.Equal(t, http.StatusOK, responseRecorder.Code)
 }
 
 func TestDeleteUser(t *testing.T) {
@@ -32,7 +32,7 @@ func TestDeleteUser(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
-	
+
 	router.ServeHTTP(responseRecorder, request)
 
 	assert.Equal(t, http.StatusOK, responseRecorder.Code)
@@ -45,7 +45,7 @@ func TestGetUser(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
-	
+
 	router.ServeHTTP(responseRecorder, request)
 
 	var responseUser *models.User
