@@ -119,7 +119,7 @@ class _DeckPageState extends State<DeckPage> {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: (deck.cover != null
+                        image: ((deck.cover != null && deck.cover!.isNotEmpty)
                                 ? Image.memory(
                                     File(deck.cover!).readAsBytesSync(),
                                   )
@@ -339,17 +339,18 @@ class _DeckPageState extends State<DeckPage> {
               showLoadingDialog();
 
               if (auth.state is Authenticated) {
-                var result =
-                    await apiRepo.updateDeck(deck.id, <String, dynamic>{
-                  "isPublic": true,
-                  // "lastModification":
-                  //     DateTime.now().millisecondsSinceEpoch.toDouble(),
-                }, <String, Uint8List>{});
+                var pDeck = deck.copyWith(
+                    isPublic: true, lastModification: DateTime.now());
+                var images = await getMapOfImages(deck);
+
+                var result = await apiRepo.saveDeck(
+                  pDeck,
+                  images,
+                );
 
                 Navigator.pop(context);
 
                 if (result is Error) {
-                  print((result as Error).exception.toString());
                   showOkWithIconDialog(
                     "Falha ao tornar baralho público",
                     "Não foi possível tornar este baralho público. Tente novamente mais tarde.",
@@ -400,7 +401,6 @@ class _DeckPageState extends State<DeckPage> {
           TextButton(
             onPressed: () async {
               await collectionCubit.deleteDeck(deck.id);
-              DeckCollectionCubit.idDeletedDecks.add(deck.id);
 
               if (auth.state is Authenticated) {
                 await deletedDeckListRepository.addId(deck.id);

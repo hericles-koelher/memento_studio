@@ -118,6 +118,7 @@ Future<void> deleteLocalImage(String? path) async {
       await file.delete();
     }
   } catch (e) {
+    print("Erro ao deletar imagem: ${e.toString()}");
     // Error in getting access to the file.
   }
 }

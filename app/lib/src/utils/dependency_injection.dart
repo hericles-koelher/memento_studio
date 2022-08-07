@@ -62,8 +62,13 @@ Future<void> injectDependencies() async {
     ObjectBoxDeckAdapter(),
   );
 
+  kiwi.registerSingleton<DeletedDeckListRepository>(
+    (_) => ObjectBoxDeletedDeckList(kiwi.resolve()),
+  );
+
   kiwi.registerInstance(
     DeckCollectionCubit(
+      kiwi.resolve(),
       kiwi.resolve(),
       kiwi.resolve(),
       kiwi.resolve(),
@@ -76,8 +81,4 @@ Future<void> injectDependencies() async {
     kiwi.resolve(),
     kiwi.resolve(),
   ));
-
-  kiwi.registerSingleton<DeletedDeckListRepository>(
-    (_) => ObjectBoxDeletedDeckList(kiwi.resolve()),
-  );
 }

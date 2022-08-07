@@ -8,6 +8,7 @@ import 'package:memento_studio/src/entities.dart';
 
 import 'package:memento_studio/src/repositories.dart';
 import 'package:memento_studio/src/state_managers.dart';
+import 'package:memento_studio/src/utils.dart';
 import 'package:uuid/uuid.dart';
 
 class DeckRefPage extends StatefulWidget {
@@ -107,7 +108,7 @@ class _DeckRefPageState extends State<DeckRefPage> {
 
     var placeholderImage = const BoxDecoration(
       image: DecorationImage(
-        image: AssetImage("assets/images/placeholder.png"),
+        image: AssetImage(AssetManager.noImagePath),
         fit: BoxFit.cover,
       ),
     );
@@ -193,8 +194,9 @@ class _DeckRefPageState extends State<DeckRefPage> {
                   isThereError = true; // Tratar melhor esse erro talvez
                 } else if (result is Success) {
                   var copy = (result as Success).value as Deck;
+                  var newLocalDeck = await updateLocalDeckGivenRemote(copy);
 
-                  await collectionCubit.createDeck(copy);
+                  await collectionCubit.createDeck(newLocalDeck);
                 }
               } else {
                 await collectionCubit.createDeck(
@@ -230,68 +232,6 @@ class _DeckRefPageState extends State<DeckRefPage> {
               }
             },
             child: const Text("Confirmar"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void showTurnPublicDialog() {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext pcontext) => AlertDialog(
-        title: const Text('Tornar baralho público?'),
-        content: const Text(
-            "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas próprias coleções. Lembre-se de sincronizar o baralho antes de torná-lo público. Tem certeza disso?"),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancelar'),
-            child: const Text('Não', style: TextStyle(color: Colors.red)),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context); // Tira dialog para mostrar loading
-              showLoadingDialog();
-
-              if (auth.state is Authenticated) {
-                var result = await apiRepo.updateDeck(
-                  widget.deck.id,
-                  <String, bool>{"isPublic": true},
-                  <String, Uint8List>{},
-                );
-
-                Navigator.pop(context);
-
-                if (result is Error) {
-                  showOkWithIconDialog(
-                    "Falha ao tornar baralho público",
-                    "Não foi possível tornar este baralho público. Tente novamente mais tarde.",
-                    icon: const Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                      size: 50.0,
-                      semanticLabel: 'Error',
-                    ),
-                  );
-                } else if (result is Success) {
-                  showOkWithIconDialog(
-                    "Baralho público com sucesso",
-                    "Agora este baralho é público e outras pessoas poderão utilizá-lo.",
-                    icon: const Icon(
-                      Icons.task_alt,
-                      color: Colors.green,
-                      size: 50.0,
-                      semanticLabel: 'Success',
-                    ),
-                  );
-                }
-              } else {
-                Navigator.pop(context);
-                showOkWithIconDialog("Usuário não logado",
-                    "Você precisa estar logado para tornar este baralho público.");
-              }
-            },
-            child: const Text("Sim"),
           ),
         ],
       ),
