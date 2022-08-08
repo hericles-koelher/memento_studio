@@ -1,92 +1,111 @@
-import 'dart:io';
-
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-// import 'package:memento_studio/src/entities.dart' as ms_entities;
+import 'package:flutter/rendering.dart';
+import 'package:memento_studio/src/utils.dart';
+import 'package:memento_studio/src/widgets.dart';
 
 class CardView extends StatelessWidget {
-  final String text;
+  final String? text;
   final String? imagePath;
+  final bool isFront;
   final Color color;
   final double height;
 
-  const CardView(
-      {Key? key,
-      required this.text,
-      this.imagePath,
-      required this.color,
-      required this.height})
-      : super(key: key);
+  const CardView({
+    Key? key,
+    this.text,
+    this.imagePath,
+    required this.color,
+    required this.height,
+    required this.isFront,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // TextTheme textTheme = Theme.of(context).textTheme;
+    var textTheme = Theme.of(context).textTheme;
 
-    bool shouldShowImage = imagePath != null && imagePath!.isNotEmpty;
+    var textStyle = textTheme.bodyLarge;
 
-    return Container(
-      decoration: const BoxDecoration(color: Colors.transparent),
-      child: Card(
-        color: color,
-        child: Column(children: [
-          shouldShowImage
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(12.0),
-                  child: cardImage(),
-                )
-              : const Spacer(),
-          shouldShowImage ? const Spacer() : Container(),
-          SizedBox(
-            width: double.infinity,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: AutoSizeText(
-                  text,
-                  style: const TextStyle(fontSize: 28),
-                  textAlign: TextAlign.center,
-                  maxLines: 4,
-                ),
+    var defaultText = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          "Sem texto de ${isFront ? 'pergunta' : 'resposta'}",
+          overflow: TextOverflow.ellipsis,
+          style: textStyle,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+        ),
+        Text(
+          "¯\\_(ツ)_/¯",
+          style: textStyle,
+          textAlign: TextAlign.center,
+        )
+      ],
+    );
+
+    return LayoutBuilder(
+      builder: (_, constraints) => Center(
+        child: SizedBox(
+          height: constraints.maxHeight * 0.85,
+          child: Card(
+            color: color,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: 40,
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Center(
+                      child: CardImage(imagePath: imagePath),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Flexible(
+                    flex: 2,
+                    child: Container(
+                      clipBehavior: Clip.hardEdge,
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.black54,
+                            width: 2.0,
+                          )),
+                      child: Column(
+                        children: [
+                          if (text != null) ...[
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                isFront ? 'Pergunta:' : 'Resposta:',
+                                style: textTheme.caption,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                          Expanded(
+                            child: Center(
+                              child: text != null
+                                  ? AutoSizeText(
+                                      text!,
+                                      style: textStyle,
+                                    )
+                                  : defaultText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          const Spacer(),
-        ]),
-      ),
-    );
-  }
-
-  Widget cardImage() {
-    var placeholderImage = const BoxDecoration(
-      image: DecorationImage(
-        image: AssetImage("assets/images/placeholder.png"),
-        fit: BoxFit.cover,
-      ),
-    );
-
-    if (!imagePath!.contains('http')) {
-      return Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            alignment: Alignment.center,
-            image: FileImage(File(imagePath!)),
-            fit: BoxFit.cover,
-          ),
         ),
-        height: height / 2,
-      );
-    }
-
-    return CachedNetworkImage(
-      // width: MediaQuery.of(context).size.width,
-      height: height / 2,
-      width: double.infinity,
-      imageUrl: imagePath!,
-      placeholder: (context, url) =>
-          const Center(child: CircularProgressIndicator()),
-      errorWidget: (context, url, error) => Container(
-        decoration: placeholderImage,
       ),
     );
   }

@@ -50,11 +50,10 @@ class _StudyPageState extends State<StudyPage> {
         backgroundColor: Colors.transparent,
       ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           header(),
           const Divider(),
-          const Spacer(),
           CarouselSlider(
             options: CarouselOptions(
                 height: cardSize,
@@ -74,15 +73,17 @@ class _StudyPageState extends State<StudyPage> {
                           .fillBack, // Fill the back side of the card to make in the same size as the front.
                       direction: FlipDirection.HORIZONTAL, // default
                       front: CardView(
-                        text: card.value.frontText ?? "",
-                        imagePath: card.value.frontImage ?? "",
+                        text: card.value.frontText,
+                        imagePath: card.value.frontImage,
+                        isFront: true,
                         height: cardSize,
                         color: StudyPage.cardsColors[
                             card.key % StudyPage.cardsColors.length],
                       ),
                       back: CardView(
-                        text: card.value.backText ?? "",
-                        imagePath: card.value.backImage ?? "",
+                        text: card.value.backText,
+                        imagePath: card.value.backImage,
+                        isFront: false,
                         height: cardSize,
                         color: StudyPage.cardsColors[
                             card.key % StudyPage.cardsColors.length],
@@ -93,7 +94,6 @@ class _StudyPageState extends State<StudyPage> {
               );
             }).toList(),
           ),
-          const Spacer()
         ],
       ),
     );
@@ -101,7 +101,7 @@ class _StudyPageState extends State<StudyPage> {
 
   Widget header() {
     var horizontalPadding = 25.0;
-    var currentPercent = _currentCard / (deck.cards.length - 1);
+    var currentPercent = (_currentCard + 1) / deck.cards.length;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
@@ -116,7 +116,7 @@ class _StudyPageState extends State<StudyPage> {
           const SizedBox(height: 10.0),
           LinearPercentIndicator(
             width: MediaQuery.of(context).size.width - 3.5 * horizontalPadding,
-            lineHeight: 20.0,
+            lineHeight: 10.0,
             percent: currentPercent,
             backgroundColor: Colors.grey,
             progressColor: Colors.greenAccent,

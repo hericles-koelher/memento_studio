@@ -350,7 +350,7 @@ class _ModalState extends State<Modal> {
                       }
 
                       if (_back != null) {
-                        frontPath = await utils.storeCardImageIntoAppFolder(
+                        backPath = await utils.storeCardImageIntoAppFolder(
                           image: _back!,
                           isFront: false,
                           deckId: widget.deck.id,
@@ -361,8 +361,8 @@ class _ModalState extends State<Modal> {
                       widget.onDone(
                         ms_entities.Card(
                           id: cardId,
-                          frontText: _frontText.text,
-                          backText: _backText.text,
+                          frontText: _nullifyString(_frontText.text),
+                          backText: _nullifyString(_backText.text),
                           frontImage: frontPath,
                           backImage: backPath,
                         ),
@@ -385,6 +385,10 @@ class _ModalState extends State<Modal> {
         ),
       ),
     );
+  }
+
+  String? _nullifyString(String str) {
+    return str.isNotEmpty ? str : null;
   }
 
   @override

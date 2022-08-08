@@ -16,8 +16,5 @@ class Card {
     this.frontImage,
     this.backText,
     this.backImage,
-  }) : assert(
-          (frontText ?? frontImage) != null && (backText ?? backImage) != null,
-          "Um card precisa ter pelo menos um elemento na frente e no verso",
-        );
+  });
 }

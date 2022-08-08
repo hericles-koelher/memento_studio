@@ -33,7 +33,6 @@ class _$DeckApi extends DeckApi {
     };
 
     final $parts = <PartValue>[PartValue<dynamic>('deck', deck)];
-    $parts.addAll(images);
     final $request = Request('POST', $url, client.baseUrl,
         parts: $parts, multipart: true, headers: $headers);
     return client.send<ApiDeck, ApiDeck>($request);
