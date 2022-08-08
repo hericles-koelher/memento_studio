@@ -199,11 +199,11 @@ class _DeckRefPageState extends State<DeckRefPage> {
                   await collectionCubit.createDeck(newLocalDeck);
                 }
               } else {
-                await collectionCubit.createDeck(
-                  widget.deck.copyWith(
-                    id: const Uuid().v4().toString(),
-                  ),
-                );
+                var newLocalDeck =
+                    await updateLocalDeckGivenRemote(widget.deck.copyWith(
+                  id: const Uuid().v4().toString(),
+                ));
+                await collectionCubit.createDeck(newLocalDeck);
               }
 
               Navigator.pop(context); // Retira loading
