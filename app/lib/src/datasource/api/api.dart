@@ -7,7 +7,7 @@ import 'package:memento_studio/src/entities.dart';
 class Api {
   static ChopperClient createInstance() {
     return ChopperClient(
-        baseUrl: "https://3274-131-255-21-239.sa.ngrok.io",
+        baseUrl: "https://5afe-131-255-21-116.sa.ngrok.io/api",
         services: [
           DeckApi.create(),
           UserApi.create(),

@@ -36,6 +36,10 @@ class CardListTile extends StatelessWidget {
         height: 100,
         width: 100,
         decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.black,
+            width: borderWidth,
+          ),
           image: DecorationImage(
             image: img.image,
             fit: BoxFit.cover,
@@ -48,6 +52,11 @@ class CardListTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       trailing: PopupMenuButton<int>(
+        icon: const FaIcon(
+          FontAwesomeIcons.ellipsisVertical,
+          size: 18.0,
+          color: Colors.black,
+        ),
         itemBuilder: (_) => [
           const PopupMenuItem<int>(
             value: 1,

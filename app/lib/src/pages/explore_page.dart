@@ -72,7 +72,9 @@ class _ExplorePageState extends State<ExplorePage> {
   Widget build(BuildContext context) {
     var searchBarWithTags = Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: horizontalPadding, vertical: 10),
+        horizontal: horizontalPadding,
+        vertical: 10,
+      ),
       child: TextFieldTags(
         tags: tags,
         onSearchAction: (name, searchTags) async {
@@ -109,20 +111,36 @@ class _ExplorePageState extends State<ExplorePage> {
           child: searchBarWithTags,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: horizontalPadding, vertical: 15),
-        child: PagedListView<int, DeckReference>(
-          pagingController: _pagingController,
-          builderDelegate: PagedChildBuilderDelegate<DeckReference>(
-            itemBuilder: (context, deckRef, index) => InkWell(
-              onTap: () => goToDeckPage(deckRef.id, context),
-              child: Column(
-                children: [DeckListTile(deck: deckRef), const Divider()],
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: verticalScrollPadding,
+            ),
+            sliver: PagedSliverList<int, DeckReference>(
+              pagingController: _pagingController,
+              builderDelegate: PagedChildBuilderDelegate<DeckReference>(
+                noItemsFoundIndicatorBuilder: (context) => Center(
+                  child: Text(
+                    "Nenhum deck encontrado...",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                ),
+                itemBuilder: (context, deckRef, index) => InkWell(
+                  onTap: () => goToDeckPage(deckRef.id, context),
+                  child: Column(
+                    children: [DeckListTile(deck: deckRef), const Divider()],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -43,54 +43,68 @@ class _CardListPageState extends State<CardListPage> {
               title: const Text("Cartas"),
               centerTitle: true,
             ),
-            body: Scrollbar(
-              child: ListView.separated(
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  vertical: utils.verticalScrollPadding,
-                  horizontal: 15,
-                ),
-                itemCount: deck.cards.length,
-                separatorBuilder: (context, index) =>
-                    const Divider(thickness: 2),
-                itemBuilder: (context, index) => CardListTile(
-                  card: deck.cards[index],
-                  onEdit: () {
-                    showModalBottomSheet(
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(25.0),
-                        ),
+            body: deck.cards.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: utils.horizontalPadding,
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Parece que você ainda não tem nenhuma carta...",
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headline6,
                       ),
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (context) => Modal(
-                        deck: deck,
+                    ),
+                  )
+                : Scrollbar(
+                    child: ListView.separated(
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: utils.verticalScrollPadding,
+                        horizontal: 15,
+                      ),
+                      itemCount: deck.cards.length,
+                      separatorBuilder: (context, index) =>
+                          const Divider(thickness: 2),
+                      itemBuilder: (context, index) => CardListTile(
                         card: deck.cards[index],
-                        onDone: (card) {
-                          setState(() {
-                            deck.cards[index] = card;
+                        onEdit: () {
+                          showModalBottomSheet(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(25.0),
+                              ),
+                            ),
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) => Modal(
+                              deck: deck,
+                              card: deck.cards[index],
+                              onDone: (card) {
+                                setState(() {
+                                  deck.cards[index] = card;
 
-                            _collectionCubit.updateDeck(
-                              deck.copyWith(lastModification: DateTime.now()),
-                            );
+                                  _collectionCubit.updateDeck(
+                                    deck.copyWith(
+                                        lastModification: DateTime.now()),
+                                  );
+                                });
+                              },
+                            ),
+                          );
+                        },
+                        onDelete: () {
+                          setState(() {
+                            deck.cards.removeAt(index);
+
+                            _collectionCubit.updateDeck(deck);
                           });
                         },
                       ),
-                    );
-                  },
-                  onDelete: () {
-                    setState(() {
-                      deck.cards.removeAt(index);
-
-                      _collectionCubit.updateDeck(deck);
-                    });
-                  },
-                ),
-              ),
-            ),
+                    ),
+                  ),
             floatingActionButton: FloatingActionButton(
               child: const FaIcon(FontAwesomeIcons.plus),
               onPressed: () {

@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                       pagingController: _pagingController,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        childAspectRatio: 0.68,
+                        childAspectRatio: 0.72,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
                         crossAxisCount: 2,

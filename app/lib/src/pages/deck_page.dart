@@ -34,6 +34,10 @@ class _DeckPageState extends State<DeckPage> {
 
   late Deck deck;
 
+  static const withoutTagChip = Chip(
+    label: Text("Sem Tags"),
+  );
+
   @override
   void initState() {
     deck = collectionCubit.state.decks.firstWhere(
@@ -100,6 +104,7 @@ class _DeckPageState extends State<DeckPage> {
         elevation: 0.0,
         backgroundColor: Colors.transparent,
         actions: [popUpMenu],
+        shape: const ContinuousRectangleBorder(side: BorderSide.none),
       ),
       body: BlocBuilder<DeckCollectionCubit, DeckCollectionState>(
           bloc: collectionCubit,
@@ -108,15 +113,19 @@ class _DeckPageState extends State<DeckPage> {
               (element) => element.id == widget.deckId,
             );
 
-            Logger().d("DECK COVER: ${deck.cover}");
-
             return SingleChildScrollView(
               child: Column(
                 children: [
                   Container(
                     // TODO: Adicionar nas constantes
-                    height: 300,
+                    height: deckCoverSize,
                     decoration: BoxDecoration(
+                      border: const Border(
+                        bottom: BorderSide(
+                          color: Colors.black,
+                          width: borderWidth,
+                        ),
+                      ),
                       image: DecorationImage(
                         fit: BoxFit.cover,
                         image: ((deck.cover != null && deck.cover!.isNotEmpty)
@@ -149,19 +158,21 @@ class _DeckPageState extends State<DeckPage> {
                         Wrap(
                           spacing: 4.0,
                           runSpacing: -10.0,
-                          children:
-                              (deck.tags.isNotEmpty ? deck.tags : ["Sem Tags"])
-                                  .map((e) => Chip(label: Text(e)))
-                                  .toList(),
+                          children: deck.tags.isNotEmpty
+                              ? deck.tags
+                                  .map(
+                                    (e) => Chip(
+                                      label: Text(e),
+                                      backgroundColor: Colors
+                                          .accents[deck.tags.indexOf(e) %
+                                              Colors.accents.length]
+                                          .shade100,
+                                    ),
+                                  )
+                                  .toList()
+                              : [withoutTagChip],
                         ),
                         const SizedBox(height: 5.0),
-                        const Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            "Por Fulano de tal",
-                            style: TextStyle(fontSize: 16.0),
-                          ),
-                        ),
                         const SizedBox(height: 10.0),
                         Align(
                           alignment: Alignment.centerRight,
@@ -212,109 +223,17 @@ class _DeckPageState extends State<DeckPage> {
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Sem cartas'),
         content: Text(
-            "Ainda não há cartas disponíveis nesse baralho. $noCardsDescription"),
+          "Ainda não há cartas disponíveis nesse baralho. $noCardsDescription",
+        ),
         actions: <Widget>[
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(primary: Colors.white),
             onPressed: () => Navigator.pop(context, 'Cancelar'),
             child: const Text("Cancelar"),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, 'OK'),
             child: const Text("Criar"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void showCopyDeckDialog() {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext copyContext) => AlertDialog(
-        title: Text.rich(
-          TextSpan(
-            text: "Deseja fazer uma cópia de ",
-            children: <TextSpan>[
-              TextSpan(
-                text: "'${deck.name}'",
-                style: const TextStyle(fontStyle: FontStyle.italic),
-              ),
-              const TextSpan(text: "?")
-            ],
-          ),
-        ),
-        content: Text.rich(
-          TextSpan(
-            text: "Uma cópia do baralho ",
-            children: <TextSpan>[
-              TextSpan(
-                text: "'${deck.name}'",
-                style: const TextStyle(fontStyle: FontStyle.italic),
-              ),
-              const TextSpan(text: " será adicionada a sua coleção.")
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancelar'),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context); // Tira dialog para mostrar loading
-              showLoadingDialog();
-
-              var isThereError = false;
-
-              if (auth.state is Authenticated) {
-                var result = await apiRepo
-                    .copyDeck(deck.id); // Salva baralho no servidor
-
-                if (result is Error) {
-                  isThereError = true; // Tratar melhor esse erro talvez
-                } else if (result is Success) {
-                  var copy = (result as Success).value as Deck;
-
-                  await collectionCubit.createDeck(copy);
-                }
-              } else {
-                await collectionCubit.createDeck(
-                  deck.copyWith(
-                    id: const Uuid().v4().toString(),
-                  ),
-                );
-              }
-
-              Navigator.pop(context); // Retira loading
-              if (isThereError) {
-                showOkWithIconDialog(
-                  "Falha ao salvar baralho no servidor",
-                  "Não foi possível fazer a cópia do baralho no servidor. Tente sincronizar mais tarde.",
-                  icon: const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 50.0,
-                    semanticLabel: 'Error',
-                  ),
-                );
-              } else {
-                showOkWithIconDialog(
-                  "Cópia feita com sucesso",
-                  "Uma cópia deste baralho foi adicionada a sua coleção.",
-                  icon: const Icon(
-                    Icons.task_alt,
-                    color: Colors.green,
-                    size: 50.0,
-                    semanticLabel: 'Success',
-                  ),
-                );
-              }
-            },
-            child: const Text("Confirmar"),
           ),
         ],
       ),
@@ -327,13 +246,17 @@ class _DeckPageState extends State<DeckPage> {
       builder: (BuildContext pcontext) => AlertDialog(
         title: const Text('Tornar baralho público?'),
         content: const Text(
-            "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas próprias coleções. Lembre-se de sincronizar o baralho antes de torná-lo público. Tem certeza disso?"),
+            "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas próprias coleções. Tem certeza disso?"),
         actions: <Widget>[
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(primary: Colors.white),
             onPressed: () => Navigator.pop(context, 'Cancelar'),
-            child: const Text('Não', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Não',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () async {
               Navigator.pop(context); // Tira dialog para mostrar loading
               showLoadingDialog();
@@ -394,11 +317,15 @@ class _DeckPageState extends State<DeckPage> {
         content: const Text(
             "Ao confirmar, este baralho será removido da sua coleção. Tem certeza disso?"),
         actions: <Widget>[
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(primary: Colors.white),
             onPressed: () => Navigator.pop(context, 'Cancelar'),
-            child: const Text('Não', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Não',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () async {
               await collectionCubit.deleteDeck(deck.id);
 
@@ -448,18 +375,16 @@ class _DeckPageState extends State<DeckPage> {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: Text(title),
-        content: SizedBox(
-          height: 130,
-          child: Column(
-            children: [
-              icon ?? Container(),
-              const SizedBox(height: 15.0),
-              Text(subtitle),
-            ],
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            icon ?? Container(),
+            const SizedBox(height: 15.0),
+            Text(subtitle),
+          ],
         ),
         actions: <Widget>[
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, 'OK'),
             child: const Text("Ok"),
           ),

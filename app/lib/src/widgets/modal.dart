@@ -171,6 +171,10 @@ class _ModalState extends State<Modal> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black,
+                            width: utils.borderWidth,
+                          ),
                           borderRadius: BorderRadius.circular(10),
                           image: DecorationImage(
                             fit: BoxFit.cover,
@@ -186,7 +190,8 @@ class _ModalState extends State<Modal> {
                           child: Stack(
                             children: [
                               Container(
-                                color: Colors.black.withOpacity(0.25),
+                                color:
+                                    utils.MSTheme.darkPurple.withOpacity(0.25),
                               ),
                               const Center(
                                 child: FaIcon(
@@ -288,6 +293,10 @@ class _ModalState extends State<Modal> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black,
+                            width: utils.borderWidth,
+                          ),
                           borderRadius: BorderRadius.circular(10),
                           image: DecorationImage(
                             fit: BoxFit.cover,
@@ -303,7 +312,8 @@ class _ModalState extends State<Modal> {
                           child: Stack(
                             children: [
                               Container(
-                                color: Colors.black.withOpacity(0.25),
+                                color:
+                                    utils.MSTheme.darkPurple.withOpacity(0.25),
                               ),
                               const Center(
                                 child: FaIcon(
@@ -321,11 +331,15 @@ class _ModalState extends State<Modal> {
                 ],
               ),
             ),
+            const SizedBox(height: 15),
             Flexible(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                    ),
                     onPressed: () {
                       Navigator.pop(context);
                     },

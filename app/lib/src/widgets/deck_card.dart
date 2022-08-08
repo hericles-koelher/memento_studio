@@ -23,6 +23,12 @@ class DeckCard extends StatelessWidget {
     bool shouldShowImage = deck.cover != null && deck.cover!.isNotEmpty;
 
     var coverDecoration = BoxDecoration(
+      border: const Border(
+        bottom: BorderSide(
+          color: Colors.black,
+          width: borderWidth,
+        ),
+      ),
       image: DecorationImage(
         image: (shouldShowImage
                 ? Image.memory(
@@ -32,13 +38,17 @@ class DeckCard extends StatelessWidget {
             .image,
         fit: BoxFit.cover,
       ),
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(borderRadius),
-        bottomRight: Radius.circular(borderRadius),
-      ),
     );
 
     return Card(
+      elevation: 8.0,
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(
+          color: Colors.black,
+          width: borderWidth,
+        ),
+        borderRadius: BorderRadius.circular(borderRadius),
+      ),
       clipBehavior: Clip.hardEdge,
       margin: margin,
       child: SizedBox(
@@ -60,7 +70,9 @@ class DeckCard extends StatelessWidget {
                 children: [
                   Text(
                     deck.name,
-                    style: textTheme.bodyMedium,
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 2,
                   ),
                   Text(

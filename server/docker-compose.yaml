@@ -10,7 +10,7 @@ services:
       - MONGO_USERNAME=root
       - MONGO_PASSWORD=PI-UFES-2022
       - IMAGES_FILE_PATH=public/
-      - BASE_ROUTE=https://3274-131-255-21-239.sa.ngrok.io
+      - BASE_ROUTE=https://5afe-131-255-21-116.sa.ngrok.io/
     network_mode: "host"
     volumes:
       - ./public:/app/public:consistent
