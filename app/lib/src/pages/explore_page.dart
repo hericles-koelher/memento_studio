@@ -126,7 +126,7 @@ class _ExplorePageState extends State<ExplorePage> {
               builderDelegate: PagedChildBuilderDelegate<DeckReference>(
                 noItemsFoundIndicatorBuilder: (context) => Center(
                   child: Text(
-                    "Nenhum deck encontrado...",
+                    "Nenhum baralho encontrado...",
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headline6,
                   ),

@@ -79,6 +79,7 @@ class DeckListTile extends StatelessWidget {
                           Text(
                             deck.description!,
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
                           ),
                         const Spacer(),
                         Flexible(
