@@ -43,6 +43,8 @@ class _HomePageState extends State<HomePage> {
     _subscription = _collectionCubit.stream.listen((state) {
       _logger.i('Atualizando lista de decks');
 
+      _logger.d(state.decks.map((e) => e.isPublic));
+
       _pagingController.value = PagingState(
         itemList: state.decks,
         nextPageKey: state.count,
@@ -166,12 +168,12 @@ class _HomePageState extends State<HomePage> {
         content: const Text(
             "Ao confirmar, seus baralhos serão sincronizados com o servidor. Deseja continuar?"),
         actions: <Widget>[
-          ElevatedButton(
+          MSButton(
             style: ElevatedButton.styleFrom(primary: Colors.white),
             onPressed: () => Navigator.pop(context, 'Cancelar'),
             child: const Text('Não', style: TextStyle(color: Colors.red)),
           ),
-          ElevatedButton(
+          MSButton(
             onPressed: () async {
               Navigator.pop(context); // Tira dialog para mostrar loading
               showLoadingDialog();

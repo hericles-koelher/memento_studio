@@ -136,7 +136,7 @@ class _SignInPageState extends State<SignInPage> {
                               )
                             ],
                           ),
-                          ElevatedButton(
+                          MSButton(
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
                                 _logger.i("Formulário de login válido.");

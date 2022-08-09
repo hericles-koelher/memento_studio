@@ -12,6 +12,7 @@ import 'package:memento_studio/src/entities.dart';
 
 import '../state_managers.dart';
 import '../utils.dart' as utils;
+import '../widgets.dart';
 
 class DeckEditPage extends StatefulWidget {
   final String deckId;
@@ -357,7 +358,7 @@ class _DeckEditPageState extends State<DeckEditPage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        ElevatedButton(
+                                        MSButton(
                                           style: ElevatedButton.styleFrom(
                                             primary: Colors.white,
                                           ),
@@ -365,7 +366,7 @@ class _DeckEditPageState extends State<DeckEditPage> {
                                               Navigator.pop(context),
                                           child: const Text("Cancelar"),
                                         ),
-                                        ElevatedButton(
+                                        MSButton(
                                             onPressed: () {
                                               setState(() {
                                                 _tagList

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/entities.dart' as ms_entities;
 import 'package:memento_studio/src/state_managers/cubit/deck_collection_cubit.dart';
+import 'package:memento_studio/src/utils.dart';
 import 'package:memento_studio/src/widgets/card_view.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
@@ -48,12 +49,17 @@ class _StudyPageState extends State<StudyPage> {
       appBar: AppBar(
         title: Text(deck.name),
         backgroundColor: Colors.transparent,
+        shape: const ContinuousRectangleBorder(
+          side: BorderSide.none,
+        ),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           header(),
-          const Divider(),
+          const Divider(
+            thickness: borderWidth,
+            color: Colors.black,
+          ),
           CarouselSlider(
             options: CarouselOptions(
                 height: cardSize,
@@ -77,16 +83,12 @@ class _StudyPageState extends State<StudyPage> {
                         imagePath: card.value.frontImage,
                         isFront: true,
                         height: cardSize,
-                        color: StudyPage.cardsColors[
-                            card.key % StudyPage.cardsColors.length],
                       ),
                       back: CardView(
                         text: card.value.backText,
                         imagePath: card.value.backImage,
                         isFront: false,
                         height: cardSize,
-                        color: StudyPage.cardsColors[
-                            card.key % StudyPage.cardsColors.length],
                       ),
                     ),
                   );
@@ -104,26 +106,43 @@ class _StudyPageState extends State<StudyPage> {
     var currentPercent = (_currentCard + 1) / deck.cards.length;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+        vertical: 15,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            deck.description ?? "",
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          Row(
+            children: [
+              Text(
+                "${_currentCard + 1}/${deck.cards.length}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.black,
+                      width: borderWidth,
+                    ),
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: LinearPercentIndicator(
+                    padding: EdgeInsets.zero,
+                    lineHeight: 20.0,
+                    percent: currentPercent,
+                    backgroundColor: Colors.white,
+                    progressColor: MSTheme.lightPurple,
+                    barRadius: const Radius.circular(5.0),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10.0),
-          LinearPercentIndicator(
-            width: MediaQuery.of(context).size.width - 3.5 * horizontalPadding,
-            lineHeight: 10.0,
-            percent: currentPercent,
-            backgroundColor: Colors.grey,
-            progressColor: Colors.greenAccent,
-            barRadius: const Radius.circular(5.0),
-            leading: Text("${_currentCard + 1}/${deck.cards.length}"),
-          ),
-          const SizedBox(height: 10.0),
         ],
       ),
     );

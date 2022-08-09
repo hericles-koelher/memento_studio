@@ -10,6 +10,7 @@ import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/state_managers/cubit/deck_collection_cubit.dart';
+import 'package:memento_studio/src/widgets.dart';
 import 'package:uuid/uuid.dart';
 
 import '../utils.dart' as utils;
@@ -291,7 +292,7 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        ElevatedButton(
+                                        MSButton(
                                           style: ElevatedButton.styleFrom(
                                             primary: Colors.white,
                                           ),
@@ -300,7 +301,7 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                                           child: const Text("Cancelar"),
                                         ),
                                         const SizedBox(width: 15),
-                                        ElevatedButton(
+                                        MSButton(
                                           onPressed: () {
                                             setState(() {
                                               _tagList.add(_tagController.text);
@@ -331,18 +332,19 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                         const Spacer(),
                         Expanded(
                           flex: 2,
-                          child: ElevatedButton(
+                          child: MSButton(
+                            onPressed: () => GoRouter.of(context).pop(),
+                            child: const Text("Cancelar"),
                             style: ElevatedButton.styleFrom(
                               primary: Colors.white,
                             ),
-                            onPressed: () => GoRouter.of(context).pop(),
-                            child: const Text("Cancelar"),
                           ),
                         ),
                         const SizedBox(width: 15),
                         Expanded(
                           flex: 2,
-                          child: ElevatedButton(
+                          child: MSButton(
+                            child: const Text("Criar"),
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
                                 _logger.i(
@@ -386,7 +388,6 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                                 _logger.i("Formulário não foi aceito");
                               }
                             },
-                            child: const Text("Criar"),
                           ),
                         ),
                         const Spacer(),

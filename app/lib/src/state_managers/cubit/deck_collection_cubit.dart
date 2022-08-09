@@ -91,6 +91,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
   Future<void> syncDecks() async {
     // Deleta baralhos do servidor que foram deletados localmente
     var deletedDeckList = await _deletedDeckListRepository.readList();
+
     if (deletedDeckList.isNotEmpty) {
       print("baralhos deletados: ${deletedDeckList.toString()}");
       _apiRepo.deleteDeck(deletedDeckList);
@@ -101,6 +102,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     List<Deck> decksFromServer = List.empty();
 
     final result = await _apiRepo.getDecks(page, pageSize);
+
     if (result is Error) {
       _logger.e((result as Error).exception.toString());
       return;

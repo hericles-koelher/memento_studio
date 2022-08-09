@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
+import 'package:memento_studio/src/widgets.dart';
 import 'package:uuid/uuid.dart';
 
 import '../entities.dart' as ms_entities;
@@ -336,17 +338,15 @@ class _ModalState extends State<Modal> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ElevatedButton(
+                  MSButton(
+                    child: const Text("Cancelar"),
+                    onPressed: () => GoRouter.of(context).pop(),
                     style: ElevatedButton.styleFrom(
                       primary: Colors.white,
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Cancelar"),
                   ),
                   const SizedBox(width: 15),
-                  ElevatedButton(
+                  MSButton(
                     onPressed: () async {
                       var cardId =
                           widget.card?.id ?? const Uuid().v4().toString();

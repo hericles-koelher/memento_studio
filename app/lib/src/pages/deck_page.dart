@@ -11,6 +11,7 @@ import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/repositories.dart';
 import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/utils.dart';
+import 'package:memento_studio/src/widgets.dart';
 import 'package:uuid/uuid.dart';
 
 class DeckPage extends StatefulWidget {
@@ -190,29 +191,28 @@ class _DeckPageState extends State<DeckPage> {
             );
           }),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
-          ),
-          onPressed: () {
-            if (deck.cards.isEmpty) {
-              showNoCardsDialog();
-              return;
-            }
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+          child: MSButton(
+            child: const Text("Começar"),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size.fromHeight(50),
+            ),
+            onPressed: () {
+              if (deck.cards.isEmpty) {
+                showNoCardsDialog();
+                return;
+              }
 
-            deck.cards.shuffle();
+              deck.cards.shuffle();
 
-            GoRouter.of(context).goNamed(
-              MSRouter.studyRouteName,
-              params: {
-                "deckId": deck.id,
-              },
-            );
-          },
-          child: const Text('Começar'),
-        ),
-      ),
+              GoRouter.of(context).goNamed(
+                MSRouter.studyRouteName,
+                params: {
+                  "deckId": deck.id,
+                },
+              );
+            },
+          )),
     );
   }
 
@@ -227,12 +227,12 @@ class _DeckPageState extends State<DeckPage> {
           "Ainda não há cartas disponíveis nesse baralho. $noCardsDescription",
         ),
         actions: <Widget>[
-          ElevatedButton(
+          MSButton(
             style: ElevatedButton.styleFrom(primary: Colors.white),
             onPressed: () => Navigator.pop(context, 'Cancelar'),
             child: const Text("Cancelar"),
           ),
-          ElevatedButton(
+          MSButton(
             onPressed: () => Navigator.pop(context, 'OK'),
             child: const Text("Criar"),
           ),
@@ -249,7 +249,7 @@ class _DeckPageState extends State<DeckPage> {
         content: const Text(
             "Ao confirmar, esse baralho ficará disponível para outros usuários utilizarem e clonarem em suas próprias coleções. Tem certeza disso?"),
         actions: <Widget>[
-          ElevatedButton(
+          MSButton(
             style: ElevatedButton.styleFrom(primary: Colors.white),
             onPressed: () => Navigator.pop(context, 'Cancelar'),
             child: const Text(
@@ -257,7 +257,7 @@ class _DeckPageState extends State<DeckPage> {
               style: TextStyle(color: Colors.red),
             ),
           ),
-          ElevatedButton(
+          MSButton(
             onPressed: () async {
               Navigator.pop(context); // Tira dialog para mostrar loading
               showLoadingDialog();
@@ -286,6 +286,8 @@ class _DeckPageState extends State<DeckPage> {
                     ),
                   );
                 } else if (result is Success) {
+                  await collectionCubit.updateDeck(pDeck);
+
                   showOkWithIconDialog(
                     "Baralho público com sucesso",
                     "Agora este baralho é público e outras pessoas poderão utilizá-lo.",
@@ -318,7 +320,7 @@ class _DeckPageState extends State<DeckPage> {
         content: const Text(
             "Ao confirmar, este baralho será removido da sua coleção. Tem certeza disso?"),
         actions: <Widget>[
-          ElevatedButton(
+          MSButton(
             style: ElevatedButton.styleFrom(primary: Colors.white),
             onPressed: () => Navigator.pop(context, 'Cancelar'),
             child: const Text(
@@ -326,7 +328,7 @@ class _DeckPageState extends State<DeckPage> {
               style: TextStyle(color: Colors.red),
             ),
           ),
-          ElevatedButton(
+          MSButton(
             onPressed: () async {
               await collectionCubit.deleteDeck(deck.id);
 
@@ -385,7 +387,7 @@ class _DeckPageState extends State<DeckPage> {
           ],
         ),
         actions: <Widget>[
-          ElevatedButton(
+          MSButton(
             onPressed: () => Navigator.pop(context, 'OK'),
             child: const Text("Ok"),
           ),

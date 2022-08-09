@@ -69,6 +69,10 @@ class DeckListTile extends StatelessWidget {
                       children: [
                         Text(
                           deck.name,
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                           maxLines: 2,
                         ),
                         if (deck.description != null)
@@ -78,12 +82,11 @@ class DeckListTile extends StatelessWidget {
                           ),
                         const Spacer(),
                         Flexible(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Por ${deck.author} de tal"),
-                              Text("${deck.numberOfCards} cards")
-                            ],
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              "${deck.numberOfCards} ${deck.numberOfCards == 1 ? 'carta' : 'cartas'}",
+                            ),
                           ),
                         ),
                       ],

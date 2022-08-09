@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 
 import '../state_managers.dart';
 import '../utils.dart';
+import '../widgets.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -123,11 +124,14 @@ class _SignUpPageState extends State<SignUpPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          TextButton(
+                          MSButton(
                             onPressed: () => GoRouter.of(context).pop(),
                             child: const Text("Cancelar"),
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.white,
+                            ),
                           ),
-                          ElevatedButton(
+                          MSButton(
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
                                 _logger.i(

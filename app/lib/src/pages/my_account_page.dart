@@ -17,7 +17,7 @@ class MyAccountPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: Center(
-        child: ElevatedButton(
+        child: MSButton(
           child: const Text("Logout"),
           onPressed: () {
             authCubit.signOut();

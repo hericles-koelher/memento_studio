@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,6 +12,14 @@ import 'package:memento_studio/src/utils.dart';
 class MSDrawer extends StatelessWidget {
   const MSDrawer({Key? key}) : super(key: key);
 
+  String _generateRandomString() {
+    var r = Random();
+    const _chars =
+        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    return List.generate(
+        r.nextInt(256), (index) => _chars[r.nextInt(_chars.length)]).join();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
@@ -20,7 +30,7 @@ class MSDrawer extends StatelessWidget {
             : "Usuário";
 
         String jdenticonString =
-            state is Authenticated ? state.user.id : "default_jdenticon";
+            state is Authenticated ? state.user.id : _generateRandomString();
 
         return Drawer(
           child: Column(
@@ -93,10 +103,10 @@ class MSDrawer extends StatelessWidget {
                                 .goNamed(MSRouter.myAccountRouteName);
                           },
                         ),
-                      const ListTile(
-                        title: Text("Informações"),
-                        leading: Icon(Icons.info_outline),
-                      ),
+                      // const ListTile(
+                      //   title: Text("Informações"),
+                      //   leading: Icon(Icons.info_outline),
+                      // ),
                     ],
                   ),
                 ),

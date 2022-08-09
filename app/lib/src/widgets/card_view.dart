@@ -8,14 +8,13 @@ class CardView extends StatelessWidget {
   final String? text;
   final String? imagePath;
   final bool isFront;
-  final Color color;
+
   final double height;
 
   const CardView({
     Key? key,
     this.text,
     this.imagePath,
-    required this.color,
     required this.height,
     required this.isFront,
   }) : super(key: key);
@@ -48,60 +47,86 @@ class CardView extends StatelessWidget {
       builder: (_, constraints) => Center(
         child: SizedBox(
           height: constraints.maxHeight * 0.85,
-          child: Card(
-            color: color,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: horizontalPadding,
-                vertical: 40,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(
+                borderRadius,
               ),
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Center(
-                      child: CardImage(imagePath: imagePath),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Flexible(
-                    flex: 2,
-                    child: Container(
-                      clipBehavior: Clip.hardEdge,
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.black54,
-                            width: 2.0,
-                          )),
-                      child: Column(
-                        children: [
-                          if (text != null) ...[
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Text(
-                                isFront ? 'Pergunta:' : 'Resposta:',
-                                style: textTheme.caption,
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black,
+                  spreadRadius: -2,
+                  offset: Offset(4, 3),
+                )
+              ],
+            ),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(
+                  color: Colors.black,
+                  width: borderWidth,
+                ),
+                borderRadius: BorderRadius.circular(
+                  borderRadius,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 40,
+                ),
+                child: Column(
+                  children: [
+                    if (imagePath != null) ...[
+                      Expanded(
+                        flex: 3,
+                        child: Center(
+                          child: CardImage(imagePath: imagePath),
+                        ),
+                      ),
+                      const SizedBox(height: 15)
+                    ],
+                    Flexible(
+                      flex: 2,
+                      child: Container(
+                        clipBehavior: Clip.hardEdge,
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.black54,
+                              width: 2.0,
+                            )),
+                        child: Column(
+                          children: [
+                            if (text != null) ...[
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  isFront ? 'Pergunta:' : 'Resposta:',
+                                  style: textTheme.caption?.copyWith(
+                                    color: MSTheme.darkPurple,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                            ],
+                            Expanded(
+                              child: Center(
+                                child: text != null
+                                    ? AutoSizeText(
+                                        text!,
+                                        style: textStyle,
+                                      )
+                                    : defaultText,
                               ),
                             ),
-                            const SizedBox(height: 10),
                           ],
-                          Expanded(
-                            child: Center(
-                              child: text != null
-                                  ? AutoSizeText(
-                                      text!,
-                                      style: textStyle,
-                                    )
-                                  : defaultText,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
