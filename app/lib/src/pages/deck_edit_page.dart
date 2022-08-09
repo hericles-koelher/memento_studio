@@ -341,7 +341,7 @@ class _DeckEditPageState extends State<DeckEditPage> {
                                     TextField(
                                       controller: _tagController,
                                       decoration: const InputDecoration(
-                                        labelText: "Descrição",
+                                        labelText: "Tag",
                                         border: OutlineInputBorder(),
                                       ),
                                       maxLength: 32,
@@ -352,10 +352,15 @@ class _DeckEditPageState extends State<DeckEditPage> {
                                         )
                                       ],
                                     ),
+                                    const SizedBox(height: 15),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        TextButton(
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Colors.white,
+                                          ),
                                           onPressed: () =>
                                               Navigator.pop(context),
                                           child: const Text("Cancelar"),

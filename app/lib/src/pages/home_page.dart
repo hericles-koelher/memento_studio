@@ -111,6 +111,13 @@ class _HomePageState extends State<HomePage> {
                         crossAxisCount: 2,
                       ),
                       builderDelegate: PagedChildBuilderDelegate(
+                        noItemsFoundIndicatorBuilder: (_) => Center(
+                          child: Text(
+                            "Parece que você ainda não possui baralhos...",
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ),
                         itemBuilder: (context, Deck deck, int index) =>
                             GestureDetector(
                           onTap: () {
@@ -159,11 +166,12 @@ class _HomePageState extends State<HomePage> {
         content: const Text(
             "Ao confirmar, seus baralhos serão sincronizados com o servidor. Deseja continuar?"),
         actions: <Widget>[
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(primary: Colors.white),
             onPressed: () => Navigator.pop(context, 'Cancelar'),
             child: const Text('Não', style: TextStyle(color: Colors.red)),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () async {
               Navigator.pop(context); // Tira dialog para mostrar loading
               showLoadingDialog();
@@ -189,7 +197,10 @@ class _HomePageState extends State<HomePage> {
             // The background color
             backgroundColor: Colors.white,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
+              padding: const EdgeInsets.symmetric(
+                vertical: 20,
+                horizontal: horizontalPadding,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
@@ -199,7 +210,10 @@ class _HomePageState extends State<HomePage> {
                     height: 15,
                   ),
                   // Some text
-                  Text('Sincronizando baralhos, aguarde...')
+                  Text(
+                    'Sincronizando baralhos, aguarde...',
+                    textAlign: TextAlign.center,
+                  )
                 ],
               ),
             ),

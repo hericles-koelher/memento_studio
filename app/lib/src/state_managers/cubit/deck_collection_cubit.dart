@@ -49,7 +49,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
   Future<void> createDeck(Deck deck) async {
     await _repository.create(_adapter.toLocal(deck));
 
-    _reloadCollection();
+    await _reloadCollection();
   }
 
   Future<void> _reloadCollection() async {

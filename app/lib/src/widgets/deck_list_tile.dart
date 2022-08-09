@@ -2,15 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:memento_studio/src/entities.dart';
+import 'package:memento_studio/src/utils/constants.dart';
 
 class DeckListTile extends StatelessWidget {
   final DeckReference deck;
   const DeckListTile({Key? key, required this.deck}) : super(key: key);
 
+  static const _withoutTagChip = Chip(
+    label: Text("Sem Tags"),
+  );
+
   @override
   Widget build(BuildContext context) {
-    var tags = deck.tags.isNotEmpty ? deck.tags : ["Sem Tags"];
-
     return SizedBox(
       height: 150,
       child: Column(
@@ -22,22 +25,37 @@ class DeckListTile extends StatelessWidget {
               child: Row(
                 children: [
                   Flexible(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15.0),
-                      child: CachedNetworkImage(
-                        fit: BoxFit.cover,
-                        height: double.infinity,
-                        width: double.infinity,
-                        imageUrl: deck.cover ?? "",
-                        placeholder: (context, url) =>
-                            const Center(child: CircularProgressIndicator()),
-                        errorWidget: (context, url, error) => Container(
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                              image:
-                                  AssetImage("assets/images/placeholder.png"),
-                              fit: BoxFit.cover,
-                            ),
+                    child: CachedNetworkImage(
+                      fit: BoxFit.cover,
+                      imageUrl: deck.cover ?? "",
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      imageBuilder: (context, image) => Container(
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.0),
+                          border: Border.all(
+                            color: Colors.black,
+                            width: borderWidth,
+                          ),
+                          image: DecorationImage(
+                            image: image,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.0),
+                          border: Border.all(
+                            color: Colors.black,
+                            width: borderWidth,
+                          ),
+                          image: const DecorationImage(
+                            image: AssetImage("assets/images/placeholder.png"),
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
@@ -76,14 +94,18 @@ class DeckListTile extends StatelessWidget {
             ),
           ),
           Flexible(
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: tags.length,
-              itemBuilder: (_, index) => Chip(
-                label: Text(tags[index]),
-              ),
-              separatorBuilder: (_, __) => const SizedBox(width: 5),
-            ),
+            child: deck.tags.isEmpty
+                ? Row(children: const [_withoutTagChip])
+                : ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: deck.tags.length,
+                    itemBuilder: (_, index) => Chip(
+                      label: Text(deck.tags[index]),
+                      backgroundColor: Colors
+                          .accents[index % Colors.accents.length].shade100,
+                    ),
+                    separatorBuilder: (_, __) => const SizedBox(width: 5),
+                  ),
           ),
         ],
       ),

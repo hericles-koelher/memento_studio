@@ -275,7 +275,7 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                                     TextField(
                                       controller: _tagController,
                                       decoration: const InputDecoration(
-                                        labelText: "Descrição",
+                                        labelText: "Tag",
                                         border: OutlineInputBorder(),
                                       ),
                                       maxLength: 32,
@@ -288,32 +288,28 @@ class _DeckCreationPageState extends State<DeckCreationPage> {
                                     ),
                                     const SizedBox(height: 15),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Expanded(
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              primary: Colors.white,
-                                            ),
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            child: const Text("Cancelar"),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Colors.white,
                                           ),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text("Cancelar"),
                                         ),
                                         const SizedBox(width: 15),
-                                        Expanded(
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _tagList
-                                                    .add(_tagController.text);
-                                                _tagController.clear();
-                                              });
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _tagList.add(_tagController.text);
+                                              _tagController.clear();
+                                            });
 
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text("Adicionar"),
-                                          ),
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text("Adicionar"),
                                         ),
                                       ],
                                     ),

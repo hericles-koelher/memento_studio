@@ -58,12 +58,15 @@ class DeckCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              height: coverDimension * 0.85,
+              height: coverDimension * 0.75,
               width: coverDimension,
               decoration: coverDecoration,
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 10,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,6 +77,7 @@ class DeckCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     "${deck.cards.length} cards",

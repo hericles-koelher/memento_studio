@@ -3,14 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:memento_studio/src/utils.dart';
 
 abstract class MSTheme {
-  static const lightYellow = Color(0xFFFFEB99);
-  static const mediumYellow = Color(0xFFFFDE5C);
-  static const darkYellow = Color(0xFFFFCC00);
-  static const lightPurple = Color(0xFFA486D5);
+  static const lightPurple = Color(0xFFD0B2FF);
   static const darkPurple = Color(0xFF54318C);
-  static const lilas = Color(0xFFD0B2FF);
 
-  static final ThemeData purple = ThemeData.light().copyWith(
+  static final ThemeData light = ThemeData.light().copyWith(
     useMaterial3: true,
     colorScheme: ColorScheme.light(
       primary: lightPurple,
@@ -40,7 +36,7 @@ abstract class MSTheme {
     scaffoldBackgroundColor: Colors.white,
     textTheme: GoogleFonts.spaceMonoTextTheme(),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: lilas,
+      backgroundColor: lightPurple,
       foregroundColor: Colors.black,
       shape: RoundedRectangleBorder(
           side: const BorderSide(
@@ -71,7 +67,7 @@ abstract class MSTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        primary: lilas,
+        primary: lightPurple,
         onPrimary: Colors.black,
         side: const BorderSide(
           color: Colors.black,
@@ -90,5 +86,6 @@ abstract class MSTheme {
         width: borderWidth,
       ),
     ),
+    // drawerTheme: DrawerThemeData(backgroundColor: lilas),
   );
 }

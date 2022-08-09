@@ -134,7 +134,10 @@ class _ExplorePageState extends State<ExplorePage> {
                 itemBuilder: (context, deckRef, index) => InkWell(
                   onTap: () => goToDeckPage(deckRef.id, context),
                   child: Column(
-                    children: [DeckListTile(deck: deckRef), const Divider()],
+                    children: [
+                      DeckListTile(deck: deckRef),
+                      const Divider(),
+                    ],
                   ),
                 ),
               ),

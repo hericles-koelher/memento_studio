@@ -42,7 +42,7 @@ packages:
       name: bloc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "8.0.3"
+    version: "8.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -203,14 +203,14 @@ packages:
       name: copy_with_extension
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.2"
+    version: "4.0.3"
   copy_with_extension_gen:
     dependency: "direct dev"
     description:
       name: copy_with_extension_gen
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.2"
+    version: "4.0.3"
   coverage:
     dependency: transitive
     description:
@@ -432,7 +432,7 @@ packages:
       name: flutter_svg
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.2"
+    version: "1.1.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -554,7 +554,7 @@ packages:
       name: image_picker_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.5+1"
+    version: "0.8.5+2"
   image_picker_for_web:
     dependency: transitive
     description:
@@ -972,7 +972,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.3"
+    version: "2.0.3+1"
   sqflite_common:
     dependency: transitive
     description:

@@ -68,8 +68,8 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
   Future<List<LocalDeck>> readAll(int limit, int offset) async {
     Query<LocalDeck> query = (_deckBox.query()
           ..order(
-            LocalDeck_.name,
-            flags: Order.caseSensitive,
+            LocalDeck_.lastModification,
+            flags: Order.descending,
           ))
         .build()
       ..limit = limit

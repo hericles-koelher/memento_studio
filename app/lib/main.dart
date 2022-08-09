@@ -40,7 +40,7 @@ class _MementoStudioState extends State<MementoStudio> {
       routeInformationParser: _msRoutes.routeInformationParser,
       routerDelegate: _msRoutes.routerDelegate,
       title: 'Memento Studio',
-      theme: MSTheme.purple,
+      theme: MSTheme.light,
     );
   }
 

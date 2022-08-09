@@ -40,6 +40,8 @@ class _DeckPageState extends State<DeckPage> {
 
   @override
   void initState() {
+    bool init = false;
+
     deck = collectionCubit.state.decks.firstWhere(
       (element) => element.id == widget.deckId,
     );
@@ -117,8 +119,7 @@ class _DeckPageState extends State<DeckPage> {
               child: Column(
                 children: [
                   Container(
-                    // TODO: Adicionar nas constantes
-                    height: deckCoverSize,
+                    height: 2 * MediaQuery.of(context).size.height / 5,
                     decoration: BoxDecoration(
                       border: const Border(
                         bottom: BorderSide(

@@ -10,8 +10,6 @@ const double verticalSpace = 25.0;
 
 const double borderRadius = 15.0;
 
-const double deckCoverSize = 400.0;
-
 const double keyboardHeight = 200.0;
 
 const double borderWidth = 2.0;

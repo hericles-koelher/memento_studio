@@ -28,11 +28,11 @@ class _DeckRefPageState extends State<DeckRefPage> {
   final DeckCollectionCubit collectionCubit = KiwiContainer().resolve();
   final AuthCubit auth = KiwiContainer().resolve();
 
+  static const _withoutTagChip = Chip(label: Text("Sem Tags"));
+
   @override
   Widget build(BuildContext context) {
-    var tags = widget.deck.tags.isNotEmpty ? widget.deck.tags : ["Sem Tags"];
-
-    dynamic imageCover = getDeckCover();
+    dynamic imageCover = getDeckCover(context);
 
     var popUpMenu = PopupMenuButton(
         itemBuilder: (context) => [
@@ -51,6 +51,7 @@ class _DeckRefPageState extends State<DeckRefPage> {
         elevation: 0.0,
         backgroundColor: Colors.transparent,
         actions: [popUpMenu],
+        shape: const ContinuousRectangleBorder(side: BorderSide.none),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -74,16 +75,21 @@ class _DeckRefPageState extends State<DeckRefPage> {
                   Wrap(
                     spacing: 4.0,
                     runSpacing: -10.0,
-                    children: [for (var tag in tags) Chip(label: Text(tag))],
+                    children: widget.deck.tags.isEmpty
+                        ? ([_withoutTagChip])
+                        : widget.deck.tags
+                            .map(
+                              (e) => Chip(
+                                label: Text(e),
+                                backgroundColor: Colors
+                                    .accents[widget.deck.tags.indexOf(e) %
+                                        Colors.accents.length]
+                                    .shade100,
+                              ),
+                            )
+                            .toList(),
                   ),
                   const SizedBox(height: 5.0),
-                  const Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "Por Fulano de tal",
-                      style: const TextStyle(fontSize: 16.0),
-                    ),
-                  ),
                   const SizedBox(height: 10.0),
                   Align(
                     alignment: Alignment.centerRight,
@@ -101,10 +107,10 @@ class _DeckRefPageState extends State<DeckRefPage> {
     );
   }
 
-  Widget getDeckCover() {
+  Widget getDeckCover(BuildContext context) {
     bool shouldShowImage =
         widget.deck.cover != null && widget.deck.cover!.isNotEmpty;
-    var imageHeight = 300.0;
+    var imageHeight = 2 * MediaQuery.of(context).size.height / 5;
 
     var placeholderImage = const BoxDecoration(
       image: DecorationImage(
