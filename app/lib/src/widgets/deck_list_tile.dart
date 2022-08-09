@@ -54,7 +54,7 @@ class DeckListTile extends StatelessWidget {
                             width: borderWidth,
                           ),
                           image: const DecorationImage(
-                            image: AssetImage("assets/images/placeholder.png"),
+                            image: AssetImage(AssetManager.noImagePath),
                             fit: BoxFit.cover,
                           ),
                         ),

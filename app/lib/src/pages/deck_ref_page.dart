@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
@@ -108,43 +105,44 @@ class _DeckRefPageState extends State<DeckRefPage> {
   }
 
   Widget getDeckCover(BuildContext context) {
-    bool shouldShowImage =
-        widget.deck.cover != null && widget.deck.cover!.isNotEmpty;
     var imageHeight = 2 * MediaQuery.of(context).size.height / 5;
-
-    var placeholderImage = const BoxDecoration(
-      image: DecorationImage(
-        image: AssetImage(AssetManager.noImagePath),
-        fit: BoxFit.cover,
-      ),
-    );
-
-    if (shouldShowImage && !widget.deck.cover!.contains('http')) {
-      return Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: FileImage(File(widget.deck.cover!)),
-            fit: BoxFit.cover,
-          ),
-        ),
-        height: imageHeight,
-      );
-    } else if (!shouldShowImage) {
-      return Container(
-        decoration: placeholderImage,
-        height: imageHeight,
-      );
-    }
 
     return CachedNetworkImage(
       fit: BoxFit.cover,
       width: MediaQuery.of(context).size.width,
       height: imageHeight,
       imageUrl: widget.deck.cover ?? "",
+      imageBuilder: (context, image) => Container(
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+          border: const Border(
+            bottom: BorderSide(
+              color: Colors.black,
+              width: borderWidth,
+            ),
+          ),
+          image: DecorationImage(
+            image: image,
+            fit: BoxFit.cover,
+          ),
+        ),
+      ),
       placeholder: (context, url) =>
           const Center(child: CircularProgressIndicator()),
       errorWidget: (context, url, error) => Container(
-        decoration: placeholderImage,
+        clipBehavior: Clip.hardEdge,
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.black,
+              width: borderWidth,
+            ),
+          ),
+          image: DecorationImage(
+            image: AssetImage(AssetManager.noImagePath),
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
     );
   }
