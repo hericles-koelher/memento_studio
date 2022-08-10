@@ -111,7 +111,7 @@ class _DeckRefPageState extends State<DeckRefPage> {
       fit: BoxFit.cover,
       width: MediaQuery.of(context).size.width,
       height: imageHeight,
-      imageUrl: widget.deck.cover ?? "",
+      imageUrl: "$baseUrl/${widget.deck.cover}",
       imageBuilder: (context, image) => Container(
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(

@@ -1,5 +1,6 @@
 import 'package:chopper/chopper.dart';
 import 'package:memento_studio/src/apis.dart';
+import 'package:memento_studio/src/utils.dart';
 import 'authenticator.dart';
 import 'json_converter.dart';
 import 'package:memento_studio/src/entities.dart';
@@ -7,7 +8,7 @@ import 'package:memento_studio/src/entities.dart';
 class Api {
   static ChopperClient createInstance() {
     return ChopperClient(
-        baseUrl: "https://5afe-131-255-21-116.sa.ngrok.io/api",
+        baseUrl: "$baseUrl/api",
         services: [
           DeckApi.create(),
           UserApi.create(),

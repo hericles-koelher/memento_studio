@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:memento_studio/src/utils.dart';
 
 class CardImage extends StatelessWidget {
   final String? imagePath;
@@ -35,14 +36,14 @@ class CardImage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: CachedNetworkImage(
-                      imageUrl: imagePath!,
+                      imageUrl: "$baseUrl/$imagePath",
                       placeholder: (context, url) => const Center(
                         child: CircularProgressIndicator(),
                       ),
                       errorWidget: (context, url, error) => Container(
                         decoration: const BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage("assets/images/placeholder.png"),
+                            image: AssetImage(AssetManager.noImagePath),
                             fit: BoxFit.cover,
                           ),
                         ),
