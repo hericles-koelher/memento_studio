@@ -73,7 +73,6 @@ Future<void> injectDependencies() async {
       kiwi.resolve(),
       kiwi.resolve(),
       kiwi.resolve(),
-      kiwi.resolve(),
     ),
   );
 

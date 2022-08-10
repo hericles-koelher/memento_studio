@@ -16,6 +16,10 @@ class ExpansiveDeckCollection extends DeckCollectionState {
   const ExpansiveDeckCollection(List<Deck> decks) : super(decks, decks.length);
 }
 
+class LoadingDeckCollection extends ExpansiveDeckCollection {
+  const LoadingDeckCollection(List<Deck> decks) : super(decks);
+}
+
 class FinalDeckCollection extends ExpansiveDeckCollection {
   const FinalDeckCollection(List<Deck> decks) : super(decks);
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:kiwi/kiwi.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/repositories.dart';
@@ -16,7 +17,6 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
   final DeckRepositoryInterface _apiRepo;
   final DeckAdapter _adapter;
   final Logger _logger;
-  final ApiDeckAdapter _apiAdapter;
   final DeletedDeckListRepository _deletedDeckListRepository;
 
   DeckCollectionCubit(
@@ -24,13 +24,11 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     DeckRepositoryInterface apiRepo,
     DeckAdapter adapter,
     Logger logger,
-    ApiDeckAdapter apiAdapter,
     DeletedDeckListRepository deletedDeckListRepository,
   )   : _repository = repository,
         _adapter = adapter,
         _logger = logger,
         _apiRepo = apiRepo,
-        _apiAdapter = apiAdapter,
         _deletedDeckListRepository = deletedDeckListRepository,
         super(InitialDeckCollection());
 
@@ -108,6 +106,10 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
 
   Future<void> syncDecks() async {
     // Deleta baralhos do servidor que foram deletados localmente
+    emit(LoadingDeckCollection(state.decks));
+
+    await Future.delayed(Duration(seconds: 3));
+
     var deletedDeckList = await _deletedDeckListRepository.readList();
 
     if (deletedDeckList.isNotEmpty) {
@@ -134,7 +136,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     // Limpa lista de baralhos deletados
     await _deletedDeckListRepository.clearList();
 
-    _reloadCollection();
+    await _reloadCollection();
   }
 
   // Aux
@@ -188,5 +190,15 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
       // Salva localmente
       _repository.create(_adapter.toLocal(newLocalDeck));
     }
+  }
+
+  Future<void> clear() async {
+    await _repository.clear();
+
+    Directory dir = KiwiContainer().resolve();
+
+    dir.list().forEach((subDir) => subDir.delete(recursive: true));
+
+    await _reloadCollection();
   }
 }

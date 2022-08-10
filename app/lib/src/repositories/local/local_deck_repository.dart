@@ -8,4 +8,5 @@ abstract class LocalDeckRepository {
   Future<LocalDeckBase> read(int storageId);
   Future<List<LocalDeckBase>> readAll(int limit, int offset);
   Future<void> update(LocalDeckBase deck);
+  Future<void> clear();
 }

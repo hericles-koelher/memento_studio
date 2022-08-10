@@ -9,6 +9,7 @@ class MyAccountPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AuthCubit authCubit = KiwiContainer().resolve();
+    DeckCollectionCubit deckCollectionCubit = KiwiContainer().resolve();
 
     return Scaffold(
       drawer: const MSDrawer(),
@@ -19,7 +20,9 @@ class MyAccountPage extends StatelessWidget {
       body: Center(
         child: MSButton(
           child: const Text("Logout"),
-          onPressed: () {
+          onPressed: () async {
+            await deckCollectionCubit.syncDecks();
+
             authCubit.signOut();
           },
         ),

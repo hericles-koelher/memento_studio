@@ -101,4 +101,9 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
       );
     }
   }
+
+  @override
+  Future<void> clear() async {
+    _deckBox.removeAll();
+  }
 }
