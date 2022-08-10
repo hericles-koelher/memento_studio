@@ -37,6 +37,10 @@ func GetRequestBody(bodyBuffer io.ReadCloser, result *map[string]interface{}) er
 	bodyBytes, _ := ioutil.ReadAll(bodyBuffer)
 	defer bodyBuffer.Close()
 
+	if len(bodyBytes) == 0 {
+		return nil
+	}
+
 	err := json.Unmarshal(bodyBytes, result)
 
 	return err

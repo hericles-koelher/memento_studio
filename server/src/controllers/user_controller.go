@@ -21,6 +21,14 @@ func CreateUser(ginContext *gin.Context) {
 
 	uuid := ginContext.MustGet("UUID").(string)
 
+	// Checa se usuário ja existe
+	existingUser, _ := userRepo.Read(uuid)
+
+	if existingUser != nil {
+		ginContext.JSON(http.StatusOK, existingUser)
+		return
+	}
+
 	user := models.User{
 		Decks:               []string{},
 		LastSynchronization: time.Now().UnixMilli(),
@@ -43,7 +51,6 @@ func CreateUser(ginContext *gin.Context) {
 	}
 }
 
-// TODO: Deletar também os decks no banco e no sistema de arquivos...
 func DeleteUser(ginContext *gin.Context) {
 	userRepo, okUser := ginContext.MustGet("userRepository").(interfaces.UserRepository)
 	deckRepo, okDeck := ginContext.MustGet("deckRepository").(interfaces.DeckRepository)

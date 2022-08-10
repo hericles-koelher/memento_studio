@@ -17,20 +17,20 @@ class _$DeckReferenceApi extends DeckReferenceApi {
   final definitionType = DeckReferenceApi;
 
   @override
-  Future<Response<List<DeckReference>>> getDecks(
+  Future<Response<List<ApiDeckReference>>> getDecks(
       int? limit, int? page, Map<String, dynamic>? filter) {
     final $url = '/decksReference';
     final $params = <String, dynamic>{'limit': limit, 'page': page};
     final $body = filter;
     final $request =
         Request('GET', $url, client.baseUrl, body: $body, parameters: $params);
-    return client.send<List<DeckReference>, DeckReference>($request);
+    return client.send<List<ApiDeckReference>, ApiDeckReference>($request);
   }
 
   @override
-  Future<Response<Deck>> getDeck(dynamic deckId) {
+  Future<Response<ApiDeck>> getDeck(dynamic deckId) {
     final $url = '/decksReference/${deckId}';
     final $request = Request('GET', $url, client.baseUrl);
-    return client.send<Deck, Deck>($request);
+    return client.send<ApiDeck, ApiDeck>($request);
   }
 }

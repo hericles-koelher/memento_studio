@@ -1,44 +1,25 @@
 import 'package:chopper/chopper.dart';
-import 'package:memento_studio/src/entities/api/deck.dart';
+import 'package:memento_studio/src/entities.dart';
 part 'deck_api.chopper.dart';
 
-typedef DeckList = List<Deck>;
+typedef DeckList = List<ApiDeck>;
 
 @ChopperApi(baseUrl: "/decks")
 abstract class DeckApi extends ChopperService {
-
   @Get(path: "")
-  Future<Response<DeckList>> getDecks(
-    @Body() Map<String, int> pagination
-  );
+  Future<Response<DeckList>> getDecks(@Body() Map<String, int> pagination);
 
-  @Post(
-    path: "",
-    headers: { "Content-Type": "multipart/form-data" })
+  @Post(path: "", headers: {"Content-Type": "multipart/form-data"})
   @multipart
-  Future<Response<Deck>> postDeck(
-    @Part("deck") var deck,
-    @PartFileMap() var images
-  );
+  Future<Response<ApiDeck>> postDeck(
+      @Part("deck") var deck, @PartFileMap() List<PartValueFile> images);
 
-  @Put(path: "/{id}",
-    headers: { "Content-Type": "multipart/form-data" })
-  @multipart
-  Future<Response<Deck>> putDeck(
-    @Path("id") String deckId,
-    @Part("deck") String deckUpdates,
-    @PartFileMap() var images,
-  );
-
-  @Delete(path: "/{id}")
+  @Delete(path: "")
   Future<Response<Map<String, dynamic>>> deleteDeck(
-    @Path("id") String deckId
-  );
+      @Body() List<String> decksId);
 
   @Post(path: "/copy/{id}")
-  Future<Response<Deck>> copyDeck(
-    @Path("id") String deckId
-  );
+  Future<Response<ApiDeck>> copyDeck(@Path("id") String deckId);
 
   static DeckApi create([ChopperClient? client]) => _$DeckApi(client);
 }

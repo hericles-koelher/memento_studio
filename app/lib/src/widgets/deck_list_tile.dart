@@ -1,14 +1,19 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
 import 'package:memento_studio/src/entities.dart';
+import 'package:memento_studio/src/utils.dart';
 
 class DeckListTile extends StatelessWidget {
-  final Deck deck;
+  final DeckReference deck;
   const DeckListTile({Key? key, required this.deck}) : super(key: key);
+
+  static const _withoutTagChip = Chip(
+    label: Text("Sem Tags"),
+  );
 
   @override
   Widget build(BuildContext context) {
-    var tags = deck.tags.isNotEmpty ? deck.tags : ["Sem Tags"];
-
     return SizedBox(
       height: 150,
       child: Column(
@@ -20,10 +25,39 @@ class DeckListTile extends StatelessWidget {
               child: Row(
                 children: [
                   Flexible(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.amber,
-                        borderRadius: BorderRadius.circular(15),
+                    child: CachedNetworkImage(
+                      fit: BoxFit.cover,
+                      imageUrl: "$baseUrl/${deck.cover}",
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      imageBuilder: (context, image) => Container(
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.0),
+                          border: Border.all(
+                            color: Colors.black,
+                            width: borderWidth,
+                          ),
+                          image: DecorationImage(
+                            image: image,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.0),
+                          border: Border.all(
+                            color: Colors.black,
+                            width: borderWidth,
+                          ),
+                          image: const DecorationImage(
+                            image: AssetImage(AssetManager.noImagePath),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -33,20 +67,27 @@ class DeckListTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(deck.name),
+                        Text(
+                          deck.name,
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                          maxLines: 2,
+                        ),
                         if (deck.description != null)
                           Text(
                             deck.description!,
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
                           ),
                         const Spacer(),
                         Flexible(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Por fulano de tal"),
-                              Text("${deck.cards.length} cards")
-                            ],
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              "${deck.numberOfCards} ${deck.numberOfCards == 1 ? 'carta' : 'cartas'}",
+                            ),
                           ),
                         ),
                       ],
@@ -57,14 +98,18 @@ class DeckListTile extends StatelessWidget {
             ),
           ),
           Flexible(
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: tags.length,
-              itemBuilder: (_, index) => Chip(
-                label: Text(tags[index]),
-              ),
-              separatorBuilder: (_, __) => const SizedBox(width: 5),
-            ),
+            child: deck.tags.isEmpty
+                ? Row(children: const [_withoutTagChip])
+                : ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: deck.tags.length,
+                    itemBuilder: (_, index) => Chip(
+                      label: Text(deck.tags[index]),
+                      backgroundColor: Colors
+                          .accents[index % Colors.accents.length].shade100,
+                    ),
+                    separatorBuilder: (_, __) => const SizedBox(width: 5),
+                  ),
           ),
         ],
       ),
