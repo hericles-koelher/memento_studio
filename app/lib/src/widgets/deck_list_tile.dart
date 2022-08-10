@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/utils/constants.dart';
 
+import '../utils.dart';
+
 class DeckListTile extends StatelessWidget {
   final DeckReference deck;
   const DeckListTile({Key? key, required this.deck}) : super(key: key);
@@ -81,8 +83,7 @@ class DeckListTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),
-                        const Spacer(),
-                        Flexible(
+                        Expanded(
                           child: Align(
                             alignment: Alignment.centerRight,
                             child: Text(
@@ -101,6 +102,9 @@ class DeckListTile extends StatelessWidget {
             child: deck.tags.isEmpty
                 ? Row(children: const [_withoutTagChip])
                 : ListView.separated(
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
                     scrollDirection: Axis.horizontal,
                     itemCount: deck.tags.length,
                     itemBuilder: (_, index) => Chip(

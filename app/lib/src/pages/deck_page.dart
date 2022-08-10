@@ -233,7 +233,16 @@ class _DeckPageState extends State<DeckPage> {
             child: const Text("Cancelar"),
           ),
           MSButton(
-            onPressed: () => Navigator.pop(context, 'OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+
+              GoRouter.of(context).pushNamed(
+                MSRouter.cardListRouteName,
+                params: {
+                  "deckId": widget.deckId,
+                },
+              );
+            },
             child: const Text("Criar"),
           ),
         ],
