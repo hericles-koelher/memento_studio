@@ -1,6 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:memento_studio/src/utils.dart';
 import 'package:memento_studio/src/widgets.dart';
 
@@ -77,7 +76,7 @@ class CardView extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    if (imagePath != null) ...[
+                    if (imagePath != null && imagePath!.isNotEmpty) ...[
                       Expanded(
                         flex: 3,
                         child: Center(
@@ -99,7 +98,7 @@ class CardView extends StatelessWidget {
                             )),
                         child: Column(
                           children: [
-                            if (text != null) ...[
+                            if (text != null && text!.isNotEmpty) ...[
                               Align(
                                 alignment: Alignment.topLeft,
                                 child: Text(

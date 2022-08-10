@@ -59,12 +59,13 @@ Future<Deck> updateLocalDeckGivenRemote(Deck deck, {Deck? localDeck}) async {
   }
   newDeck = deck.copyWith(cover: coverPath);
 
-  List<Card> newCards = List.empty(growable: true);
-  for (Card card in deck.cards) {
+  List<Card> newCards = List.from(deck.cards);
+
+  for (int i = 0; i < newCards.length; i++) {
     String frontPath = "", backPath = "";
 
-    if (card.frontImage != null && deck.cover!.isNotEmpty) {
-      var imageBytes = await getImageFromWebPath(card.frontImage!);
+    if (newCards[i].frontImage != null && newCards[i].frontImage!.isNotEmpty) {
+      var imageBytes = await getImageFromWebPath(newCards[i].frontImage!);
 
       if (imageBytes.isEmpty) continue;
 
@@ -72,12 +73,12 @@ Future<Deck> updateLocalDeckGivenRemote(Deck deck, {Deck? localDeck}) async {
         isFront: true,
         image: MemoryImage(extension: "jpg", bytes: imageBytes),
         deckId: deck.id,
-        cardId: card.id,
+        cardId: newCards[i].id,
       );
     }
 
-    if (card.backImage != null && deck.cover!.isNotEmpty) {
-      var imageBytes = await getImageFromWebPath(card.backImage!);
+    if (newCards[i].backImage != null && newCards[i].backImage!.isNotEmpty) {
+      var imageBytes = await getImageFromWebPath(newCards[i].backImage!);
 
       if (imageBytes.isEmpty) continue;
 
@@ -85,11 +86,12 @@ Future<Deck> updateLocalDeckGivenRemote(Deck deck, {Deck? localDeck}) async {
         isFront: false,
         image: MemoryImage(extension: "jpg", bytes: imageBytes),
         deckId: deck.id,
-        cardId: card.id,
+        cardId: newCards[i].id,
       );
     }
-
-    newCards.add(card.copyWith(frontImage: frontPath, backImage: backPath));
+    newCards[i] =
+        newCards[i].copyWith(frontImage: frontPath, backImage: backPath);
+    ;
   }
 
   return newDeck.copyWith(cards: newCards);
@@ -107,7 +109,7 @@ Future<Uint8List> getImageFromLocalPath(String? path) async {
 Future<Uint8List> getImageFromWebPath(String path) async {
   try {
     final ByteData imageData =
-        await NetworkAssetBundle(Uri.parse(path)).load("");
+        await NetworkAssetBundle(Uri.parse("$baseUrl/$path")).load("");
     final Uint8List bytes = imageData.buffer.asUint8List();
     return bytes;
   } catch (e) {

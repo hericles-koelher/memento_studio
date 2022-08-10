@@ -99,7 +99,8 @@ class _CardListPageState extends State<CardListPage> {
                           setState(() {
                             deck.cards.removeAt(index);
 
-                            _collectionCubit.updateDeck(deck);
+                            _collectionCubit.updateDeck(deck.copyWith(
+                                lastModification: DateTime.now()));
                           });
                         },
                       ),
