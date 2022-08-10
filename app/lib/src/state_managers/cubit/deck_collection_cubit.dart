@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:memento_studio/src/entities.dart';
@@ -68,6 +70,22 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
 
   Future<void> deleteDeck(String id) async {
     int deckStorageId = await _repository.findStorageId(id);
+
+    var deck = await _repository.read(deckStorageId) as LocalDeck;
+
+    if (deck.cover != null && deck.cover!.isNotEmpty) {
+      File(deck.cover!).delete();
+    }
+
+    deck.cards?.forEach((card) {
+      if (card.frontImage != null && card.frontImage!.isNotEmpty) {
+        File(card.frontImage!).delete();
+      }
+
+      if (card.backImage != null && card.backImage!.isNotEmpty) {
+        File(card.backImage!).delete();
+      }
+    });
 
     var result = await _repository.delete(deckStorageId);
 
