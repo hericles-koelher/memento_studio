@@ -8,7 +8,6 @@ import (
 
 const (
 	imagesDirKey = "IMAGES_FILE_PATH"
-	baseRoute    = "http://localhost:8080/"
 )
 
 func UploadFile(file []byte, folderName, filename string) (string, error) {
@@ -60,11 +59,5 @@ func GetImagesFilePath() string {
 }
 
 func GetImageRoute(folderName, filename string) string {
-	var route = baseRoute
-
-	if value, ok := os.LookupEnv("BASE_ROUTE"); ok { // in container
-		route = value
-	}
-
-	return route + "image/" + folderName + "/" + filename
+	return "image/" + folderName + "/" + filename
 }
