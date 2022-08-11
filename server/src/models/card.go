@@ -1,9 +1,9 @@
 package models
 
 type Card struct {
-	FrontText      string `json:"frontText" bson:"frontText,omitempty"`
-	BackText       string `json:"backText" bson:"backText,omitempty"`
-	FrontImagePath string `json:"frontImagePath" bson:"frontImagePath,omitempty"`
-	BackImagePath  string `json:"backImagePath" bson:"backImagePath,omitempty"`
-	UUID           string
+	FrontText      string `json:"frontText" bson:"frontText"`
+	BackText       string `json:"backText" bson:"backText"`
+	FrontImagePath string `json:"frontImagePath" bson:"frontImagePath"`
+	BackImagePath  string `json:"backImagePath" bson:"backImagePath"`
+	UUID           string `json:"uuid" bson:"uuid"`
 }
