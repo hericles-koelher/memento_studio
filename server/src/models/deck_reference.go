@@ -1,5 +1,6 @@
 package models
 
+// Referência de baralho. Criada quando um baralho é público, para ser acessada por outros usuários.
 type DeckReference struct {
 	Cover         string   `bson:"cover"`
 	Description   string   `bson:"description"`

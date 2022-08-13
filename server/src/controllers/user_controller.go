@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Handler da requisição de método POST na rota 'api/users'. Cria um usuário a partir do ID gerado a partir do token do header da requisição.
+// Se o usuário já existe, não faz nada. A resposta da requisição é o usuário criado ou encontrado no banco.
 func CreateUser(ginContext *gin.Context) {
 	userRepo, ok := ginContext.MustGet("userRepository").(interfaces.UserRepository)
 
@@ -51,6 +53,9 @@ func CreateUser(ginContext *gin.Context) {
 	}
 }
 
+// Handler da requisição de método DELETE na rota 'api/users'. Deleta o usuário que fez a requisição.
+// Além disso, deleta todos os baralhos, referência de baralho e imagens.
+// A resposta da requisição é vazia.
 func DeleteUser(ginContext *gin.Context) {
 	userRepo, okUser := ginContext.MustGet("userRepository").(interfaces.UserRepository)
 	deckRepo, okDeck := ginContext.MustGet("deckRepository").(interfaces.DeckRepository)
@@ -88,6 +93,8 @@ func DeleteUser(ginContext *gin.Context) {
 	}
 }
 
+// Handler da requisição de método GET na rota 'api/users'. Retorna o usuário em questão contendo UUID,
+// última sincronização e lista de ids de bralhos que possui.
 func GetUser(ginContext *gin.Context) {
 	userRepo, ok := ginContext.MustGet("userRepository").(interfaces.UserRepository)
 

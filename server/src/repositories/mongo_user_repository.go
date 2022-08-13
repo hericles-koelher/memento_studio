@@ -11,10 +11,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// Repositório de usuário. Contém uma coleção do mongo.
 type MongoUserRepository struct {
 	collection *mongo.Collection
 }
 
+// Gera um novo 'MongoUserRepository' a partir de uma coleção do mongo. O repositório implementa
+// a interface 'UserRepository'.
 func NewMongoUserRepository(collection *mongo.Collection) interfaces.UserRepository {
 	repository := new(MongoUserRepository)
 
@@ -23,6 +26,7 @@ func NewMongoUserRepository(collection *mongo.Collection) interfaces.UserReposit
 	return repository
 }
 
+// Salva no banco de dados um novo usuário a partir de um 'User'. Retorna um 'RepositoryError', que pode ser nil.
 func (repository MongoUserRepository) Create(user *models.User) *ms_errors.RepositoryError {
 	_, err := repository.collection.InsertOne(
 		context.TODO(),
@@ -56,6 +60,7 @@ func (repository MongoUserRepository) Create(user *models.User) *ms_errors.Repos
 	return nil
 }
 
+// Retorna um usuário a partir de um id. Também retorna um 'RepositoryError', que pode ser nil.
 func (repository MongoUserRepository) Read(uuid string) (*models.User, *ms_errors.RepositoryError) {
 	user := new(models.User)
 
@@ -86,6 +91,7 @@ func (repository MongoUserRepository) Read(uuid string) (*models.User, *ms_error
 	return user, nil
 }
 
+// Atualiza os baralhos de um usuário, dado um id de usuário e uma lista de ids. Retorna um 'RepositoryError', que pode ser nil.
 func (repository MongoUserRepository) UpdateDecks(uuid string, decks []string) *ms_errors.RepositoryError {
 	queryUpdate := bson.M{"$set": bson.M{"decks": decks}}
 
@@ -117,6 +123,7 @@ func (repository MongoUserRepository) UpdateDecks(uuid string, decks []string) *
 	return nil
 }
 
+// Deleta um usuário, dado um id. Retorna um 'RepositoryError', que pode ser nil.
 func (repository MongoUserRepository) Delete(uuid string) *ms_errors.RepositoryError {
 	_, err := repository.collection.DeleteOne(
 		context.TODO(),

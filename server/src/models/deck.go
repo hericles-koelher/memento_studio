@@ -1,5 +1,6 @@
 package models
 
+// Baralho
 type Deck struct {
 	Cards            []Card   `json:"cards" bson:"cards"`
 	Cover            string   `json:"cover" bson:"cover"`

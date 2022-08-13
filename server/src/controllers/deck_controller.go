@@ -22,7 +22,9 @@ import (
 
 type fileBytes []byte
 
-// Deleta baralhos a partir de uma lista recebida
+// Handler da requisição de método DELETE na rota 'api/decks'. Deleta baralhos de um usuário a partir de uma
+// lista de ids recebida na requisição. Deleta também a referência pública desse baralho e atualiza lista de baralhos do usuário.
+// A resposta da requisição é um json com uma mensagem de sucesso e os ids dos baralhos deletados.
 func DeleteDeck(context *gin.Context) {
 	// Get repositories
 	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
@@ -85,6 +87,15 @@ func DeleteDeck(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Decks with ids %s have been deleted", ids)})
 }
 
+// Handler da requisição de método POST na rota 'api/decks'. Atualiza ou cria um baralho no servidor e salva no banco
+// de dados.
+//
+// O body da requisição deve ser do tipo 'multipart-form' com os campos 'deck' contendo o json do baralho,
+// 'deck-image' com os bytes da imagem de capa do baralho, 'card-front-{id}' e 'card-back-{id}' com os bytes da imagem de
+// frente e verso de uma carta, respectivamente, para cada carta do baralho, onde {id} é o id da carta. Apenas o campo 'deck'
+// é obrigatório.
+//
+// A resposta da requisição é o baralho atualizado com as rotas das imagens.
 func PostDecks(context *gin.Context) {
 	// Get repositories
 	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
@@ -215,6 +226,8 @@ func PostDecks(context *gin.Context) {
 	context.JSON(http.StatusOK, deck)
 }
 
+// Handler da requisição de método GET na rota 'api/decks'. Retorna os baralhos do usuário.
+// O body da requisição é um json com os campos 'limit' e 'page' para a paginação.
 func GetDecks(context *gin.Context) {
 	// Get repositories
 	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
@@ -261,6 +274,9 @@ func GetDecks(context *gin.Context) {
 	context.JSON(http.StatusOK, decksResult)
 }
 
+// Handler da requisição de método POST na rota 'api/decks/copy/{id}'. Faz a cópia do baralho com id
+// passado como parâmetro na rota, se ele for público, adicionando-o na coleção de baralhos do usuário.
+// A resposta é a cópia do baralho gerada.
 func CopyDeck(context *gin.Context) {
 	// Get repositories
 	deckRepository, okDeck := context.MustGet("deckRepository").(DeckRepository)
