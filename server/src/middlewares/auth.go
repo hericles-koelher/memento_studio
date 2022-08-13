@@ -9,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Middleware de autenticação. Pega o token contido no cabeçalho da requisição em 'Authorization', verifica o ID
+// do usuário em questão e adiciona no contexto para ser utilizado pelos handlers das requisições.
 func AuthMiddleware(ginContext *gin.Context) {
 	firebaseAuth := ginContext.MustGet("auth").(*auth.Client)
 

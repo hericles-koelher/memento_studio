@@ -3,12 +3,15 @@ package controllers
 import (
 	"net/http"
 	"server/src/repositories/interfaces"
-	"strconv"
 	"server/src/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
+// Handler da requisição de método GET na rota 'api/decksReference'. Retorna uma lista de referẽncia de baralhos públicos.
+// A rota possui query 'limit' e 'page' para paginação. O body pode conter um json com o filtro de busca por nome e/ou tags
+// seguindo o padrão de query do mongodb. Essa rota não precisa de autenticação.
 func ReadAllDeckReference(ginContext *gin.Context) {
 	deckReferenceRepo, ok := ginContext.MustGet("deckReferenceRepository").(interfaces.DeckReferenceRepository)
 
@@ -61,6 +64,8 @@ func ReadAllDeckReference(ginContext *gin.Context) {
 	}
 }
 
+// Handler da requisição de método GET na rota 'api/decksReference/{id}'. Retorna o baralho público do id especificado na rota.
+// Essa rota não precisa de autenticação.
 func GetPublicDeck(ginContext *gin.Context) {
 	deckRepository, ok := ginContext.MustGet("deckRepository").(interfaces.DeckRepository)
 	if !ok {

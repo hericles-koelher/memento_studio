@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// Recebe um erro que foi retornado ao acessar o mongodb  e retorna um 'RepositoryError'
 func HandleError(err error) *ms_errors.RepositoryError {
 	if err != nil {
 		if mongo.IsDuplicateKeyError(err) {

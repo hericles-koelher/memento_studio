@@ -14,15 +14,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// TODO: Mudar o uso de context nesse arquivo. Devemos conversar sobre isso depois...
-
-// TODO: Melhorar todos os tratamentos de erro.
-
+// Repositório de referência de baralho. Contém uma coleção do mongo.
 type MongoDeckReferenceRepository struct {
 	// Só pode ser acessado pelo pacote, pois começa com letra minuscula.
 	coll *mongo.Collection
 }
 
+// Gera um novo 'MongoDeckReferenceRepository' a partir de uma coleção do mongo. O repositório implementa
+// a interface 'DeckReferenceRepository'.
 func NewMongoDeckReferenceRepository(collection *mongo.Collection) interfaces.DeckReferenceRepository {
 	repository := new(MongoDeckReferenceRepository)
 
@@ -31,6 +30,8 @@ func NewMongoDeckReferenceRepository(collection *mongo.Collection) interfaces.De
 	return repository
 }
 
+// Deleta uma referência de baralho do banco de dados a partir um id de baralho.
+// Retorna um 'RepositoryError', que pode ser nil.
 func (repository MongoDeckReferenceRepository) Delete(uuid string) *errors.RepositoryError {
 	_, err := repository.coll.DeleteOne(
 		context.TODO(),
@@ -46,6 +47,8 @@ func (repository MongoDeckReferenceRepository) Delete(uuid string) *errors.Repos
 	}
 }
 
+// Insere ou atualiza uma referência de baralho a partir de uma instância do tipo 'DeckReference'.
+// Retorna a referência criada ou atualizada, além de um booleano indicando se foi atualizado e um 'RepositoryError' que pode ser nil.
 func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *models.DeckReference) (*models.DeckReference, bool, *errors.RepositoryError) {
 
 	// Flag que indica que caso o baralho não exista, então ele será inserido...
@@ -67,6 +70,8 @@ func (repository MongoDeckReferenceRepository) InsertOrUpdate(deckReference *mod
 	}
 }
 
+// Lê uma referência de baralho do banco de dados a partir de um id de baralho.
+// Retorna a referência de baralho recuperada do banco e um 'RepositoryError' que pode ser nil.
 func (repository MongoDeckReferenceRepository) Read(uuid string) (*models.DeckReference, *errors.RepositoryError) {
 	result := new(models.DeckReference)
 
@@ -82,6 +87,8 @@ func (repository MongoDeckReferenceRepository) Read(uuid string) (*models.DeckRe
 	}
 }
 
+// Retorna uma lista de referências de baralho dado um limite, uma página e um filtro, respectivamente.
+// Além disso, retorna um 'RepositoryError' que pode ser nil.
 func (repository MongoDeckReferenceRepository) ReadAll(limit, page int, filter interface{}) ([]models.DeckReference, *errors.RepositoryError) {
 	result := []models.DeckReference{}
 

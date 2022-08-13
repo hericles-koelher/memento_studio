@@ -14,15 +14,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// TODO: Mudar o uso de context nesse arquivo. Devemos conversar sobre isso depois...
-
-// TODO: Melhorar todos os tratamentos de erro.
-
+// Repositório de de baralho. Contém uma coleção do mongo.
 type MongoDeckRepository struct {
 	// Só pode ser acessado pelo pacote, pois começa com letra minuscula.
 	coll *mongo.Collection
 }
 
+// Gera um novo 'MongoDeckRepository' a partir de uma coleção do mongo. O repositório implementa
+// a interface 'DeckRepository'.
 func NewMongoDeckRepository(collection *mongo.Collection) interfaces.DeckRepository {
 	repository := new(MongoDeckRepository)
 
@@ -31,6 +30,8 @@ func NewMongoDeckRepository(collection *mongo.Collection) interfaces.DeckReposit
 	return repository
 }
 
+// Deleta um baralho do banco de dados a partir um id de baralho.
+// Retorna um 'RepositoryError', que pode ser nil.
 func (repository *MongoDeckRepository) Delete(uuid string) *ms_errors.RepositoryError {
 	_, err := repository.coll.DeleteOne(
 		context.TODO(),
@@ -40,6 +41,8 @@ func (repository *MongoDeckRepository) Delete(uuid string) *ms_errors.Repository
 	return mongoutils.HandleError(err)
 }
 
+// Insere ou atualiza um baralho a partir de uma instância do tipo 'Deck'.
+// Retorna o baralho criado ou atualizado, além de um booleano indicando se foi atualizado e um 'RepositoryError' que pode ser nil.
 func (repository MongoDeckRepository) InsertOrUpdate(deck *models.Deck) (*models.Deck, bool, *ms_errors.RepositoryError) {
 	// Flag que indica que caso o baralho não exista, então ele será inserido...
 	upsert := true
@@ -54,6 +57,8 @@ func (repository MongoDeckRepository) InsertOrUpdate(deck *models.Deck) (*models
 	return deck, updateResult.MatchedCount == 0, mongoutils.HandleError(err)
 }
 
+// Lê um baralho do banco de dados a partir de um id de baralho.
+// Retorna o baralho recuperada do banco e um 'RepositoryError', que pode ser nil.
 func (repository MongoDeckRepository) Read(uuid string) (*models.Deck, *ms_errors.RepositoryError) {
 	result := new(models.Deck)
 
@@ -65,6 +70,8 @@ func (repository MongoDeckRepository) Read(uuid string) (*models.Deck, *ms_error
 	return result, mongoutils.HandleError(err)
 }
 
+// Retorna uma lista de baralhos dado uma lista de ids, limite e uma página, respectivamente.
+// Além disso, retorna um 'RepositoryError', que pode ser nil.
 func (repository MongoDeckRepository) ReadAll(uuids []string, limit, page int) ([]models.Deck, *ms_errors.RepositoryError) {
 	result := make([]models.Deck, 0)
 

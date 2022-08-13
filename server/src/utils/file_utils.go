@@ -10,9 +10,10 @@ const (
 	imagesDirKey = "IMAGES_FILE_PATH"
 )
 
+// Salva uma imagem em uma dada pasta com um dado nome. Retorna o caminho da imagem e um erro, caso algo dê errado.
 func UploadFile(file []byte, folderName, filename string) (string, error) {
-	var imageFilepath = GetImageRoute(folderName, filename)
-	var imagesDir = GetImagesFilePath()
+	var imageFilepath = getImageRoute(folderName, filename)
+	var imagesDir = getImagesFilePath()
 
 	os.Mkdir(imagesDir+"/"+folderName, 0755)
 
@@ -24,12 +25,13 @@ func UploadFile(file []byte, folderName, filename string) (string, error) {
 	return imageFilepath, nil
 }
 
+// Remove um arquivo dado o nome dele e a pasta. Retorna um erro, caso algo dê errado.
 func RemoveFile(filename, folderName string) error {
 	if !strings.Contains(filename, folderName) {
 		return nil
 	}
 
-	var imagesDir = GetImagesFilePath()
+	var imagesDir = getImagesFilePath()
 
 	absPath, _ := filepath.Abs(imagesDir + folderName + "/" + filename)
 
@@ -38,8 +40,9 @@ func RemoveFile(filename, folderName string) error {
 	return err
 }
 
+// Apaga uma pasta com um dado nome. Retorna um erro, caso algo dê errado.
 func RemoveFolder(folder string) error {
-	var imagesDir = GetImagesFilePath()
+	var imagesDir = getImagesFilePath()
 
 	absPath, _ := filepath.Abs(imagesDir + folder)
 
@@ -48,7 +51,7 @@ func RemoveFolder(folder string) error {
 	return err
 }
 
-func GetImagesFilePath() string {
+func getImagesFilePath() string {
 	var imagesDir = "../../public/" // for tests
 
 	if value, ok := os.LookupEnv(imagesDirKey); ok { // in container
@@ -58,6 +61,6 @@ func GetImagesFilePath() string {
 	return imagesDir
 }
 
-func GetImageRoute(folderName, filename string) string {
+func getImageRoute(folderName, filename string) string {
 	return "image/" + folderName + "/" + filename
 }

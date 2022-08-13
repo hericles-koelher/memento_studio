@@ -1,5 +1,6 @@
 package models
 
+// Carta de um baralho
 type Card struct {
 	FrontText      string `json:"frontText" bson:"frontText"`
 	BackText       string `json:"backText" bson:"backText"`
