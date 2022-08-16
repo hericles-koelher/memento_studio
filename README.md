@@ -74,7 +74,17 @@ godoc -http=:6060 --goroot $PWD/server
 
 ```
 
-E abra o navegador em [`localhost:6060/pkg`](http://localhost:6060/pkg)
+E abra o navegador em [`localhost:6060/pkg`](http://localhost:6060/pkg).
+
+Para gerar e visualizar a documentação do frontend, feita com [Dartdoc](https://pub.dev/packages/dartdoc), execute os comandos:
+
+```sh
+cd app
+dart doc . # gera a documentação
+dart pub global activate dhttpd
+dhttpd --path doc/api -p 7070
+```
+E abra o navegador em [`localhost:7070`](http://localhost:7070)
 
 ## Autores
 
