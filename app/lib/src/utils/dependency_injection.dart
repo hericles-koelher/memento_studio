@@ -16,6 +16,8 @@ import '../../firebase_options.dart';
 import '../state_managers.dart';
 import '../utils.dart';
 
+/// {@category Utils}
+/// Injeta dependências no container [KiwiContainer]
 Future<void> injectDependencies() async {
   var kiwi = KiwiContainer();
 

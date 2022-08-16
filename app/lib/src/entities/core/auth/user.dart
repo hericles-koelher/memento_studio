@@ -3,6 +3,8 @@ import 'package:memento_studio/src/entities.dart';
 
 part 'user.g.dart';
 
+/// {@category Entidades}
+/// Modelo de usuário utilizaod no core da aplicação
 @CopyWith()
 class User {
   final String id;

@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:memento_studio/src/entities.dart';
 import 'package:memento_studio/src/utils.dart';
 
+/// {@category Utils}
+/// Dado um baralho com caminhos de imagem local, retorna um mapa com os bytes de cada imagem.
 Future<Map<String, Uint8List?>> getMapOfImages(Deck deck) async {
   Map<String, Uint8List?> images = <String, Uint8List?>{};
 
@@ -34,6 +36,10 @@ Future<Map<String, Uint8List?>> getMapOfImages(Deck deck) async {
   return images;
 }
 
+/// {@category Utils}
+/// Dado um baralho com caminhos de imagem na web, baixa imagem e salva localmente, retornando
+/// um baralho com caminhos de imagem local. Se for uma atualização de um baralho que já existe,
+/// deve-se passar o baralho local também.
 Future<Deck> updateLocalDeckGivenRemote(Deck deck, {Deck? localDeck}) async {
   Deck newDeck = deck.copyWith();
 
@@ -97,6 +103,8 @@ Future<Deck> updateLocalDeckGivenRemote(Deck deck, {Deck? localDeck}) async {
   return newDeck.copyWith(cards: newCards);
 }
 
+/// {@category Utils}
+/// Pega bytes de imagem salva localmente
 Future<Uint8List> getImageFromLocalPath(String? path) async {
   try {
     var bytes = await io.File(path!).readAsBytes();
@@ -106,6 +114,8 @@ Future<Uint8List> getImageFromLocalPath(String? path) async {
   }
 }
 
+/// {@category Utils}
+/// Pega bytes de imagem da internet
 Future<Uint8List> getImageFromWebPath(String path) async {
   try {
     final ByteData imageData =

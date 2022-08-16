@@ -1,5 +1,7 @@
 import 'package:memento_studio/src/entities.dart';
 
+/// {@category Repositórios}
+/// Converte baralho do modelo da API para o modelo utilizado na aplicação e vice versa.
 class ApiDeckAdapter {
   Deck toCore(ApiDeck deck) {
     return Deck(

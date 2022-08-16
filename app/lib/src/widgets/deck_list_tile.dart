@@ -6,6 +6,8 @@ import 'package:memento_studio/src/utils.dart';
 
 import '../utils.dart';
 
+/// {@category Widgets}
+/// Referência de baralho exibida na lista da página de explorar baralhos.
 class DeckListTile extends StatelessWidget {
   final DeckReference deck;
   const DeckListTile({Key? key, required this.deck}) : super(key: key);

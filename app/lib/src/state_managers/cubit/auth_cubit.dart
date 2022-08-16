@@ -12,6 +12,8 @@ import '../../entities.dart' as ms_entities;
 
 part 'auth_state.dart';
 
+/// {@category Gerenciamento de estado}
+/// Gerenciador de estado de autenticação.
 class AuthCubit extends Cubit<AuthState> {
   final FirebaseAuth _auth;
   StreamSubscription? _userStreamSubscription;
@@ -118,6 +120,7 @@ class AuthCubit extends Cubit<AuthState> {
     return super.close();
   }
 
+  /// Deleta uma conta no Firebase e no servidor
   Future<void> deleteAccount(ms_entities.Credential credential) async {
     if (state is Authenticated) {
       try {
@@ -167,6 +170,7 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Desloga usuário
   Future<void> signOut() async {
     if (state is Authenticated) {
       emit(LogoutLoading((state as Authenticated).user));
@@ -179,6 +183,7 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Atualiza token quando expirado
   Future<void> refreshToken() async {
     if (state is Authenticated) {
       emit(
@@ -191,6 +196,7 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Loga com uma [ms_entities.Credential]
   Future<void> signInWithCredential(ms_entities.Credential credential) async {
     try {
       emit(AuthenticationLoading());
@@ -231,6 +237,7 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Login com email
   Future<void> signUpWithEmail({
     required String email,
     required String password,
@@ -252,12 +259,14 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Atualiza nome do usuário
   Future<void> updateName(String? name) async {
     if (state is Authenticated) {
       await _auth.currentUser!.updateDisplayName(name);
     }
   }
 
+  /// Pega token atual de autenticação
   String? getToken() {
     if (state is Authenticated) {
       return (state as Authenticated).user.token;
@@ -265,6 +274,4 @@ class AuthCubit extends Cubit<AuthState> {
 
     return null;
   }
-
-  // TODO: codificar updateEmail e updatePassword e configurar o firebase para tal...
 }

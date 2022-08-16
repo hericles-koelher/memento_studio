@@ -3,6 +3,8 @@ import 'package:memento_studio/src/entities.dart';
 
 part 'api_deck.g.dart';
 
+/// {@category Entidades}
+/// Modelo de baralho recebido pela API
 @JsonSerializable()
 class ApiDeck {
   @JsonKey(name: 'UUID')

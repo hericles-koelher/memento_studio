@@ -5,7 +5,7 @@
 // See also https://docs.objectbox.io/getting-started#generate-objectbox-code
 
 // ignore_for_file: camel_case_types
-
+/// @nodoc
 import 'dart:typed_data';
 
 import 'package:flat_buffers/flat_buffers.dart' as fb;

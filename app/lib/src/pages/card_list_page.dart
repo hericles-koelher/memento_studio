@@ -9,6 +9,8 @@ import '../entities.dart' as ms_entities;
 import '../state_managers.dart';
 import '../utils.dart' as utils;
 
+/// {@category Páginas}
+/// Página de gerência de cartas: listagem, edição, inserção e deleção.
 class CardListPage extends StatefulWidget {
   final String deckId;
 

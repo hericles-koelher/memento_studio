@@ -1,5 +1,8 @@
 import 'package:objectbox/objectbox.dart';
 
+/// {@category Entidades}
+/// Modelo de lista de baralho deletado utilizado no armazenamento
+/// local para a sincronização de baralhos deletados no servidor
 @Entity()
 class DeletedDeckList {
   @Id()

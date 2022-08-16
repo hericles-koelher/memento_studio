@@ -14,6 +14,8 @@ import 'package:memento_studio/src/utils.dart';
 import 'package:memento_studio/src/widgets.dart';
 import 'package:uuid/uuid.dart';
 
+/// {@category Páginas}
+/// Página de visualizar um baralho local.
 class DeckPage extends StatefulWidget {
   final String deckId;
 

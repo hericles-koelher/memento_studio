@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memento_studio/src/utils.dart';
 
+/// {@category Utils}
+/// Tema da aplicação
 abstract class MSTheme {
   static const lightPurple = Color(0xFFD0B2FF);
   static const darkPurple = Color(0xFF54318C);

@@ -11,7 +11,8 @@ import 'package:meta/meta.dart';
 
 part 'deck_collection_state.dart';
 
-// TODO: Realizar alteração dos baralhos por esse cubit...
+/// {@category Gerenciamento de estado}
+/// Gerenciador de estado de baralhos do usuário. Responsável pela reatividade da aplicação.
 class DeckCollectionCubit extends Cubit<DeckCollectionState> {
   final LocalDeckRepository _repository;
   final DeckRepositoryInterface _apiRepo;
@@ -32,6 +33,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
         _deletedDeckListRepository = deletedDeckListRepository,
         super(InitialDeckCollection());
 
+  /// Em uma lista infinita, carrega [n] mais baralhos
   Future<void> loadMore(int n) async {
     var localDeckList = await _repository.readAll(n, state.count);
 
@@ -46,6 +48,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     }
   }
 
+  /// Cria baralho localmente e atualiza estado
   Future<void> createDeck(Deck deck) async {
     await _repository.create(_adapter.toLocal(deck));
 
@@ -60,12 +63,14 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     emit(ExpansiveDeckCollection(coreDeckList));
   }
 
+  /// Atualiza baralho localmente e atualiza estado
   Future<void> updateDeck(Deck deck) async {
     await _repository.update(_adapter.toLocal(deck));
 
     await _reloadCollection();
   }
 
+  /// Deleta baralho localmente e atualiza estado
   Future<void> deleteDeck(String id) async {
     int deckStorageId = await _repository.findStorageId(id);
 
@@ -92,6 +97,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     }
   }
 
+  /// Copia baralho localmente e atualiza estado
   Future<int> copyDeck(Deck deck) async {
     var localDeck = _adapter.toLocal(deck) as LocalDeck;
     await _repository.create(localDeck);
@@ -104,6 +110,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     return localDeck.storageId;
   }
 
+  /// Sincronização dos baralhos
   Future<void> syncDecks() async {
     // Deleta baralhos do servidor que foram deletados localmente
     emit(LoadingDeckCollection(state.decks));
@@ -131,7 +138,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     decksFromServer = (result as Success).value;
 
     // Merge de baralhos
-    await mergeDecks(decksFromServer, state.decks);
+    await _mergeDecks(decksFromServer, state.decks);
 
     // Limpa lista de baralhos deletados
     await _deletedDeckListRepository.clearList();
@@ -140,7 +147,8 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
   }
 
   // Aux
-  Future<void> mergeDecks(List<Deck> serverDecks, List<Deck> localDecks) async {
+  Future<void> _mergeDecks(
+      List<Deck> serverDecks, List<Deck> localDecks) async {
     for (Deck lDeck in localDecks) {
       if (lDeck.cover != null && lDeck.cover!.isEmpty) {
         lDeck = lDeck.copyWith(cover: null);
@@ -192,6 +200,7 @@ class DeckCollectionCubit extends Cubit<DeckCollectionState> {
     }
   }
 
+  /// Deleta todos os baralhos do usuário
   Future<void> clear() async {
     await _repository.clear();
 

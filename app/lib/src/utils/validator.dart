@@ -1,3 +1,5 @@
+/// {@category Utils}
+/// Validador de strings: email e e username
 abstract class Validator {
   static final _emailRegex = RegExp(
     r"^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$",

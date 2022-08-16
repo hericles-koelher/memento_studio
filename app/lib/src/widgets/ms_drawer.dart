@@ -9,6 +9,8 @@ import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/utils.dart';
 
+/// {@category Widgets}
+/// Drawer
 class MSDrawer extends StatelessWidget {
   const MSDrawer({Key? key}) : super(key: key);
 

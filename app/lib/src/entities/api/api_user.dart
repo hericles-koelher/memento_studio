@@ -2,6 +2,8 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'api_user.g.dart';
 
+/// {@category Entidades}
+/// Modelo de usuário recebido pela API
 @JsonSerializable()
 class ApiUser {
   @JsonKey(name: 'UUID')

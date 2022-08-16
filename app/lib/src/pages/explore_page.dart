@@ -13,6 +13,8 @@ import 'package:memento_studio/src/utils.dart';
 import 'package:memento_studio/src/widgets.dart';
 import 'package:memento_studio/src/widgets/textfield_tags.dart';
 
+/// {@category Páginas}
+/// Página de descobrir baralhos públicos. Exibe uma lista de baralhos públicos e provê um mecanismo de busca por nome e tag.
 class ExplorePage extends StatefulWidget {
   const ExplorePage({Key? key}) : super(key: key);
 

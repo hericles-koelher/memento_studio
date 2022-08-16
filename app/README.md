@@ -1,16 +1,8 @@
-# memento_studio
+# Memento Studio
 
-A new Flutter project.
+Memento Studio (“Lembre-se de Estudar” em latim) é um aplicativo de flash cards que visa auxiliar estudantes em suas jornadas de estudo. A ideia é que o aplicativo permita que os usuários criem/busquem baralhos e possam utilizá-los para treinar/reforçar suas memórias acerca de um conteúdo alvo.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<p align="middle">
+  <img src="https://user-images.githubusercontent.com/42984505/184510631-9c33c143-56e4-4649-b24f-45dff3556a4f.jpg" width="250" hspace="20" />
+  <img src="https://user-images.githubusercontent.com/42984505/184510634-13532544-e1c3-485e-8246-b6ce8ab31bc6.jpg" width="250" hspace="20"/> 
+</p>

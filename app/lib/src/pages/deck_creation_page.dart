@@ -15,6 +15,8 @@ import 'package:uuid/uuid.dart';
 
 import '../utils.dart' as utils;
 
+/// {@category Páginas}
+/// Página de criação de um baralho.
 class DeckCreationPage extends StatefulWidget {
   const DeckCreationPage({Key? key}) : super(key: key);
 

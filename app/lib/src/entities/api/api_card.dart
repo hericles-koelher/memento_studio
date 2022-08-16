@@ -3,6 +3,8 @@ import 'package:memento_studio/src/entities.dart';
 
 part 'api_card.g.dart';
 
+/// {@category Entidades}
+/// Modelo de carta recebido pela API
 @JsonSerializable()
 class ApiCard {
   @JsonKey(name: 'uuid')

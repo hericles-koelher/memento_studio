@@ -5,6 +5,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memento_studio/src/utils.dart';
 import '../entities.dart' as ms_entities;
 
+/// {@category Widgets}
+/// Card que é exibido na listagem de cartas para criação e edição.
 class CardListTile extends StatelessWidget {
   final ms_entities.Card _card;
   final VoidCallback _onEdit;

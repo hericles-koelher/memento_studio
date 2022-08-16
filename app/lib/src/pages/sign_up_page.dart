@@ -7,6 +7,8 @@ import '../state_managers.dart';
 import '../utils.dart';
 import '../widgets.dart';
 
+/// {@category Páginas}
+/// Página de cadastro via email e senha.
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
 

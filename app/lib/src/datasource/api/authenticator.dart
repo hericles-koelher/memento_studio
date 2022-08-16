@@ -4,6 +4,8 @@ import 'package:chopper/chopper.dart';
 import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/state_managers.dart';
 
+/// {@category Comunicação com a API}
+/// Intercepta uma requisição para adicionar o token do usuário.
 class AuthRequestInterceptor extends RequestInterceptor {
   @override
   FutureOr<Request> onRequest(Request request) {
@@ -14,6 +16,9 @@ class AuthRequestInterceptor extends RequestInterceptor {
   }
 }
 
+/// {@category Comunicação com a API}
+/// Trata caso de resposta de requisição com status code Unauthorized. Faz refresh token e
+/// tenta 3 vezes reenviar a requisição.
 class MSAuthenticator extends Authenticator {
   static const int MAX_ATTEMPTS = 3;
   static int attempts = 0;

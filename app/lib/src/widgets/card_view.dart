@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:memento_studio/src/utils.dart';
 import 'package:memento_studio/src/widgets.dart';
 
+/// {@category Widgets}
+/// Carta que aparece na tela de estudos.
 class CardView extends StatelessWidget {
   final String? text;
   final String? imagePath;
