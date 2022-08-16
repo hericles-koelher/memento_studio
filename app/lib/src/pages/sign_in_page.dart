@@ -11,7 +11,8 @@ import 'package:memento_studio/src/utils.dart';
 
 import '../widgets.dart';
 
-// TODO: Salvar o endereço de email em algum local caso usuário selecione essa opção...
+/// {@category Páginas}
+/// Página de autenticação do usuário. O usuário pode logar via Facebook, Google e o clássico email e senha.
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key}) : super(key: key);
 

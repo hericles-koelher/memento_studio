@@ -7,6 +7,7 @@ import 'package:memento_studio/src/utils.dart';
 
 import 'package:logging/logging.dart';
 
+/// @nodoc
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -31,6 +32,7 @@ class MementoStudio extends StatefulWidget {
   State<MementoStudio> createState() => _MementoStudioState();
 }
 
+/// @nodoc
 class _MementoStudioState extends State<MementoStudio> {
   final MSRouter _msRoutes;
   final DeckCollectionCubit _collectionCubit;

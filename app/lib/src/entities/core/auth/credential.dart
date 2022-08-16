@@ -1,3 +1,5 @@
+/// {@category Entidades}
+/// Credencial utilizada no login
 abstract class Credential {
   static Credential fromEmail({
     required String email,
@@ -18,6 +20,8 @@ abstract class Credential {
   }
 }
 
+/// {@category Entidades}
+/// Credencial do tipo email utilizada no login
 class EmailCredential implements Credential {
   final String email;
   final String password;
@@ -25,12 +29,16 @@ class EmailCredential implements Credential {
   EmailCredential(this.email, this.password);
 }
 
+/// {@category Entidades}
+/// Credencial do tipo Facebook utilizada no login
 class FacebookCredential implements Credential {
   final String accessToken;
 
   FacebookCredential(this.accessToken);
 }
 
+/// {@category Entidades}
+/// Credencial do tipo Google utilizada no login
 class GoogleCredential implements Credential {
   final String? accessToken;
   final String? idToken;

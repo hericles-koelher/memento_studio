@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:chopper/chopper.dart';
 
+/// {@category Comunicação com a API}
+/// Classe reponsável por converter uma resposta da API
 class JsonToTypeConverter extends JsonConverter {
   final Map<Type, Function> typeToJsonFactoryMap;
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// {@category Widgets}
+/// Textfield com opção de adicionar tags
 class TextFieldTags extends StatelessWidget {
   final List<String> tags;
   void Function(String, List<String>) onSearchAction;
@@ -49,6 +51,8 @@ class TextFieldTags extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   itemCount: tags.length,
                   itemBuilder: (_, index) => Chip(
+                    backgroundColor:
+                        Colors.accents[index % Colors.accents.length].shade100,
                     label: Text(tags[index]),
                     onDeleted: () {
                       if (onDeleteTag != null) onDeleteTag!(tags[index]);

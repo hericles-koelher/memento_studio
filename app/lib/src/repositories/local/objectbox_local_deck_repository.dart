@@ -5,12 +5,15 @@ import 'package:memento_studio/src/utils.dart';
 
 import '../../../objectbox.g.dart';
 
+/// {@category Repositórios}
+/// Repositório de baralhos locais
 class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
   final Box<LocalDeck> _deckBox;
 
   ObjectBoxLocalDeckRepository(ObjectBox objectBox)
       : _deckBox = objectBox.store.box<LocalDeck>();
 
+  /// Salva um novo baralho localmente
   @override
   Future<void> create(covariant LocalDeck deck) async {
     if (deck.storageId != 0) {
@@ -23,14 +26,17 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
     }
   }
 
+  /// Retorna a quantidade de baralhos salvos localmente
   @override
   Future<int> count() async => _deckBox.count();
 
+  /// Deleta um baralho salvo localmente
   @override
   Future<bool> delete(int storageId) async {
     return _deckBox.remove(storageId);
   }
 
+  /// Encontra o id do banco de dados de um baralho, dado o id do core da aplicação
   @override
   Future<int> findStorageId(String coreId) async {
     var query = _deckBox.query(LocalDeck_.id.equals(coreId)).build();
@@ -49,6 +55,7 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
     }
   }
 
+  /// Lê um baralho salvo localmente
   @override
   Future<LocalDeckBase> read(int storageId) async {
     var nulableDeck = _deckBox.get(storageId);
@@ -64,6 +71,7 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
     }
   }
 
+  /// Lê todos os baralhos salvos localmente
   @override
   Future<List<LocalDeck>> readAll(int limit, int offset) async {
     Query<LocalDeck> query = (_deckBox.query()
@@ -82,6 +90,7 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
     return result;
   }
 
+  /// Atualiza um baralho salvo
   @override
   Future<void> update(covariant LocalDeck deck) async {
     deck.storageId = await findStorageId(deck.id);
@@ -102,6 +111,7 @@ class ObjectBoxLocalDeckRepository implements LocalDeckRepository {
     }
   }
 
+  /// Apaga todos os baralhos do usuário salvos localmente
   @override
   Future<void> clear() async {
     _deckBox.removeAll();

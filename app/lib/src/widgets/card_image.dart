@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memento_studio/src/utils.dart';
 
+/// {@category Widgets}
+/// Imagem de card que é exibido na página de estudos.
 class CardImage extends StatelessWidget {
   final String? imagePath;
 

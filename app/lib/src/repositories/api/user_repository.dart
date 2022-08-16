@@ -2,11 +2,15 @@ import 'package:memento_studio/src/apis.dart';
 import 'package:memento_studio/src/entities.dart';
 import 'interfaces/user_repository_interface.dart';
 
+/// {@category Repositórios}
+/// Repositório da api de usuário.
 class UserRepository extends UserRepositoryInterface {
+  // Serviço do tipo UserApi
   UserApi api;
 
   UserRepository(this.api);
 
+  /// Lê usuário e trata a resposta da api, convertendo para um modelo do core da aplicação, encapsulado em um [Result]
   @override
   Future<Result<ApiUser>> getUser() async {
     final response = await api.getUser();
@@ -23,6 +27,7 @@ class UserRepository extends UserRepositoryInterface {
     }
   }
 
+  /// Cria usuário e trata a resposta da api, convertendo para um modelo do core da aplicação, encapsulado em um [Result]
   @override
   Future<Result<ApiUser>> createUser() async {
     final response = await api.postUser();
@@ -39,6 +44,7 @@ class UserRepository extends UserRepositoryInterface {
     }
   }
 
+  /// Deleta usuário e trata a resposta da api, convertendo para um modelo do core da aplicação, encapsulado a um [Result]
   @override
   Future<Result> deleteUser() async {
     final response = await api.deleteUser();

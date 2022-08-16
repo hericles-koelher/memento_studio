@@ -1,0 +1,15 @@
+dartdoc:
+  categories:
+    "First Category":
+      name: Awesome
+  categoryOrder: ["First Category"]
+  examplePathPrefix: 'src/'
+  # includeExternal: ['bin/unusually_located_library.dart']
+  nodoc: ['lib/firebase_options.dart', 'lib/main.dart']
+  showUndocumentedCategories: true
+  ignore:
+    - ambiguous-doc-reference
+  errors:
+    - unresolved-doc-reference
+  warnings:
+    - tool-error

@@ -9,6 +9,8 @@ import 'package:uuid/uuid.dart';
 import '../entities.dart' as ms_entities;
 import '../utils.dart' as utils;
 
+/// {@category Widgets}
+/// Modal que aparece de baixo pra cima para criação/edição de baralho ou carta.
 class Modal extends StatefulWidget {
   final ms_entities.Deck deck;
   final ms_entities.Card? card;

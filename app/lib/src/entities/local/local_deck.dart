@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:memento_studio/src/entities.dart';
 import 'package:objectbox/objectbox.dart';
 
+/// {@category Entidades}
+/// Modelo de baralho utilizado no armazenamento local
 @Entity()
 class LocalDeck extends LocalDeckBase {
   @Id()

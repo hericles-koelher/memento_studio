@@ -2,6 +2,8 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'local_card.g.dart';
 
+/// {@category Entidades}
+/// Modelo de carta utilizado no armazenamento local
 @JsonSerializable(fieldRename: FieldRename.pascal)
 class LocalCard {
   final String id;

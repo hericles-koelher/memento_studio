@@ -14,6 +14,8 @@ import '../state_managers.dart';
 import '../utils.dart' as utils;
 import '../widgets.dart';
 
+/// {@category Páginas}
+/// Página de edição de um baralho.
 class DeckEditPage extends StatefulWidget {
   final String deckId;
 

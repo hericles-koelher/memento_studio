@@ -5,7 +5,10 @@ import 'authenticator.dart';
 import 'json_converter.dart';
 import 'package:memento_studio/src/entities.dart';
 
+/// {@category Comunicação com a API}
+/// Classe que cria um cliente [ChopperClient] para comunicação com a API.
 class Api {
+  /// Define os serviços, os interceptors, o autenticador e os converters de resposta.
   static ChopperClient createInstance() {
     return ChopperClient(
         baseUrl: "$baseUrl/api",

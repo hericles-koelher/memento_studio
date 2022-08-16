@@ -2,6 +2,8 @@ import 'package:memento_studio/src/repositories.dart';
 
 import '../../../entities.dart';
 
+/// {@category Repositórios}
+/// Converte baralho do modelo do banco de dados local para o modelo utilizado na aplicação e vice versa.
 class ObjectBoxDeckAdapter implements DeckAdapter {
   @override
   Deck toCore(covariant LocalDeck deck) {

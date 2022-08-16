@@ -3,6 +3,8 @@ import 'package:memento_studio/src/entities.dart';
 
 part 'deck.g.dart';
 
+/// {@category Entidades}
+/// Modelo de baralho utilizado no core da aplicação
 @CopyWith()
 class Deck {
   final String id;

@@ -1,6 +1,7 @@
 import 'package:memento_studio/src/exceptions.dart';
 
-// TODO: Ajustar esses códigos aqui...
+/// {@category Exceptions}
+/// Tipos de código de exceção em uma [MSAuthException]
 enum MSAuthExceptionCode {
   invalidEmail,
   disableAccount,
@@ -15,6 +16,8 @@ enum MSAuthExceptionCode {
   unknown,
 }
 
+/// {@category Exceptions}
+/// Exceção que pode ocorrer durante a autenticação
 class MSAuthException extends MSBaseException {
   final MSAuthExceptionCode code;
 

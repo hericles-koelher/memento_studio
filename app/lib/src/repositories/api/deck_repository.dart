@@ -9,12 +9,15 @@ import 'package:memento_studio/src/entities.dart';
 
 import 'adapters/api_deck_adapter.dart';
 
+/// {@category Repositórios}
+/// Repositório da api de baralho.
 class DeckRepository extends DeckRepositoryInterface {
   final DeckApi _api;
-  final ApiDeckAdapter apiAdapter;
+  final ApiDeckAdapter _apiAdapter;
 
-  DeckRepository(this._api) : apiAdapter = KiwiContainer().resolve();
+  DeckRepository(this._api) : _apiAdapter = KiwiContainer().resolve();
 
+  /// Lê baralhos de usuário e trata a resposta da api, convertendo para um modelo do core da aplicação, encapsulado em um [Result]
   @override
   Future<DeckListResult> getDecks(int page, int pageSize) async {
     Map<String, int> pagination = {'page': page, 'limit': pageSize};
@@ -26,13 +29,14 @@ class DeckRepository extends DeckRepositoryInterface {
     } else {
       final deckApiList = response.body;
       List<Deck> decks =
-          deckApiList?.map((deck) => apiAdapter.toCore(deck)).toList() ??
+          deckApiList?.map((deck) => _apiAdapter.toCore(deck)).toList() ??
               <Deck>[];
 
       return Success(decks);
     }
   }
 
+  /// Salva baralho e trata a resposta da api, convertendo para um modelo do core da aplicação, encapsulado em um [Result]
   @override
   Future<DeckResult> saveDeck(
       Deck newDeck, Map<String, Uint8List?> images) async {
@@ -70,11 +74,12 @@ class DeckRepository extends DeckRepositoryInterface {
         return Error(Exception("Could not parse response body to deck model"));
       }
 
-      var deck = apiAdapter.toCore(response.body!);
+      var deck = _apiAdapter.toCore(response.body!);
       return Success(deck);
     }
   }
 
+  /// Deleta usuário na api e trata a resposta da api, retornando um [Result]
   @override
   Future<Result> deleteDeck(List<String> ids) async {
     final response = await _api.deleteDeck(ids);
@@ -87,6 +92,7 @@ class DeckRepository extends DeckRepositoryInterface {
     }
   }
 
+  /// Faz uma cópia de baralho e trata a resposta da api, convertendo para um modelo do core da aplicação, encapsulado em um [Result]
   @override
   Future<DeckResult> copyDeck(String id) async {
     final response = await _api.copyDeck(id);
@@ -99,7 +105,7 @@ class DeckRepository extends DeckRepositoryInterface {
         return Error(Exception("Could not parse response body to deck model"));
       }
 
-      var deck = apiAdapter.toCore(response.body!);
+      var deck = _apiAdapter.toCore(response.body!);
       return Success(deck);
     }
   }

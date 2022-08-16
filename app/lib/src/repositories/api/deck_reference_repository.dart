@@ -5,12 +5,16 @@ import 'package:memento_studio/src/entities.dart';
 import 'adapters/api_deck_adapter.dart';
 import 'interfaces/deck_reference_repository_interface.dart';
 
+/// {@category Repositórios}
+/// Repositório da api de referência de baralho.
 class DeckReferenceRepository extends DeckReferenceRepositoryInterface {
+  // Serviço do tipo DeckReferenceApi
   DeckReferenceApi api;
-  final ApiDeckAdapter apiAdapter;
+  final ApiDeckAdapter _apiAdapter;
 
-  DeckReferenceRepository(this.api) : apiAdapter = KiwiContainer().resolve();
+  DeckReferenceRepository(this.api) : _apiAdapter = KiwiContainer().resolve();
 
+  /// Lê referências de baralho e trata a resposta da api, convertendo para um modelo do core da aplicação, encapsulado em um [Result]
   @override
   Future<DeckListReferencesResult> getDecks(int page, int pageSize,
       {Map<String, dynamic>? filter}) async {
@@ -28,6 +32,7 @@ class DeckReferenceRepository extends DeckReferenceRepositoryInterface {
     }
   }
 
+  /// Lê baralho público e trata resposta da api, convertendo para um modelo do core da aplicação, encapsulado em um [Result]
   @override
   Future<DeckResult> getDeck(String id) async {
     final response = await api.getDeck(id);
@@ -39,7 +44,7 @@ class DeckReferenceRepository extends DeckReferenceRepositoryInterface {
         return Error(Exception("Could not parse response body to deck model"));
       }
 
-      var deck = apiAdapter.toCore(response.body!);
+      var deck = _apiAdapter.toCore(response.body!);
       return Success(deck);
     }
   }

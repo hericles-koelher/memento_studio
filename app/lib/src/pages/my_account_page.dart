@@ -3,6 +3,8 @@ import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/widgets.dart';
 
+/// {@category Páginas}
+/// Página da conta do usuário. Atualmente só contém o botão de logout.
 class MyAccountPage extends StatelessWidget {
   const MyAccountPage({Key? key}) : super(key: key);
 

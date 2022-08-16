@@ -8,6 +8,8 @@ import 'package:memento_studio/src/state_managers.dart';
 import 'package:memento_studio/src/utils.dart';
 import 'package:uuid/uuid.dart';
 
+/// {@category Páginas}
+/// Página de visualizar um baralho público.
 class DeckRefPage extends StatefulWidget {
   final Deck deck;
 

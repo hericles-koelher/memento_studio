@@ -12,6 +12,8 @@ import 'package:memento_studio/src/state_managers.dart';
 
 import '../pages.dart';
 
+/// {@category Utils}
+/// Rotas da aplicação
 class MSRouter {
   late final GoRouter _router;
   late final _RouteRefresher _refresher;

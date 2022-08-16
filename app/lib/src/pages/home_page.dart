@@ -12,6 +12,8 @@ import 'package:memento_studio/src/widgets.dart';
 import '../entities.dart';
 import '../utils.dart';
 
+/// {@category Páginas}
+/// Página principal da aplicação, exibe os baralhos salvos localmente do usuário.
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 

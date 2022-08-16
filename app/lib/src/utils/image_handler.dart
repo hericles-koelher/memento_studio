@@ -6,10 +6,14 @@ import 'package:kiwi/kiwi.dart';
 import 'package:memento_studio/src/exceptions.dart';
 import 'package:path/path.dart' as p;
 
+/// {@category Utils}
+/// Regex do nome das imagens possíveis
 final RegExp _msImageNameRegex = RegExp(
   r"^.*(?:(?:Front)|(?:Back)|(?:Cover))_.*\.(?:(?:bmp)|(?:gif)|(?:jpeg)|(?:jpg)|(?:png)|(?:webp)|(?:heif)|(?:heic))$",
 );
 
+/// {@category Utils}
+/// Cria o nome da imagem de um card
 String _createCardFileName({
   required bool isFront,
   required String cardId,
@@ -17,8 +21,12 @@ String _createCardFileName({
 }) =>
     "${isFront ? "Front_" : "Back_"}$cardId.$extension";
 
+/// {@category Utils}
+/// Pega o nome da extensão de um arquivo
 String getFileExtension(String name) => name.split(".").last;
 
+/// {@category Utils}
+/// Imagem que é armazenada no banco local
 class MemoryImage {
   final String extension;
   final Uint8List bytes;
@@ -29,6 +37,8 @@ class MemoryImage {
   });
 }
 
+/// {@category Utils}
+/// Pega bytes de imagem dado um caminho local
 Future<Uint8List> getImageBytes(String path) {
   if (_msImageNameRegex.hasMatch(path)) {
     return File(path).readAsBytes();
@@ -39,6 +49,8 @@ Future<Uint8List> getImageBytes(String path) {
   }
 }
 
+/// {@category Utils}
+/// Pega imagem do dispositivo do usuário
 Future<MemoryImage?> getImageFromDevice({required bool fromGallery}) async {
   ImagePicker picker = KiwiContainer().resolve();
 
@@ -56,6 +68,8 @@ Future<MemoryImage?> getImageFromDevice({required bool fromGallery}) async {
   return null;
 }
 
+/// {@category Utils}
+/// Armazena imagem de card localmente
 Future<String> storeCardImageIntoAppFolder({
   required MemoryImage image,
   required bool isFront,
@@ -86,6 +100,8 @@ Future<String> storeCardImageIntoAppFolder({
   return path;
 }
 
+/// {@category Utils}
+/// Armazena imagem de capa de baralho localmente
 Future<String> storeDeckCoverImageIntoAppFolder({
   required MemoryImage image,
   required String deckId,
@@ -110,6 +126,8 @@ Future<String> storeDeckCoverImageIntoAppFolder({
   return path;
 }
 
+/// {@category Utils}
+/// Deleta imagem localmente, dado um caminho
 Future<void> deleteLocalImage(String? path) async {
   if (path == null) return;
   try {

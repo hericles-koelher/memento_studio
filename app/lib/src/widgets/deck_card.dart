@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:memento_studio/src/entities.dart' as ms_entities;
 import 'package:memento_studio/src/utils.dart';
 
+/// {@category Widgets}
+/// Deck exibido na home
 class DeckCard extends StatelessWidget {
   final ms_entities.Deck deck;
   final double coverDimension;

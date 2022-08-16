@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../utils/constants.dart';
 
+/// {@category Widgets}
+/// Botão customizado
 class MSButton extends StatelessWidget {
   final Widget child;
   final VoidCallback onPressed;

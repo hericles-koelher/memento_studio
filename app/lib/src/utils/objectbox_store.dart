@@ -1,5 +1,7 @@
 import 'package:memento_studio/objectbox.g.dart';
 
+/// {@category Utils}
+/// Armazenamento local da aplicação
 class ObjectBox {
   /// The Store of this app.
   late final Store store;

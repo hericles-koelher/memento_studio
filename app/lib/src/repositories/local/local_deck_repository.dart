@@ -1,5 +1,7 @@
 import 'package:memento_studio/src/entities.dart';
 
+/// {@category Repositórios}
+/// Interface do repositório de baralhos locais
 abstract class LocalDeckRepository {
   Future<void> create(LocalDeckBase deck);
   Future<int> count();

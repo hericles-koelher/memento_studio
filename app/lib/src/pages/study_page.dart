@@ -8,15 +8,9 @@ import 'package:memento_studio/src/utils.dart';
 import 'package:memento_studio/src/widgets/card_view.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
+/// {@category Páginas}
+/// Página de estudos de um baralho. Exibe as cartas uma de cada vez, virando-a ao toque.
 class StudyPage extends StatefulWidget {
-  static final cardsColors = <Color>[
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.yellow,
-    Colors.deepPurple
-  ]; // TODO: Trocar para paleta de cores em outro lugar
-
   final String deckId;
   final DeckCollectionCubit collectionCubit;
 
