@@ -1,13 +1,14 @@
-<h1>Memento Studio</h1>
+# Memento Studio
 
 <!-- TODO: Arrumar isso aqui no final -->
 <p>
- <a href="#about">About</a> •
- <a href="#features">Features</a> •
- <a href="#how-it-works">How it works</a> •
- <a href="#tech-stack">Tech Stack</a> •
- <a href="#author">Author</a> •
- <a href="#user-content-license">License</a>
+ <a href="#memento-studio">Sobre</a> •
+ <a href="#principais-tecnologias-utilizadas">Tecnologias Utilizadas</a> •
+ <a href="#instalação-e-uso">Instalação e Uso</a> •
+ <a href="#demonstração">Demonstração</a> •
+ <a href="#documentação">Documentação</a> •
+ <a href="#autores">Autores</a> •
+ <a href="#contribuindo">Contribuindo</a>
 
 </p>
 
@@ -92,7 +93,7 @@ Hericles Bruno Koelher – [@hericles-koelher](https://github.com/hericles-koelh
 
 Mikaella Ferreira – [@mikaellafs](https://github.com/mikaellafs) – mikaellaferreira0@gmail.com
 
-## Contributing
+## Contribuindo
 
 1. Faça o _fork_ do projeto (<https://github.com/yourname/yourproject/fork>)
 2. Crie uma _branch_ para sua modificação (`git checkout -b feature/fooBar`)
